@@ -166,7 +166,7 @@ let pageTitle = document.title;
 if (pageTitle.includes('-')) {
     pageTitle = pageTitle.split('-')[0].trim();
 }
-const isHomePage = window.location.pathname.includes('home.html') || window.location.pathname.endsWith('/');
+const isHomePage = window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/');
 const breadcrumbName = isHomePage ? '首頁' : pageTitle;
 
 // 6. 生成 HTML 結構 (更新版：加入超連結並優化首頁路徑)
