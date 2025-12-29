@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頁面不存在 - LAN Apps Studio</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .error-container {
+            padding: 20px;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 0;
+            color: #e74c3c;
+            line-height: 1;
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+
+        .back-home {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .back-home:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-container">
+        <p class="error-code">404</p>
+        <p class="error-message">糟糕！找不到您要尋找的頁面。</p>
+        <a href="index.html" class="back-home">返回首頁</a>
+    </div>
+
+    <script src="navbar.js"></script>
+</body>
+</html>
