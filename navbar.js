@@ -174,7 +174,7 @@ const navbarHTML = `
 <nav id="custom-navbar">
     <div class="logo">LAN Apps Studio</div>
     <ul>
-        <li class="nav-item"><a href="home.html">首頁</a></li>
+        <li class="nav-item"><a href="index.html">首頁</a></li>
         <li class="nav-item"><a href="跑馬燈.html">跑馬燈</a></li>
         <li class="nav-item"><a href="番茄鐘 1.0.html">番茄鐘</a></li>
         <li class="nav-item">
@@ -188,8 +188,8 @@ const navbarHTML = `
 
 // 判斷麵包屑顯示內容：如果是首頁就只顯示「首頁」，否則顯示「首頁 > 頁面名」
 const breadcrumbContent = isHomePage 
-    ? `<a href="home.html" style="color:inherit; text-decoration:none;">首頁</a>` 
-    : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${breadcrumbName}`;
+    ? `<a href="index.html" style="color:inherit; text-decoration:none;">首頁</a>` 
+    : `<a href="index.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${breadcrumbName}`;
 
 const footerHTML = `
 <footer id="custom-footer">
