@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專業跑馬燈控制台 (HTML標題增強版)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-color: #000000;
+            --title-bg-color: #000000;
+            --title-text-color: #ffffff;
+            --content-text-color: #ffffff;
+            --panel-bg: #ffffff;
+            --font-weight: 400;
+            --title-size: 80px;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* --- 跑馬燈顯示區域 --- */
+        #marquee-display {
+            width: 100%;
+            height: 300px;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: height 0.3s ease;
+            font-weight: var(--font-weight);
+        }
+
+        #marquee-display.fullscreen {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
+
+        #fixed-title {
+            padding: 0 30px;
+            white-space: nowrap;
+            z-index: 10;
+            background-color: var(--title-bg-color);
+            color: var(--title-text-color);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: var(--title-size);
+        }
+
+        #marquee-container {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            color: var(--content-text-color);
+        }
+
+        #marquee-content {
+            position: absolute;
+            white-space: nowrap;
+            will-change: transform;
+            line-height: 1.2;
+        }
+
+        /* 內容樣式解析器支持 */
+        .highlight { background-color: yellow; color: black; padding: 0 10px; border-radius: 4px; }
+        .outlined { -webkit-text-stroke: 1px white; color: transparent; }
+        .blinking { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- 控制面板 --- */
+        #control-panel {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-left: 5px solid #007bff;
+            padding-left: 10px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title:first-child { margin-top: 0; }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
+            display: flex;
+        }
+
+        label { font-size: 0.9rem; color: #666; }
+
+        input[type="text"], input[type="number"], select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .file-ops { display: flex; gap: 10px; }
+        .btn-file { background: #6f42c1; color: white; font-size: 0.85rem; padding: 5px 12px; }
+
+        .tag-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: #eef2f7;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tag-btn {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+        }
+        .tag-btn:hover { background: #007bff; color: white; border-color: #007bff; }
+
+        .message-entry {
+            display: grid;
+            grid-template-columns: 1.5fr 3fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn-add { background: #28a745; color: white; }
+        .btn-remove { background: #dc3545; color: white; }
+        .btn-primary { background: #007bff; color: white; width: 100%; font-size: 1.1rem; margin-top: 10px;}
+        .btn-expand { background: #6c757d; color: white; }
+
+        .fullscreen-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+
+<div id="marquee-display">
+    <div id="fixed-title">標題</div>
+    <div id="marquee-container">
+        <div id="marquee-content">請設定訊息並點擊更新</div>
+    </div>
+</div>
+
+<div id="control-panel">
+    
+    <div class="section-title">
+        存檔與載入
+        <div class="file-ops">
+            <button class="btn-file" onclick="exportConfig()">💾 匯出設定檔 (.json)</button>
+            <button class="btn-file" onclick="document.getElementById('import-file').click()">📂 載入設定檔</button>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importConfig(event)">
+        </div>
+    </div>
+
+    <div class="section-title">文字與樣式設定</div>
+    <div class="grid-layout">
+        <div class="input-group">
+            <label>跑馬燈內容字體大小 (px)</label>
+            <input type="number" id="cfg-size" value="80">
+        </div>
+        <div class="input-group">
+            <label>標題字體大小 (px)</label>
+            <input type="number" id="cfg-title-size" value="80">
+        </div>
+        <div class="input-group">
+            <label>移動速度 (1-30)</label>
+            <input type="number" id="cfg-speed" value="5">
+        </div>
+        <div class="input-group">
+            <label>流動方向</label>
+            <select id="cfg-direction">
+                <option value="right-to-left">由右向左 ←</option>
+                <option value="left-to-right">由左向右 →</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cfg-bold" checked>
+                <label for="cfg-bold">使用粗體顯示</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">色彩自訂</div>
+    <div class="grid-layout">
+        <div class="input-group">
+            <label>跑馬燈背景</label>
+            <input type="color" id="cfg-bg-color" value="#000000">
+        </div>
+        <div class="input-group">
+            <label>標題背景</label>
+            <input type="color" id="cfg-title-bg-color" value="#000000">
+        </div>
+        <div class="input-group">
+            <label>標題文字預設色</label>
+            <input type="color" id="cfg-title-text-color" value="#ffffff">
+        </div>
+        <div class="input-group">
+            <label>內容文字預設色</label>
+            <input type="color" id="cfg-content-text-color" value="#ffffff">
+        </div>
+        <div class="input-group" style="justify-content: flex-end; grid-column: span 2;">
+            <button class="btn-expand" onclick="toggleFullscreen()">全螢幕顯示</button>
+        </div>
+    </div>
+
+    <div class="section-title">HTML 標籤快速工具 (適用標題與內容)</div>
+    <div class="tag-toolbar">
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#ff4d4d\'>', '</span>')">🔴 紅色</button>
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#4dff4d\'>', '</span>')">🟢 綠色</button>
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#4da6ff\'>', '</span>')">🔵 藍色</button>
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#ffff4d\'>', '</span>')">🟡 黃色</button>
+        <button class="tag-btn" onclick="insertTag('<span class=\'highlight\'>', '</span>')">🖍️ 螢光筆</button>
+        <button class="tag-btn" onclick="insertTag('<span class=\'outlined\'>', '</span>')">🔲 鏤空</button>
+        <button class="tag-btn" onclick="insertTag('<span class=\'blinking\'>', '</span>')">✨ 閃爍</button>
+        <button class="tag-btn" onclick="insertTag('<b>', '</b>')"><b>B</b> 粗體</button>
+        <button class="tag-btn" onclick="insertTag('<i>', '</i>')"><i>I</i> 斜體</button>
+        <button class="tag-btn" onclick="insertTag('<u>', '</u>')"><u>U</u> 底線</button>
+        <button class="tag-btn" onclick="insertTag('<br/>', '')">↵ 換行</button>
+        <button class="tag-btn" onclick="insertTag('{time}', '')">⏰ 時間</button>
+    </div>
+
+    <div class="section-title">訊息組合列表</div>
+    <div id="message-list"></div>
+    
+    <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button class="btn-add" onclick="addMessageField('', '')">+ 新增訊息</button>
+    </div>
+
+    <button class="btn-primary" onclick="applySettings()">立即更新跑馬燈</button>
+</div>
+
+<div id="fullscreen-hint" class="fullscreen-hint">按 ESC 鍵退出全螢幕</div>
+
+<script>
+    const displayArea = document.getElementById('marquee-display');
+    const marqueeContainer = document.getElementById('marquee-container');
+    const marqueeContent = document.getElementById('marquee-content');
+    const fixedTitleElement = document.getElementById('fixed-title');
+    const messageList = document.getElementById('message-list');
+    const hint = document.getElementById('fullscreen-hint');
+
+    let animationId = null;
+    let currentMsgIndex = 0;
+    let dataQueue = []; 
+    let speed = 5;
+    let direction = 'right-to-left';
+    let timeUpdateInterval = null;
+    let lastFocusedInput = null;
+
+    function attachFocusListener(input) {
+        input.addEventListener('focus', function() {
+            lastFocusedInput = this;
+        });
+    }
+
+    function addMessageField(title = '', content = '') {
+        const div = document.createElement('div');
+        div.className = 'message-entry';
+        div.innerHTML = `
+            <div class="input-group">
+                <label>標題 (可含HTML)</label>
+                <input type="text" class="msg-title" placeholder="標題..." value="${title}">
+            </div>
+            <div class="input-group">
+                <label>內容 (可含HTML)</label>
+                <input type="text" class="msg-content" placeholder="跑馬燈內容..." value="${content}">
+            </div>
+            <button class="btn-remove" onclick="removeEntry(this)" style="align-self: center;">-</button>
+        `;
+        messageList.appendChild(div);
+        
+        // 兩個輸入框都監聽焦點，以便工具列插入標籤
+        const titleInput = div.querySelector('.msg-title');
+        const contentInput = div.querySelector('.msg-content');
+        attachFocusListener(titleInput);
+        attachFocusListener(contentInput);
+        
+        if (!content && !title) contentInput.focus();
+        return div;
+    }
+
+    function removeEntry(btn) {
+        btn.parentElement.remove();
+    }
+
+    function insertTag(startTag, endTag) {
+        if (!lastFocusedInput) return;
+        const input = lastFocusedInput;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        const selectedText = text.substring(start, end);
+        input.value = text.substring(0, start) + startTag + selectedText + endTag + text.substring(end);
+        input.focus();
+        // 觸發輸入事件以防有自動保存需求
+        input.dispatchEvent(new Event('input'));
+    }
+
+    function exportConfig() {
+        const config = {
+            style: {
+                contentSize: document.getElementById('cfg-size').value,
+                titleSize: document.getElementById('cfg-title-size').value,
+                speed: document.getElementById('cfg-speed').value,
+                direction: document.getElementById('cfg-direction').value,
+                isBold: document.getElementById('cfg-bold').checked,
+                bgColor: document.getElementById('cfg-bg-color').value,
+                titleBgColor: document.getElementById('cfg-title-bg-color').value,
+                titleTextColor: document.getElementById('cfg-title-text-color').value,
+                contentTextColor: document.getElementById('cfg-content-text-color').value
+            },
+            messages: []
+        };
+
+        document.querySelectorAll('.message-entry').forEach(entry => {
+            config.messages.push({
+                title: entry.querySelector('.msg-title').value,
+                content: entry.querySelector('.msg-content').value
+            });
+        });
+
+        const blob = new Blob([JSON.stringify(config, null, 2)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "marquee_pro_config.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function importConfig(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const config = JSON.parse(e.target.result);
+                document.getElementById('cfg-size').value = config.style.contentSize;
+                document.getElementById('cfg-title-size').value = config.style.titleSize;
+                document.getElementById('cfg-speed').value = config.style.speed;
+                document.getElementById('cfg-direction').value = config.style.direction;
+                document.getElementById('cfg-bold').checked = config.style.isBold;
+                document.getElementById('cfg-bg-color').value = config.style.bgColor;
+                document.getElementById('cfg-title-bg-color').value = config.style.titleBgColor;
+                document.getElementById('cfg-title-text-color').value = config.style.titleTextColor;
+                document.getElementById('cfg-content-text-color').value = config.style.contentTextColor;
+
+                messageList.innerHTML = '';
+                config.messages.forEach(msg => {
+                    addMessageField(msg.title, msg.content);
+                });
+
+                applySettings();
+            } catch (err) {
+                alert('載入失敗，請檢查檔案格式。');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            displayArea.requestFullscreen().catch(() => {
+                displayArea.classList.toggle('fullscreen');
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            displayArea.classList.add('fullscreen');
+            hint.style.display = 'block';
+        } else {
+            displayArea.classList.remove('fullscreen');
+            hint.style.display = 'none';
+        }
+    });
+
+    function getFormattedTime() {
+        return new Date().toLocaleTimeString('zh-TW', { hour12: false });
+    }
+
+    function updateDisplayContent() {
+        if (dataQueue.length === 0) return;
+        const currentData = dataQueue[currentMsgIndex];
+        
+        // 處理標題中的時間變數與HTML
+        let titleHtml = currentData.title;
+        if (titleHtml.includes('{time}')) titleHtml = titleHtml.replace(/{time}/g, getFormattedTime());
+        fixedTitleElement.innerHTML = titleHtml;
+        
+        // 處理內容中的時間變數與HTML
+        let contentHtml = currentData.content;
+        if (contentHtml.includes('{time}')) contentHtml = contentHtml.replace(/{time}/g, getFormattedTime());
+        marqueeContent.innerHTML = contentHtml;
+    }
+
+    function applySettings() {
+        const style = {
+            bg: document.getElementById('cfg-bg-color').value,
+            tBg: document.getElementById('cfg-title-bg-color').value,
+            tText: document.getElementById('cfg-title-text-color').value,
+            cText: document.getElementById('cfg-content-text-color').value,
+            cSize: document.getElementById('cfg-size').value + 'px',
+            tSize: document.getElementById('cfg-title-size').value + 'px',
+            isBold: document.getElementById('cfg-bold').checked
+        };
+        
+        speed = parseInt(document.getElementById('cfg-speed').value);
+        direction = document.getElementById('cfg-direction').value;
+
+        document.body.style.setProperty('--bg-color', style.bg);
+        document.body.style.setProperty('--title-bg-color', style.tBg);
+        document.body.style.setProperty('--title-text-color', style.tText);
+        document.body.style.setProperty('--content-text-color', style.cText);
+        document.body.style.setProperty('--font-weight', style.isBold ? '900' : '400');
+        document.body.style.setProperty('--title-size', style.tSize);
+        displayArea.style.fontSize = style.cSize;
+
+        dataQueue = [];
+        document.querySelectorAll('.message-entry').forEach(entry => {
+            const t = entry.querySelector('.msg-title').value;
+            const c = entry.querySelector('.msg-content').value;
+            if (c.trim() || t.trim()) dataQueue.push({ title: t, content: c });
+        });
+
+        if (dataQueue.length === 0) dataQueue = [{ title: "系統", content: "請在下方列表輸入訊息" }];
+
+        if (animationId) cancelAnimationFrame(animationId);
+        if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+        
+        timeUpdateInterval = setInterval(updateDisplayContent, 1000);
+        currentMsgIndex = 0;
+        startMarquee();
+    }
+
+    function startMarquee() {
+        updateDisplayContent();
+        
+        const currentData = dataQueue[currentMsgIndex];
+        fixedTitleElement.style.display = currentData.title.trim() ? 'flex' : 'none';
+        
+        const containerWidth = marqueeContainer.offsetWidth;
+        marqueeContent.style.transform = 'translateX(0px)'; 
+        const textWidth = marqueeContent.offsetWidth;
+        
+        let pos = (direction === 'right-to-left') ? containerWidth : -textWidth;
+
+        function step() {
+            if (direction === 'right-to-left') {
+                pos -= speed;
+                if (pos < -textWidth) {
+                    currentMsgIndex = (currentMsgIndex + 1) % dataQueue.length;
+                    startMarquee();
+                    return;
+                }
+            } else {
+                pos += speed;
+                if (pos > containerWidth) {
+                    currentMsgIndex = (currentMsgIndex + 1) % dataQueue.length;
+                    startMarquee();
+                    return;
+                }
+            }
+            marqueeContent.style.transform = `translateX(${pos}px)`;
+            animationId = requestAnimationFrame(step);
+        }
+        animationId = requestAnimationFrame(step);
+    }
+
+    // 初始化範例
+    addMessageField("<span class='blinking'>緊急通知</span>", "這是一個<span style='color:#ffff4d'>測試訊息</span>，請查看標題特效！");
+    addMessageField("目前時間", "現在是 {time}");
+    
+    applySettings();
+
+    window.addEventListener('resize', () => {
+        if(dataQueue.length > 0) applySettings();
+    });
+</script>
+<script src="navbar.js"></script>
+</body>
+</html>
