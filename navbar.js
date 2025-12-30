@@ -5,7 +5,6 @@ const style = `
         src: url('TaipeiSansTCBeta-Bold.ttf') format('truetype');
         font-weight: normal; 
         font-style: normal;
-        font-display: swap; /* 讓文字先出現，不等待下載 */
     }
 
     html { scroll-behavior: smooth; }
