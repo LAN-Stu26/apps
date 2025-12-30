@@ -195,12 +195,12 @@ document.body.insertAdjacentHTML('beforeend', footerHTML);
 if (is404Page) {
     const errorMsg = document.querySelector('.error-message');
     if (errorMsg) {
-        errorMsg.innerHTML += `<br><span style="font-size:1rem; opacity:0.8; margin-top:20px; display:block;">系統將在 <span id="redirect-timer">5</span> 秒後自動返回首頁</span>`;
+        errorMsg.innerHTML += `<br><span style="font-size:1rem; opacity:0.8;">系統將在 <span id="redirect-timer">5</span> 秒後自動返回首頁</span>`;
         let timeLeft = 5;
         const timerElement = document.getElementById('redirect-timer');
         const countdown = setInterval(() => {
             timeLeft--;
-            if(timerElement) timerElement.textContent = timeLeft;
+            timerElement.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 window.location.href = 'index.html';
