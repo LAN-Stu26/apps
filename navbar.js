@@ -1,14 +1,16 @@
 const style = `
 <style>
-    /* 1. 引用字體 */
     @font-face {
         font-family: 'MyCustomFont'; 
         src: url('TaipeiSansTCBeta-Bold.ttf') format('truetype');
-        font-weight: normal; font-style: normal;
+        font-weight: normal; 
+        font-style: normal;
+        font-display: swap; /* 讓文字先出現，不等待下載 */
     }
 
     html { scroll-behavior: smooth; }
 
+    /* 2. 強制初始化排版 */
     body {
         font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif !important;
         margin: 0 !important;
@@ -16,6 +18,7 @@ const style = `
         display: flex !important;
         flex-direction: column !important;
         min-height: 100vh !important;
+        background-color: #1d1d1d;
     }
 
     /* 確保內容不被固定的導覽列遮住 */
