@@ -152,17 +152,31 @@ document.head.insertAdjacentHTML('beforeend', style);
 document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 document.body.insertAdjacentHTML('beforeend', footerHTML);
 
-// 8. 404 自動跳轉邏輯
+// 8. 自動注入 Favicon (.png)
+(function() {
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    link.href = '標籤頭像.png'; 
+    document.getElementsByTagName('head')[0].appendChild(link);
+    
+    // Apple Touch Icon
+    const appleLink = document.createElement('link');
+    appleLink.rel = 'apple-touch-icon';
+    appleLink.href = '標籤頭像.png';
+    document.getElementsByTagName('head')[0].appendChild(appleLink);
+})();
+
+// 9. 404 自動跳轉邏輯
 if (is404Page) {
-    // 假設你在 404.html 中有一個容器或是想在 error-message 後面加字
     const errorMsg = document.querySelector('.error-message');
     if (errorMsg) {
-        errorMsg.innerHTML += `<br><span style="font-size:1rem; opacity:0.8;">系統將在 <span id="redirect-timer">5</span> 秒後自動返回首頁</span>`;
+        errorMsg.innerHTML += `<br><span style="font-size:1rem; opacity:0.8; margin-top:20px; display:block;">系統將在 <span id="redirect-timer">5</span> 秒後自動返回首頁</span>`;
         let timeLeft = 5;
         const timerElement = document.getElementById('redirect-timer');
         const countdown = setInterval(() => {
             timeLeft--;
-            timerElement.textContent = timeLeft;
+            if(timerElement) timerElement.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 window.location.href = 'index.html';
