@@ -1,8 +1,3 @@
-/**
- * LAN Apps Studio - 核心 UI 組件 (導覽列 & 頁尾)
- * 更新：導覽列永久不透明、新增 404 自動跳轉邏輯
- */
-
 const style = `
 <style>
     /* 1. 引用字體 */
@@ -33,7 +28,7 @@ const style = `
     #custom-navbar {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 70px;
-        background: rgba(44, 62, 80, 1) !important; /* 直接設定為不透明 */
+        background: rgba(0, 0, 0, 1) !important; /* 直接設定為不透明 */
         display: flex !important;
         justify-content: space-between;
         align-items: center;
@@ -45,7 +40,7 @@ const style = `
     }
 
     #custom-navbar .logo {
-        color: #ffffff; font-weight: bold; font-size: 1.4rem;
+        color: #ffd966; font-weight: bold; font-size: 1.4rem;
     }
 
     #custom-navbar ul {
@@ -53,10 +48,10 @@ const style = `
     }
 
     #custom-navbar ul li a {
-        color: #ffffff; text-decoration: none; font-size: 1.05rem; transition: color 0.3s;
+        color: #ffffffff; text-decoration: none; font-size: 1.05rem; transition: color 0.3s;
     }
 
-    #custom-navbar ul li a:hover { color: #3498db; }
+    #custom-navbar ul li a:hover { color: #ffd966; }
 
     /* Tooltip */
     .nav-item { position: relative; }
@@ -70,7 +65,7 @@ const style = `
 
     /* 4. 頁尾 */
     #custom-footer {
-        background-color: #2c3e50 !important;
+        background-color: #000000 !important;
         color: #ecf0f1 !important;
         padding: 40px 40px 25px 40px !important;
         margin-top: auto !important;
@@ -87,9 +82,34 @@ const style = `
         padding-bottom: 25px; margin-bottom: 20px;
     }
 
-    .breadcrumb-box h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: #bdc3c7; font-weight: normal; }
+    .breadcrumb-box h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: #ffffffff; font-weight: normal; }
     .breadcrumb-box p { margin: 0; font-size: 1.15rem; font-weight: bold; }
-    .ai-notice { font-size: 0.9rem; color: #95a5a6; }
+    .ai-notice {
+      font-size: 0.9rem;
+      /* 使用 Gemini 標誌性的藍-紫-紅漸層 */
+      background: linear-gradient(
+        90deg, 
+        #4285f4 0%, 
+        #9b72cb 30%, 
+        #d96570 70%, 
+        #f3af5f 100%
+      );
+  
+      /* 將背景限制在文字區域並讓文字透明 */
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+
+      /* 增加一點字重，讓漸層效果更明顯 */
+      font-weight: 500;
+  
+      /* 確保漸層在行內元素上也能正確渲染 */
+      display: inline-block;
+  
+      /* 增加一點點字母間距，提升精緻感 */
+      letter-spacing: 0.02em;
+    }
     .footer-bottom { text-align: center; font-size: 0.85rem; color: #7f8c8d; }
 
     /* 404 倒數計時文字樣式 */
@@ -122,6 +142,10 @@ const navbarHTML = `
             <span class="tooltip-text">此工具由 .sb3 檔案轉成 html，會有相容問題</span>
         </li>
         <li class="nav-item"><a href="r_c-timer.html">魔方計時器</a></li>
+        <li class="nav-item">
+            <a href="https://www.apps.lan-stu.x10.mx/">返回舊版網站</a>
+            <span class="tooltip-text">這個網站非程式碼製作，部分功能遭可能無法運作!</span>
+        </li>
     </ul>
 </nav>
 `;
