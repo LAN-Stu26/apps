@@ -1,8 +1,6 @@
 const style = `
 <style>
     @font-face {
-        font-family: 'MyCustomFont'; 
-        src: url('TaipeiSansTCBeta-Bold.ttf') format('truetype');
         font-weight: normal; 
         font-style: normal;
     }
@@ -11,7 +9,7 @@ const style = `
 
     /* 2. 強制初始化排版 */
     body {
-        font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif !important;
+        font-family:  'Noto Sans TC', sans-serif !important;
         margin: 0 !important;
         padding: 0 !important;
         display: flex !important;
