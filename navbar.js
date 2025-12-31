@@ -1,166 +1,197 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>最新公告 - LAN Apps Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gemini-gradient: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%);
-            --dark-bg: #121212;
-            --card-bg: #2e2e2e;
-        }
+/**
+ * LAN Apps Studio - 核心 UI 組件 (Dropdown 升級版)
+ */
 
-        body {
-            background-color: var(--dark-bg);
-            color: #ffffff;
-            line-height: 1.6;
-        }
+const style = `
+<style>
+    /* 1. 字體與基礎排版 */
+    html { scroll-behavior: smooth; }
+    body {
+        font-family: 'Noto Sans TC', sans-serif !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+        background-color: #1d1d1d;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+    body > *:not(#custom-navbar):not(#custom-footer) {
+        flex: 1 0 auto;
+        padding-top: 70px;
+    }
 
-        .page-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
+    /* 2. 導覽列核心 */
+    #custom-navbar {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 70px;
+        background: #000000 !important;
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 40px;
+        box-sizing: border-box;
+        z-index: 2147483647 !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
 
-        .page-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: var(--gemini-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
+    #custom-navbar .logo {
+        color: #ffd966; font-weight: bold; font-size: 1.4rem;
+    }
 
-        .page-header p {
-            color: #bdc3c7;
-            font-size: 1.1rem;
-        }
+    #custom-navbar ul {
+        list-style: none; display: flex; gap: 20px; margin: 0; padding: 0;
+    }
 
-        /* 公告卡片樣式 */
-        .news-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border-left: 5px solid #4285f4;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
+    #custom-navbar ul li { position: relative; } /* 給子選單定位用 */
 
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
+    #custom-navbar ul li a, .dropbtn {
+        color: #ffffff; text-decoration: none; font-size: 1.05rem; 
+        padding: 10px 15px; display: block; transition: 0.3s;
+        cursor: pointer;
+    }
 
-        .news-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.1);
-        }
+    #custom-navbar ul li a:hover, .dropdown:hover .dropbtn { color: #ffd966; }
 
-        .tag-update { color: #3498db; border: 1px solid #3498db; }
-        .tag-important { color: #e74c3c; border: 1px solid #e74c3c; }
-        .tag-new { color: #2ecc71; border: 1px solid #2ecc71; }
+    /* 3. 下拉選單 (Dropdown) 樣式 */
+    .dropdown-content {
+        display: none; /* 預設隱藏 */
+        position: absolute;
+        background-color: #1a1a1a;
+        min-width: 180px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+        border-radius: 8px;
+        top: 100%; /* 剛好在導覽列下方 */
+        left: 0;
+        overflow: hidden;
+        border: 1px solid #333;
+    }
 
-        .news-date {
-            float: right;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
+    .dropdown-content a {
+        color: #ccc !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem !important;
+        border-bottom: 1px solid #222;
+    }
 
-        .news-title {
-            font-size: 1.4rem;
-            margin: 0 0 10px 0;
-            color: #ffd966; /* 配合你 logo 的金黃色 */
-        }
+    .dropdown-content a:last-child { border-bottom: none; }
+    .dropdown-content a:hover {
+        background-color: #ffd966 !important;
+        color: #000 !important;
+    }
 
-        .news-content {
-            color: #ecf0f1;
-            font-size: 1rem;
-        }
+    /* 滑鼠移入 li 時顯示下拉內容 */
+    .dropdown:hover .dropdown-content {
+        display: block;
+        animation: fadeInDown 0.3s ease;
+    }
 
-        .news-content ul {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        /* 響應式微調 */
-        @media (max-width: 600px) {
-            .news-date { float: none; display: block; margin-bottom: 10px; }
-            .page-header h1 { font-size: 2rem; }
-        }
-    </style>
-</head>
-<body>
+    /* Tooltip 樣式 */
+    .tooltip-text {
+        visibility: hidden; width: 200px; background-color: #e74c3c; color: #fff;
+        text-align: center; border-radius: 6px; padding: 10px; position: absolute;
+        top: 130%; left: 50%; transform: translateX(-50%); font-size: 0.8rem;
+        opacity: 0; transition: 0.3s; pointer-events: none;
+    }
+    .nav-item:hover .tooltip-text { visibility: visible; opacity: 1; }
 
-    <div class="container">
-        <header class="page-header">
-            <h1>Studio Announcements</h1>
-            <p>掌握 LAN Apps Studio 的最新動態與版本更新</p>
-        </header>
+    /* 頁尾樣式 ... (保持你原本的 CSS 不變) */
+    #custom-footer { background-color: #000000 !important; color: #ecf0f1 !important; padding: 40px 40px 25px 40px !important; margin-top: auto !important; width: 100% !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; z-index: 99999 !important; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #ffffff1a; padding-bottom: 25px; margin-bottom: 20px; }
+    .breadcrumb-box h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: #ffffffff; font-weight: normal; }
+    .breadcrumb-box p { margin: 0; font-size: 1.15rem; font-weight: bold; }
+    .ai-notice { font-size: 0.9rem; background: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; font-weight: 500; display: inline-block; letter-spacing: 0.02em; }
+    .footer-bottom { text-align: center; font-size: 0.85rem; color: #7f8c8d; }
+    #redirect-timer { color: #e74c3c; font-weight: bold; }
 
-        <div class="news-card">
-            <span class="news-tag tag-update">Update</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">navbar.js 2.1 已經推出!!!</h2>
-            <div class="news-content">
-                更新項目:
-                <ul>
-                    <li>全新設計導覽列!</li>
-                    <li>news.js</li>
-                </div>
-        </div>
+    @media (max-width: 600px) {
+        #custom-navbar { padding: 0 15px; }
+        .footer-top { flex-direction: column; align-items: flex-start; gap: 20px; }
+    }
+</style>
+`;
 
-        <div class="news-card">
-            <span class="news-tag tag-new">New</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">news.html 已經上線!!!</h2>
-            <div class="news-content">
-                我們已經將所有更新資訊統整至這裡!!!
-            </br>感謝您耐心的等待網站更新!!!
+// 邏輯偵測 (省略部分保持原樣)
+let pageTitle = document.title.split('-')[0].trim();
+const isHomePage = window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/');
+const is404Page = window.location.pathname.includes('404.html');
+const breadcrumbName = isHomePage ? '首頁' : pageTitle;
+
+// 6. 生成帶有下拉選單的 HTML
+const navbarHTML = `
+<nav id="custom-navbar">
+    <div class="logo">LAN Apps Studio</div>
+    <ul>
+        <li class="nav-item"><a href="index.html">首頁</a></li>
+        
+        <li class="nav-item dropdown">
+            <span class="dropbtn">網頁應用工具 ▾</span>
+            <div class="dropdown-content">
+                <a href="marquee.html">跑馬燈</a>
+                <a href="pomodoro_technique.html">番茄鐘</a>
+                <a href="r_c-timer.html">魔方計時器</a>
+                <a href="#" style="color:#5b5b5b !important; cursor:not-allowed;">字數計算器 (維護中)</a>
             </div>
-        </div>
+        </li>
 
-        <div class="news-card">
-            <span class="news-tag tag-new">New</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">GitHub 官方正式版網頁上線！</h2>
-            <div class="news-content">
-                我們已成功將所有工具遷移至 GitHub Pages。現在您可以透過更簡潔的網址存取我們的服務。
-            </div>
-        </div>
+        <li class="nav-item"><a href="news.html">最新消息</a></li>
+        
+        <li class="nav-item">
+            <a href="https://www.apps.lan-stu.x10.mx/">返回舊版網站</a>
+            <span class="tooltip-text">部分地區無法使用此網域!</span>
+        </li>
+    </ul>
+</nav>
+`;
 
-        <div class="news-card">
-            <span class="news-tag tag-update">Update</span>
-            <span class="news-date">未記錄時間</span>
-            <h2 class="news-title">UI 系統大升級 (v2.0)</h2>
-            <div class="news-content">
-                本次更新重點：
-                <ul>
-                    <li>全新的黑色系不透明導覽列。</li>
-                    <li>整合 Gemini 漸層風格的 AI 標籤。</li>
-                    <li>修正番茄鐘在行動裝置上的顯示錯誤。</li>
-                    <li>新增 404 自動跳轉功能。</li>
-                </ul>
-            </div>
+const breadcrumbContent = isHomePage
+    ? `<a href="index.html" style="color:inherit; text-decoration:none;">首頁</a>`
+    : `<a href="index.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${breadcrumbName}`;
+
+const footerHTML = `
+<footer id="custom-footer">
+    <div class="footer-top">
+        <div class="breadcrumb-box">
+            <h4>你現在的位置是...</h4>
+            <p>${breadcrumbContent}</p>
         </div>
+        <div class="ai-notice">
+        js 版本: 2.1
+    </br>所有頁面皆由 AI 生成
         </div>
     </div>
-    <script src="navbar.js"></script>
-</body>
-</html>
+    <div class="footer-bottom">©2026 LAN Studio 擁有網站所有版權。</div>
+</footer>
+`;
 
+// 7. 渲染
+document.head.insertAdjacentHTML('beforeend', style);
+document.body.insertAdjacentHTML('afterbegin', navbarHTML);
+document.body.insertAdjacentHTML('beforeend', footerHTML);
+
+// 8. Favicon & 404 邏輯 (保持你原本的內容)
+(function() {
+    const link = document.createElement('link'); link.rel = 'icon'; link.type = 'image/png'; link.href = '標籤頭像.png';
+    document.getElementsByTagName('head')[0].appendChild(link);
+    const appleLink = document.createElement('link'); appleLink.rel = 'apple-touch-icon'; appleLink.href = '標籤頭像.png';
+    document.getElementsByTagName('head')[0].appendChild(appleLink);
+})();
+
+if (is404Page) {
+    const errorMsg = document.querySelector('.error-message');
+    if (errorMsg) {
+        errorMsg.innerHTML += `<br><span style="font-size:1rem; opacity:0.8;">系統將在 <span id="redirect-timer">5</span> 秒後自動返回首頁</span>`;
+        let timeLeft = 5;
+        const timerElement = document.getElementById('redirect-timer');
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timerElement) timerElement.textContent = timeLeft;
+            if (timeLeft <= 0) { clearInterval(countdown); window.location.href = 'index.html'; }
+        }, 1000);
+    }
+}
