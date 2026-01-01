@@ -10,12 +10,20 @@
             --gemini-gradient: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%);
             --dark-bg: #121212;
             --card-bg: #2e2e2e;
+            --tag-all: #bdc3c7;
+            --tag-update: #3498db;
+            --tag-important: #e74c3c;
+            --tag-new: #2ecc71;
+            --tag-other: #95a5a6;
         }
 
         body {
             background-color: var(--dark-bg);
             color: #ffffff;
             line-height: 1.6;
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding-top: 60px; /* 預留導覽列空間 */
         }
 
         .container {
@@ -26,7 +34,7 @@
 
         .page-header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .page-header h1 {
@@ -39,69 +47,110 @@
             display: inline-block;
         }
 
-        .page-header p {
-            color: #bdc3c7;
-            font-size: 1.1rem;
+        /* --- 分類選擇器樣式 --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
         }
 
-        /* 公告卡片樣式 */
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #bdc3c7;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+        }
+
+        .filter-btn.active {
+            background: #ffffff;
+            color: #121212;
+            font-weight: bold;
+            border-color: #ffffff;
+        }
+
+        /* --- 公告卡片樣式 --- */
         .news-card {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-left: 5px solid #4285f4;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: block; /* 預設顯示 */
+        }
+
+        .news-card.hidden {
+            display: none;
         }
 
         .news-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         .news-tag {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .tag-update { color: #3498db; border: 1px solid #3498db; }
-        .tag-important { color: #e74c3c; border: 1px solid #e74c3c; }
-        .tag-new { color: #2ecc71; border: 1px solid #2ecc71; }
+        /* 各類別顏色定義 */
+        .news-card[data-category="update"] { border-left-color: var(--tag-update); }
+        .tag-update { color: var(--tag-update); border: 1px solid var(--tag-update); }
+
+        .news-card[data-category="important"] { border-left-color: var(--tag-important); }
+        .tag-important { color: var(--tag-important); border: 1px solid var(--tag-important); }
+
+        .news-card[data-category="new"] { border-left-color: var(--tag-new); }
+        .tag-new { color: var(--tag-new); border: 1px solid var(--tag-new); }
+
+        .news-card[data-category="other"] { border-left-color: var(--tag-other); }
+        .tag-other { color: var(--tag-other); border: 1px solid var(--tag-other); }
 
         .news-date {
             float: right;
             color: #7f8c8d;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .news-title {
             font-size: 1.4rem;
-            margin: 0 0 10px 0;
-            color: #ffd966; /* 配合你 logo 的金黃色 */
+            margin: 0 0 12px 0;
+            color: #ffd966;
         }
 
         .news-content {
             color: #ecf0f1;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .news-content ul {
             padding-left: 20px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
-        /* 響應式微調 */
+        /* 響應式 */
         @media (max-width: 600px) {
-            .news-date { float: none; display: block; margin-bottom: 10px; }
+            .news-date { float: none; display: block; margin-bottom: 5px; }
             .page-header h1 { font-size: 2rem; }
+            .filter-container { gap: 8px; }
+            .filter-btn { padding: 6px 12px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -113,78 +162,108 @@
             <p>掌握 LAN Apps Studio 的最新動態與版本更新</p>
         </header>
 
-        <div class="news-card">
-            <span class="news-tag tag-update">update</span>
-            <span class="news-date">2026-01-01</span>
-            <h2 class="news-title">navbar.js 2.1 已經推出!!!</h2>
-            <div class="news-content">
-                更新項目:
-                <ul>
-                    <li>結合會員登入</li>
-                    <li>推出智慧型裝置適用的導覽列</li>
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterNews('all')">全部</button>
+            <button class="filter-btn" onclick="filterNews('new')">NEW</button>
+            <button class="filter-btn" onclick="filterNews('important')">IMPORTANT</button>
+            <button class="filter-btn" onclick="filterNews('update')">UPDATE</button>
+            <button class="filter-btn" onclick="filterNews('other')">其他</button>
+        </div>
+
+        <div id="news-list">
+
+            <div class="news-card" data-category="update">
+                <span class="news-tag tag-update">update</span>
+                <span class="news-date">2026-01-01</span>
+                <h2 class="news-title">navbar.js 2.1 已經推出!!!</h2>
+                <div class="news-content">
+                    更新項目:
+                    <ul>
+                        <li>結合會員登入</li>
+                        <li>推出智慧型裝置適用的導覽列</li>
+                    </ul>
                 </div>
-        </div>
-
-        <div class="news-card">
-            <span class="news-tag tag-important">important</span>
-            <span class="news-date">2026-01-01</span>
-            <h2 class="news-title">已開放登入會員!!!</h2>
-            <div class="news-content">
-                使用 Firebase 製作!!!
             </div>
-        </div>
 
-
-        <div class="news-card">
-            <span class="news-tag tag-update">Update</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">navbar.js 2.1 已經推出!!!</h2>
-            <div class="news-content">
-                更新項目:
-                <ul>
-                    <li>全新設計導覽列!</li>
-                    <li>news.html</li>
+            <div class="news-card" data-category="important">
+                <span class="news-tag tag-important">important</span>
+                <span class="news-date">2026-01-01</span>
+                <h2 class="news-title">已開放登入會員!!!</h2>
+                <div class="news-content">
+                    使用 Firebase 製作!!! 享受更完整的雲端同步體驗。
                 </div>
-        </div>
-
-        <div class="news-card">
-            <span class="news-tag tag-new">New</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">news.html 已經上線!!!</h2>
-            <div class="news-content">
-                我們已經將所有更新資訊統整至這裡!!!
-            </br>感謝您耐心的等待網站更新!!!
             </div>
-        </div>
 
-        <div class="news-card">
-            <span class="news-tag tag-new">New</span>
-            <span class="news-date">2025-12-31</span>
-            <h2 class="news-title">GitHub 官方正式版網頁上線！</h2>
-            <div class="news-content">
-                我們已成功將所有工具遷移至 GitHub Pages。現在您可以透過更簡潔的網址存取我們的服務。
+            <div class="news-card" data-category="update">
+                <span class="news-tag tag-update">Update</span>
+                <span class="news-date">2025-12-31</span>
+                <h2 class="news-title">navbar.js 2.2 已經推出!!!</h2>
+                <div class="news-content">
+                    更新項目:
+                    <ul>
+                        <li>全新設計導覽列!</li>
+                        <li>新增 news.html 頁面支援。</li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="news-card">
-            <span class="news-tag tag-update">Update</span>
-            <span class="news-date">未記錄時間</span>
-            <h2 class="news-title">UI 系統大升級 (v2.0)</h2>
-            <div class="news-content">
-                本次更新重點：
-                <ul>
-                    <li>全新的黑色系不透明導覽列。</li>
-                    <li>整合 Gemini 漸層風格的 AI 標籤。</li>
-                    <li>修正番茄鐘在行動裝置上的顯示錯誤。</li>
-                    <li>新增 404 自動跳轉功能。</li>
-                </ul>
+            <div class="news-card" data-category="new">
+                <span class="news-tag tag-new">New</span>
+                <span class="news-date">2025-12-31</span>
+                <h2 class="news-title">news.html 已經上線!!!</h2>
+                <div class="news-content">
+                    我們已經將所有更新資訊統整至這裡!!! 感謝您耐心的等待網站更新!!!
+                </div>
             </div>
-        </div>
+
+            <div class="news-card" data-category="new">
+                <span class="news-tag tag-new">New</span>
+                <span class="news-date">2025-12-31</span>
+                <h2 class="news-title">GitHub 官方正式版網頁上線！</h2>
+                <div class="news-content">
+                    我們已成功將所有工具遷移至 GitHub Pages。現在您可以透過更簡潔的網址存取我們的服務。
+                </div>
+            </div>
+
+            <div class="news-card" data-category="update">
+                <span class="news-tag tag-update">Update</span>
+                <span class="news-date">未記錄時間</span>
+                <h2 class="news-title">UI 系統大升級 (v2.0)</h2>
+                <div class="news-content">
+                    本次更新重點：
+                    <ul>
+                        <li>全新的黑色系不透明導覽列。</li>
+                        <li>整合 Gemini 漸層風格的 AI 標籤。</li>
+                        <li>修正番茄鐘在行動裝置上的顯示錯誤。</li>
+                        <li>新增 404 自動跳轉功能。</li>
+                    </ul>
+                </div>
+            </div>
 
         </div>
 
-    </div>
+    <script>
+        function filterNews(category) {
+            // 更新按鈕樣式
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
 
-    <script type="module" src="navbar.js"></script></body>
+            // 過濾卡片
+            const cards = document.querySelectorAll('.news-card');
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.classList.remove('hidden');
+                } else {
+                    if (card.getAttribute('data-category') === category) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    </script>
+    <script type="module" src="navbar.js"></script>
 </body>
 </html>
