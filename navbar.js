@@ -129,7 +129,7 @@ const navbarHTML = `
         <li class="nav-item">
             <a href="https://www.apps.lan-stu.x10.mx/">返回舊版</a>
             <span class="tooltip-text">部分地區無法使用！</span>
-        </li>
+        </li>  
         <li class="nav-item" id="auth-area">
             <a id="login-btn">載入中...</a>
         </li>
@@ -170,7 +170,7 @@ onAuthStateChanged(auth, (user) => {
             <div class="dropdown">
                 <img src="${user.photoURL}" alt="User">
                 <div class="dropdown-content" style="right:0; left:auto;">
-                    <a href="#" style="pointer-events:none; color:#ffd966 !important;">Hi, ${user.displayName}</a>
+                    <a href="#" style="pointer-events:none; color:#ffd966 !important;"><b>Hi, ${user.displayName}</b></a>
                     <a id="logout-btn" href="#">登出帳號</a>
                 </div>
             </div>`;
