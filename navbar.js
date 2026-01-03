@@ -129,7 +129,7 @@ const is404Page = window.location.pathname.includes('404.html');
 
 const navbarHTML = `
 <nav id="custom-navbar">
-    <div class="logo">LAN Apps Studio</div>
+    <div class="logo">LAN Studio</div>
     <div class="menu-toggle" id="mobile-menu-btn">
         <span></span><span></span><span></span>
     </div>
@@ -166,7 +166,7 @@ const footerHTML = `
             <h4 style="margin:0; font-size:0.85rem; color:#aaa;">現在位置：</h4>
             <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
-        <div class="ai-notice">Studio JS v2.2.15 <br> 所有頁面皆由 AI 生成</div>
+        <div class="ai-notice">Studio JS v2.5 <br> 所有頁面皆由 AI 生成</div>
     </div>
     <div style="text-align:center; font-size:0.85rem; color:#555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio 版權所有</div>
 </footer>
@@ -228,4 +228,3 @@ if (is404Page) {
 }
 
 export { auth };
-
