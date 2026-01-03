@@ -205,3 +205,5 @@ if (is404Page) {
         }, 1000);
     }
 }
+
+export { auth };
