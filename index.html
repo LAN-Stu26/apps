@@ -21,8 +21,9 @@
             overflow-x: hidden;
         }
 
-        /* --- 頁首影片區優化 --- */
+        /* --- 頁首圖片區 --- */
         .hero-header {
+            position: relative; /* 為了讓標題能絕對定位在圖片上 */
             width: 100%; 
             height: 450px;
             background-color: #000;
@@ -30,15 +31,39 @@
             justify-content: center; 
             align-items: center;
             overflow: hidden;
-            /* 防止載入前高度塌陷 */
-            aspect-ratio: 16 / 6; 
+            aspect-ratio: 16 / 6;
         }
 
-        .hero-video {
+        .hero-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
+            filter: brightness(0.7); /* 稍微調暗背景，讓標題更清楚 */
+        }
+
+        /* --- 【新增】首頁大標題樣式 --- */
+        .hero-title-box {
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #ffffff;
+            opacity: 0.9;
+            margin-top: 10px;
+            letter-spacing: 2px;
         }
 
         /* --- 主內容區 --- */
@@ -56,13 +81,13 @@
             letter-spacing: 2px;
         }
 
-        /* --- 公告區優化：預留高度減少 CLS --- */
+        /* 公告與卡片樣式維持不變... */
         #news-preview-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
-            min-height: 120px; /* 預留公告載入空間 */
+            min-height: 120px;
         }
 
         .news-mini-card {
@@ -72,7 +97,6 @@
             border-left: 4px solid var(--accent-blue);
         }
 
-        /* --- 工具卡片 Grid --- */
         .app-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -96,57 +120,42 @@
         .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
         .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
 
-        /* --- 優化：僅在支援滑鼠的裝置啟用動畫 --- */
         @media (hover: hover) {
-            .app-card {
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
+            .app-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
             .app-card:hover {
                 transform: translateY(-12px);
                 box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
                 border-color: var(--accent-blue);
             }
-            .news-mini-card {
-                transition: 0.3s;
-            }
-            .news-mini-card:hover { 
-                background: #353535; 
-            }
         }
 
-        /* --- 智慧型裝置專屬優化 (Mobile) --- */
-        @media (max-width: 992px) { 
-            .app-grid { grid-template-columns: repeat(2, 1fr); } 
+        /* RWD 手機版標題縮小 */
+        @media (max-width: 850px) {
+            .hero-title { font-size: 2.5rem; letter-spacing: 3px; }
+            .hero-subtitle { font-size: 1rem; }
+            .app-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 600px) { 
-            .app-grid { grid-template-columns: 1fr; } 
             .hero-header { height: 250px; aspect-ratio: 16 / 9; }
-            
-            /* 固定位置與大小，取消智慧裝置的動畫運算 */
-            .app-card, .news-mini-card {
-                transition: none !important;
-                transform: none !important;
-                box-shadow: none !important;
-                border: 1px solid rgba(255,255,255,0.1);
-            }
+            .hero-title { font-size: 2rem; }
+            .app-grid { grid-template-columns: 1fr; } 
         }
     </style>
 </head>
 <body>
 
     <header class="hero-header">
-        <video 
-            autoplay 
-            muted 
-            loop 
-            playsinline 
-            preload="auto" 
-            fetchpriority="high" 
-            class="hero-video">
-            <source src="首頁輪播.mp4" type="video/mp4">
-            您的瀏覽器不支援播放此影片。
-        </video>
+        <img 
+            src="Rainy_day_bokeh_background.png" 
+            alt="LAN Apps Studio Banner" 
+            class="hero-image"
+            fetchpriority="high">
+        
+        <div class="hero-title-box">
+            <h1 class="hero-title">LAN Studio</h1>
+            <div class="hero-subtitle">免費 Ai 製作的線上工具網站</div>
+        </div>
     </header>
 
     <div class="container">
@@ -198,49 +207,32 @@
     <script>
         async function loadLatestNews() {
             const container = document.getElementById('news-preview-container');
-            
             try {
                 const response = await fetch('news.html');
-                if (!response.ok) throw new Error('無法讀取');
-                
                 const text = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(text, 'text/html');
                 const cards = doc.querySelectorAll('.news-card');
-                
-                container.innerHTML = ''; // 取得資料後清空佔位符
-
-                const topThree = Array.from(cards).slice(0, 3);
-
-                if(topThree.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color:#7f8c8d;">暫時沒有新動態</p>';
-                    return;
-                }
-
-                topThree.forEach(item => {
+                container.innerHTML = ''; 
+                Array.from(cards).slice(0, 3).forEach(item => {
                     const title = item.querySelector('.news-title').innerText;
                     const date = item.querySelector('.news-date').innerText;
                     const tagEl = item.querySelector('.news-tag');
-                    
                     const miniCard = document.createElement('div');
                     miniCard.className = 'news-mini-card';
                     miniCard.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="tag-style" style="color:${getComputedStyle(tagEl).color}">${tagEl.innerText}</span>
+                            <span style="color:${getComputedStyle(tagEl).color}; font-weight:bold;">${tagEl.innerText}</span>
                             <span style="font-size:0.8rem; color:#7f8c8d;">${date}</span>
                         </div>
                         <h4 style="margin:12px 0 0 0; color:var(--primary-dark); font-size:1.1rem;">${title}</h4>
                     `;
                     container.appendChild(miniCard);
                 });
-            } catch (e) {
-                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color:#ff4d4d;">公告同步失敗。</p>';
-            }
+            } catch (e) { container.innerHTML = '<p>公告同步失敗。</p>'; }
         }
-
         window.addEventListener('DOMContentLoaded', loadLatestNews);
     </script>
-
     <script type="module" src="navbar.js"></script>
 </body>
 </html>
