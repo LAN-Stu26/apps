@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAN Studio - 數位工具箱</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png" fetchpriority="high">
+
     <style>
         :root {
             --primary-dark: #ffd966;
@@ -21,9 +27,9 @@
             overflow-x: hidden;
         }
 
-        /* --- 頁首圖片區 --- */
+        /* --- 頁首圖片區 (原有設計) --- */
         .hero-header {
-            position: relative; /* 為了讓標題能絕對定位在圖片上 */
+            position: relative;
             width: 100%; 
             height: 450px;
             background-color: #000;
@@ -39,10 +45,9 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            filter: brightness(0.7); /* 稍微調暗背景，讓標題更清楚 */
+            filter: brightness(0.7);
         }
 
-        /* --- 【新增】首頁大標題樣式 --- */
         .hero-title-box {
             position: absolute;
             text-align: center;
@@ -66,7 +71,7 @@
             letter-spacing: 2px;
         }
 
-        /* --- 主內容區 --- */
+        /* --- 主內容區 (原有設計) --- */
         .container {
             max-width: 1200px;
             margin: 50px auto;
@@ -81,7 +86,6 @@
             letter-spacing: 2px;
         }
 
-        /* 公告與卡片樣式維持不變... */
         #news-preview-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -114,14 +118,16 @@
             align-items: center; 
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
+            /* 保留你最愛的動畫效果 */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .app-icon { font-size: 3.5rem; margin-bottom: 20px; }
         .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
         .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
 
+        /* Hover 特效 */
         @media (hover: hover) {
-            .app-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
             .app-card:hover {
                 transform: translateY(-12px);
                 box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
@@ -129,10 +135,9 @@
             }
         }
 
-        /* RWD 手機版標題縮小 */
+        /* RWD 佈局 */
         @media (max-width: 850px) {
-            .hero-title { font-size: 2.5rem; letter-spacing: 3px; }
-            .hero-subtitle { font-size: 1rem; }
+            .hero-title { font-size: 2.5rem; }
             .app-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -148,9 +153,10 @@
     <header class="hero-header">
         <img 
             src="Rainy_day_bokeh_background.png" 
-            alt="LAN Apps Studio Banner" 
+            alt="LAN Studio Banner" 
             class="hero-image"
-            fetchpriority="high">
+            fetchpriority="high"
+            decoding="async">
         
         <div class="hero-title-box">
             <h1 class="hero-title">LAN Studio</h1>
@@ -177,25 +183,21 @@
                 <h3>HTML Editor</h3>
                 <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。</p>
             </a>
-
             <a href="marquee.html" class="app-card">
                 <div class="app-icon">📢</div>
                 <h3>跑馬燈</h3>
                 <p>專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。</p>
             </a>
-
             <a href="pomodoro_technique.html" class="app-card">
                 <div class="app-icon">⏱️</div>
                 <h3>番茄鐘</h3>
                 <p>簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。</p>
             </a>
-
             <a href="r_c-timer.html" class="app-card">
                 <div class="app-icon">🧩</div>
                 <h3>魔方計時器</h3>
                 <p>專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。</p>
             </a>
-
             <a href="字數計算器.html" class="app-card">
                 <div class="app-icon">✍️</div>
                 <h3><span style="color: #666;">字數計算器</span></h3>
@@ -231,8 +233,8 @@
                 });
             } catch (e) { container.innerHTML = '<p>公告同步失敗。</p>'; }
         }
-        window.addEventListener('DOMContentLoaded', loadLatestNews);
+        window.addEventListener('load', loadLatestNews);
     </script>
-    <script type="module" src="navbar.js"></script>
+    <script type="module" src="navbar.js" defer></script>
 </body>
 </html>
