@@ -138,10 +138,10 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
             <div class="dropdown-content">
-                <a href="editor.html">Html Editor</a>
-                <a href="marquee.html">跑馬燈</a>
-                <a href="pomodoro_technique.html">番茄鐘</a>
-                <a href="r_c-timer.html">魔方計時器</a>
+                <a href="editor.html"><b>Html Editor</b></a>
+                <a href="marquee.html"><b>跑馬燈</b></a>
+                <a href="pomodoro_technique.html"><b>番茄鐘</b></a>
+                <a href="r_c-timer.html"><b>魔方計時器</b></a>
                 <a href="#" style="color:#555 !important;">字數計算器 (維護中)</a>
             </div>
         </li>
@@ -149,7 +149,7 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>會員程式 ▾</b></span>
             <div class="dropdown-content">
-                <a href="editor.html">Html Editor</a>
+                <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>            
         <li id="auth-area"><a id="login-btn">載入中...</a></li>
