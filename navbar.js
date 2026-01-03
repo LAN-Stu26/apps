@@ -112,8 +112,8 @@
     <nav id="custom-navbar">
         <div class="logo">LAN Apps Studio</div>
         <div class="menu-toggle" id="mobile-menu-btn">
-            <span></span><span></span><span></span>
         </div>
+        <span></span><span></span><span></span>
         <ul id="nav-list">
             <li class="nav-item"><a href="index.html"><b>首頁</b></a></li>
             <li class="nav-item dropdown">
@@ -133,10 +133,6 @@
                     <a href="editor.html"><b>Html Editor</b></a>
                 </div>
             </li>            
-            <li class="nav-item">
-                <a href="https://www.apps.lan-stu.x10.mx/">返回舊版</a>
-                <span class="tooltip-text">部分地區無法使用！</span>
-            </li>  
             <li class="nav-item" id="auth-area">
                 <a id="login-btn">載入中...</a>
             </li>
