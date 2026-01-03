@@ -128,7 +128,7 @@
             </li>
             <li class="nav-item"><a href="news.html"><b>最新消息</b></a></li>
             <li class="nav-item dropdown">
-                <span class="dropbtn"><b>會員升級程式 ▾</b></span>
+                <span class="dropbtn"><b>會員體驗升級程式 ▾</b></span>
                 <div class="dropdown-content">
                     <a href="editor.html"><b>Html Editor</b></a>
                 </div>
