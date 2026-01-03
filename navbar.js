@@ -166,7 +166,7 @@ const footerHTML = `
             <h4 style="margin:0; font-size:0.85rem; color:#aaa;">現在位置：</h4>
             <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
-        <div class="ai-notice">Studio JS v2.5 <br> AI Optimized UI</div>
+        <div class="ai-notice">Studio JS v2.2.15 <br> 所有頁面皆由 AI 生成</div>
     </div>
     <div style="text-align:center; font-size:0.85rem; color:#555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio 版權所有</div>
 </footer>
