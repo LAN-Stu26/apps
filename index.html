@@ -21,15 +21,23 @@
             overflow-x: hidden;
         }
 
-        /* --- 頁首 GIF --- */
+        /* --- 頁首 MP4 區域 --- */
         .hero-header {
-            width: 100%; height: 450px;
+            width: 100%; 
+            height: 450px;
             background-color: #000;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
             overflow: hidden;
         }
 
-        .hero-header img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
         /* --- 主內容區 --- */
         .container {
@@ -39,8 +47,10 @@
         }
 
         .section-title {
-            text-align: center; font-size: 2rem;
-            margin-bottom: 40px; color: var(--primary-dark);
+            text-align: center; 
+            font-size: 2rem;
+            margin-bottom: 40px; 
+            color: var(--primary-dark);
             letter-spacing: 2px;
         }
 
@@ -53,7 +63,8 @@
         }
         .news-mini-card {
             background: var(--card-bg);
-            padding: 20px; border-radius: 12px;
+            padding: 20px; 
+            border-radius: 12px;
             border-left: 4px solid var(--accent-blue);
             transition: 0.3s;
         }
@@ -69,10 +80,14 @@
 
         .app-card {
             background: var(--card-bg);
-            padding: 30px; border-radius: 16px;
-            text-decoration: none; color: inherit;
-            display: flex; flex-direction: column;
-            align-items: center; text-align: center;
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -87,6 +102,7 @@
         .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
         .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
 
+        /* 響應式優化 */
         @media (max-width: 992px) { .app-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { 
             .app-grid { grid-template-columns: 1fr; } 
@@ -97,7 +113,10 @@
 <body>
 
     <header class="hero-header">
-        <img src="首頁輪播.gif" alt="Header Animation">
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="首頁輪播.mp4" type="video/mp4">
+            您的瀏覽器不支援播放此影片。
+        </video>
     </header>
 
     <div class="container">
@@ -117,7 +136,7 @@
             <a href="editor.html" class="app-card">
                 <div class="app-icon">💻</div>
                 <h3>HTML Editor</h3>
-                <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，專為開發者打造的輕量編輯空間。</p>
+                <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。</p>
             </a>
 
             <a href="marquee.html" class="app-card">
@@ -147,10 +166,12 @@
     </div>
 
     <script>
-        // 從 news.html 抓取資料的邏輯
+        // 從 news.html 自動抓取最新 3 則公告
         async function loadLatestNews() {
             try {
                 const response = await fetch('news.html');
+                if (!response.ok) throw new Error('無法讀取公告檔案');
+                
                 const text = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(text, 'text/html');
@@ -159,11 +180,10 @@
                 const container = document.getElementById('news-preview-container');
                 container.innerHTML = '';
 
-                // 抓取前三則
                 const topThree = Array.from(cards).slice(0, 3);
 
                 if(topThree.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">暫時沒有新動態</p>';
+                    container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color:#7f8c8d;">暫時沒有新動態</p>';
                     return;
                 }
 
@@ -185,11 +205,12 @@
                 });
             } catch (e) {
                 console.error("News Load Error:", e);
-                document.getElementById('news-preview-container').innerHTML = '<p style="text-align: center; grid-column: 1/-1; color:#666;">無法載入公告</p>';
+                document.getElementById('news-preview-container').innerHTML = 
+                    '<p style="text-align: center; grid-column: 1/-1; color:#ff4d4d;">公告同步失敗，請手動查看最新消息。</p>';
             }
         }
 
-        window.onload = loadLatestNews;
+        window.addEventListener('DOMContentLoaded', loadLatestNews);
     </script>
 
     <script type="module" src="navbar.js"></script>
