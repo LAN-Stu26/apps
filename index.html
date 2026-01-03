@@ -13,33 +13,25 @@
             --card-bg: #2d2d2d;
         }
 
-        /* 套用自定義字體 */
         body {
-            font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            color: #333;
+            color: white;
             overflow-x: hidden;
         }
 
-        /* --- 頁首 GIF 區域 (無文字) --- */
+        /* --- 頁首 GIF --- */
         .hero-header {
-            width: 100%;
-            height: 450px; /* 增加一點高度讓 GIF 更亮眼 */
+            width: 100%; height: 450px;
             background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             overflow: hidden;
         }
 
-        .hero-header img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .hero-header img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- 主內容區 (3欄橫向排列) --- */
+        /* --- 主內容區 --- */
         .container {
             max-width: 1200px;
             margin: 50px auto;
@@ -47,34 +39,42 @@
         }
 
         .section-title {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 40px;
-            color: var(--primary-dark);
+            text-align: center; font-size: 2rem;
+            margin-bottom: 40px; color: var(--primary-dark);
             letter-spacing: 2px;
         }
 
-        /* 使用 Grid 達成 1列3欄 */
+        /* --- 自動公告區樣式 --- */
+        #news-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .news-mini-card {
+            background: var(--card-bg);
+            padding: 20px; border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+            transition: 0.3s;
+        }
+        .news-mini-card:hover { background: #353535; }
+        .tag-style { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; border: 1px solid; font-weight: bold; text-transform: uppercase; }
+
+        /* --- 工具卡片 Grid --- */
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 核心設定：三等分 */
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
         }
 
-        /* 卡片樣式 */
         .app-card {
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            padding: 30px; border-radius: 16px;
+            text-decoration: none; color: inherit;
+            display: flex; flex-direction: column;
+            align-items: center; text-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .app-card:hover {
@@ -83,30 +83,13 @@
             border-color: var(--accent-blue);
         }
 
-        .app-icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-        }
+        .app-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
+        .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
 
-        .app-card h3 {
-            margin: 0 0 10px 0;
-            color: var(--primary-dark);
-            font-size: 1.4rem;
-        }
-
-        .app-card p {
-            margin: 0;
-            color: #7f8c8d;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* 響應式：手機版改為 1 欄，平板改為 2 欄 */
-        @media (max-width: 992px) {
-            .app-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-            .app-grid { grid-template-columns: 1fr; }
+        @media (max-width: 992px) { .app-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { 
+            .app-grid { grid-template-columns: 1fr; } 
             .hero-header { height: 250px; }
         }
     </style>
@@ -118,38 +101,97 @@
     </header>
 
     <div class="container">
+        <section id="latest-news-section" style="margin-bottom: 80px;">
+            <h2 class="section-title">最新公告</h2>
+            <div id="news-preview-container">
+                <p style="text-align: center; grid-column: 1/-1; color: #7f8c8d;">正在同步 Studio 資訊...</p>
+            </div>
+            <div style="text-align: center;">
+                <a href="news.html" style="color: var(--accent-blue); text-decoration: none; font-size: 0.9rem;">查看完整公告歷史 →</a>
+            </div>
+        </section>
+
         <h2 class="section-title">工具控制台</h2>
         
         <div class="app-grid">
+            <a href="editor.html" class="app-card">
+                <div class="app-icon">💻</div>
+                <h3>HTML Editor</h3>
+                <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，專為開發者打造的輕量編輯空間。</p>
+            </a>
+
             <a href="marquee.html" class="app-card">
                 <div class="app-icon">📢</div>
                 <h3>跑馬燈</h3>
-                <p>專業控制台，支援多種色彩與全螢幕播放模式。</p>
+                <p>專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。</p>
             </a>
 
             <a href="pomodoro_technique.html" class="app-card">
                 <div class="app-icon">⏱️</div>
                 <h3>番茄鐘</h3>
-                <p>簡單直觀的專注力工具，幫助您管理工作時間。</p>
+                <p>簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。</p>
             </a>
 
             <a href="r_c-timer.html" class="app-card">
                 <div class="app-icon">🧩</div>
                 <h3>魔方計時器</h3>
-                <p>專為魔術方塊玩家設計的計時與紀錄系統。</p>
+                <p>專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。</p>
             </a>
 
-                <a href="字數計算器.html" class="app-card">
+            <a href="字數計算器.html" class="app-card">
                 <div class="app-icon">✍️</div>
-                <h3><span style='color: #5b5b5bff'>字數計算器</h3>
-                <p>即時統計文字內容。<span style='color:#ff4d4d'>(此工具暫時停止使用!)</span></p>
+                <h3><span style="color: #666;">字數計算器</span></h3>
+                <p>即時統計文字內容與字元數。<br><span style="color:#ff4d4d;">(此工具維護中，暫停使用)</span></p>
             </a>
-
         </div>
     </div>
-    <script type="module" src="navbar.js"></script></body>
+
+    <script>
+        // 從 news.html 抓取資料的邏輯
+        async function loadLatestNews() {
+            try {
+                const response = await fetch('news.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                const cards = doc.querySelectorAll('.news-card');
+                const container = document.getElementById('news-preview-container');
+                container.innerHTML = '';
+
+                // 抓取前三則
+                const topThree = Array.from(cards).slice(0, 3);
+
+                if(topThree.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">暫時沒有新動態</p>';
+                    return;
+                }
+
+                topThree.forEach(item => {
+                    const title = item.querySelector('.news-title').innerText;
+                    const date = item.querySelector('.news-date').innerText;
+                    const tagEl = item.querySelector('.news-tag');
+                    
+                    const miniCard = document.createElement('div');
+                    miniCard.className = 'news-mini-card';
+                    miniCard.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="tag-style" style="color:${getComputedStyle(tagEl).color}">${tagEl.innerText}</span>
+                            <span style="font-size:0.8rem; color:#7f8c8d;">${date}</span>
+                        </div>
+                        <h4 style="margin:12px 0 0 0; color:var(--primary-dark); font-size:1.1rem;">${title}</h4>
+                    `;
+                    container.appendChild(miniCard);
+                });
+            } catch (e) {
+                console.error("News Load Error:", e);
+                document.getElementById('news-preview-container').innerHTML = '<p style="text-align: center; grid-column: 1/-1; color:#666;">無法載入公告</p>';
+            }
+        }
+
+        window.onload = loadLatestNews;
+    </script>
+
+    <script type="module" src="navbar.js"></script>
 </body>
 </html>
-
-
-
