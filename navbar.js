@@ -145,7 +145,7 @@ const footerHTML = `
 <footer id="custom-footer">
     <div class="footer-top">
         <div class="breadcrumb-box">
-            <h4 style="margin:0; font-size:0.85rem; color:#aaa;">現在位置：</h4>
+            <h4 style="margin:0; font-size:0.85rem; color:#aaa;">您現在位置...</h4>
             <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
         <div class="ai-notice">Studio JS v2.5 <br> 所有頁面皆由 AI 生成</div>
