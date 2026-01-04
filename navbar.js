@@ -130,8 +130,11 @@ const navbarHTML = `
         </li>
         <li><a href="news.html"><b>最新消息</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>會員體驗升級程式 ▾</b></span>
+            <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
+                <a href="#" style="color:#555 !important;">會員專屬▾▾▾</a>
+                <a href="note.html"><b>加密雲端筆記</b></a>
+                <a href="#" style="color:#555 !important;">體驗升級!!!▾▾▾</a>
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>            
