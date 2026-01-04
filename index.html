@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歡迎來到 LAN Studio !</title>
+    
+    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png">
+
     <style>
         body {
             background-color: #1d1d1d;
@@ -24,7 +27,8 @@
             margin-bottom: 30px;
             letter-spacing: 5px;
             text-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
-            animation: fadeIn 1.5s ease-in-out;
+            /* 優化：加入 forwards 讓動畫結束停留在狀態上 */
+            animation: fadeIn 1.5s ease-in-out forwards;
         }
 
         .progress-container {
@@ -41,7 +45,8 @@
             height: 100%;
             background: linear-gradient(90deg, #ffd966, #3498db);
             box-shadow: 0 0 10px #ffd966;
-            transition: width 0.1s linear;
+            /* 改成 ease-out 讓進度條最後一點點滑得更順 */
+            transition: width 0.2s ease-out;
         }
 
         .status-text {
@@ -49,6 +54,7 @@
             font-size: 0.9rem;
             color: #7f8c8d;
             letter-spacing: 1px;
+            min-height: 1.2em; /* 防止文字切換時閃爍 */
         }
 
         @keyframes fadeIn {
@@ -70,26 +76,42 @@
     <script>
         const progressBar = document.getElementById('progressBar');
         const statusText = document.getElementById('status');
-        const messages = ["正在載入核心組件...", "優化視覺資源...", "準備就緒！"];
+        
+        // 增加更有真實感的訊息
+        const messages = {
+            20: "正在建立安全連線...",
+            50: "正在預載視覺資源...",
+            80: "核心組件載入完畢...",
+            100: "準備就緒，正在進入..."
+        };
+
         let progress = 0;
 
         const interval = setInterval(() => {
-            progress += Math.random() * 15; // 模擬隨機進度
-            if (progress > 100) progress = 100;
+            // 隨機增加進度，但在快結束時會變慢，模擬真實載入感
+            let increment = Math.random() * 12;
+            if (progress > 80) increment = Math.random() * 5;
             
-            progressBar.style.width = progress + '%';
-
-            if (progress < 40) statusText.innerText = messages[0];
-            else if (progress < 80) statusText.innerText = messages[1];
-            else if (progress >= 100) {
-                statusText.innerText = messages[2];
+            progress += increment;
+            
+            if (progress >= 100) {
+                progress = 100;
+                statusText.innerText = messages[100];
+                progressBar.style.width = '100%';
                 clearInterval(interval);
+                
+                // 稍微延遲讓使用者看到 100% 的快感
                 setTimeout(() => {
-                    // 使用 replace 讓使用者按「返回」不會又回到進度條
                     window.location.replace("home.html");
-                }, 500);
+                }, 600);
+            } else {
+                progressBar.style.width = progress + '%';
+                // 根據進度區間更新文字
+                if (progress > 80) statusText.innerText = messages[80];
+                else if (progress > 50) statusText.innerText = messages[50];
+                else if (progress > 20) statusText.innerText = messages[20];
             }
-        }, 150);
+        }, 180);
     </script>
 </body>
 </html>
