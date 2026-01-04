@@ -3,131 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人雲端筆記 - LAN Studio</title>
+    <title>雲端多功能筆記 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 筆記專屬樣式 */
-        #note-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #2a2a2a;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        :root { --gold: #ffd966; --bg: #1d1d1d; --card: #2d2d2d; --danger: #e74c3c; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Noto Sans TC', sans-serif;
         }
-        .note-header {
-            border-bottom: 2px solid #ffd966;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
+
+        /* 導覽列預留空間 */
+        .main-layout { 
+            display: flex; 
+            max-width: 1200px; 
+            margin: 100px auto 40px; 
+            gap: 20px; 
+            padding: 0 20px; 
+            height: calc(100vh - 150px); 
+        }
+        
+        /* 左側筆記清單 */
+        .sidebar { 
+            width: 280px; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            border: 1px solid #333;
+        }
+        .sidebar-header { 
+            padding: 15px; 
+            background: #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--gold);
+        }
+        .add-btn { 
+            cursor: pointer; 
+            color: var(--gold); 
+            font-size: 1.5rem; 
+            background: none; 
+            border: none; 
+            transition: 0.3s;
+        }
+        .add-btn:hover { transform: scale(1.2); }
+
+        #note-list { flex: 1; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
+        #note-list li { 
+            padding: 15px; 
+            border-bottom: 1px solid #3d3d3d; 
+            cursor: pointer; 
+            transition: 0.3s;
+            font-size: 0.95rem;
+            color: #bbb;
+        }
+        #note-list li:hover { background: #3d3d3d; color: white; }
+        #note-list li.active { 
+            border-left: 4px solid var(--gold); 
+            background: #3d3d3d; 
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 右側編輯器 */
+        .editor-area { 
+            flex: 1; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 25px; 
+            position: relative; 
+            border: 1px solid #333;
+        }
+        .toolbar { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 15px;
             align-items: center;
         }
-        .note-header h2 { color: #ffd966; margin: 0; }
-        #save-status { font-size: 0.8rem; color: #7f8c8d; }
+        .toolbar button { 
+            background: #444; 
+            border: none; 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .toolbar button:hover { background: var(--gold); color: black; }
+        .btn-delete { margin-left: auto; background: var(--danger) !important; }
+        .btn-delete:hover { background: #c0392b !important; color: white !important; }
 
-        #note-title {
+        #editor-title { 
+            background: transparent; 
+            border: none; 
+            color: var(--gold); 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            outline: none; 
+            margin-bottom: 15px; 
             width: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            outline: none;
         }
-        #note-content {
-            width: 100%;
-            height: 400px;
-            background: transparent;
-            border: none;
-            color: #ccc;
+        #editor-body { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: #ddd; 
+            outline: none; 
+            overflow-y: auto; 
+            line-height: 1.8; 
             font-size: 1.1rem;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
         }
-        #login-warning {
-            text-align: center;
-            padding: 50px;
-            color: #ffd966;
+        #editor-body[contenteditable]:empty:before { 
+            content: "在這裡輸入內容..."; 
+            color: #666; 
         }
+
+        #save-indicator { 
+            position: absolute; 
+            bottom: 15px; 
+            right: 25px; 
+            font-size: 0.75rem; 
+            color: #555; 
+        }
+        
+        #login-overlay { 
+            text-align: center; 
+            margin-top: 150px; 
+            color: var(--gold); 
+        }
+
+        /* 捲軸美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1d1d1d; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="note-container">
-        <div id="auth-check-area">
-            <p style="text-align: center; color: #7f8c8d;">正在驗證會員身份...</p>
+    <div class="main-layout" id="main-ui" style="display: none;">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span style="font-weight: bold; letter-spacing: 1px;">我的筆記</span>
+                <button class="add-btn" id="add-note-btn" title="新增筆記">+</button>
+            </div>
+            <ul id="note-list">
+                </ul>
+        </div>
+
+        <div class="editor-area" id="editor-container" style="visibility: hidden;">
+            <div class="toolbar">
+                <button onclick="execCmd('bold')" title="粗體"><b>B</b></button>
+                <button onclick="execCmd('italic')" title="斜體"><i>I</i></button>
+                <button onclick="execCmd('createLink', prompt('請輸入連結網址:', 'https://'))">🔗 連結</button>
+                <button onclick="execCmd('unlink')">移除連結</button>
+                <button onclick="deleteCurrentNote()" class="btn-delete">🗑️ 刪除筆記</button>
+            </div>
+            <input type="text" id="editor-title" placeholder="無標題筆記">
+            <div id="editor-body" contenteditable="true"></div>
+            <div id="save-indicator">已同步至雲端</div>
+        </div>
+        
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;">
+            <h3>請選擇或新增一份筆記</h3>
         </div>
     </div>
 
+    <div id="login-overlay" style="display: none;">
+        <h2>🔐 請先登入以使用雲端多功能筆記</h2>
+        <p>登入後即可同步您的所有內容</p>
+    </div>
+
     <script type="module">
-        import { auth } from "./navbar.js"; // 引用你現有的 Firebase 設定
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { auth } from "./navbar.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const db = getFirestore();
-        let timeout = null;
+        let currentNoteId = null;
+        let saveTimeout = null;
 
+        // 富文本指令工具
+        window.execCmd = (cmd, val = null) => {
+            if (!currentNoteId) return;
+            document.execCommand(cmd, false, val);
+            saveData();
+        };
+
+        // 監聽登入狀態
         onAuthStateChanged(auth, (user) => {
-            const container = document.getElementById('auth-check-area');
             if (user) {
-                // 已登入：渲染筆記介面
-                renderNoteUI(user);
+                document.getElementById('main-ui').style.display = 'flex';
+                document.getElementById('login-overlay').style.display = 'none';
+                loadNoteList(user.uid);
             } else {
-                // 未登入：提示登入
-                container.innerHTML = `
-                    <div id="login-warning">
-                        <h3>請先登入會員</h3>
-                        <p>雲端筆記功能需要登入後才能同步您的資料。</p>
-                    </div>
-                `;
+                document.getElementById('main-ui').style.display = 'none';
+                document.getElementById('login-overlay').style.display = 'block';
             }
         });
 
-        async function renderNoteUI(user) {
-            const container = document.getElementById('auth-check-area');
-            const docRef = doc(db, "user_notes", user.uid);
-            
-            // 讀取現有筆記
-            const docSnap = await getDoc(docRef);
-            let initialData = { title: "", content: "" };
-            if (docSnap.exists()) {
-                initialData = docSnap.data();
-            }
+        // 1. 載入雲端筆記清單
+        function loadNoteList(uid) {
+            const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("updatedAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const listEl = document.getElementById('note-list');
+                listEl.innerHTML = "";
+                
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<li style="text-align:center; color:#555;">尚無筆記</li>';
+                    return;
+                }
 
-            container.innerHTML = `
-                <div class="note-header">
-                    <h2>My Note</h2>
-                    <span id="save-status">所有變更已儲存</span>
-                </div>
-                <input type="text" id="note-title" placeholder="輸入標題..." value="${initialData.title}">
-                <textarea id="note-content" placeholder="開始寫作...">${initialData.content}</textarea>
-            `;
-
-            const titleInput = document.getElementById('note-title');
-            const contentInput = document.getElementById('note-content');
-            const status = document.getElementById('save-status');
-
-            // 自動儲存邏輯 (Debounce)
-            const autoSave = () => {
-                status.innerText = "正在儲存...";
-                clearTimeout(timeout);
-                timeout = setTimeout(async () => {
-                    await setDoc(docRef, {
-                        title: titleInput.value,
-                        content: contentInput.value,
-                        lastUpdated: new Date()
-                    }, { merge: true });
-                    status.innerText = "所有變更已儲存";
-                }, 1000); // 停止輸入 1 秒後儲存
-            };
-
-            titleInput.addEventListener('input', autoSave);
-            contentInput.addEventListener('input', autoSave);
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const li = document.createElement('li');
+                    li.innerText = data.title || "無標題筆記";
+                    if (doc.id === currentNoteId) li.className = "active";
+                    
+                    li.onclick = () => selectNote(doc.id, data);
+                    listEl.appendChild(li);
+                });
+            });
         }
+
+        // 2. 選擇並顯示筆記內容
+        function selectNote(id, data) {
+            currentNoteId = id;
+            document.getElementById('no-note-selected').style.display = 'none';
+            document.getElementById('editor-container').style.visibility = 'visible';
+            
+            document.getElementById('editor-title').value = data.title || "";
+            document.getElementById('editor-body').innerHTML = data.content || "";
+            
+            // 更新清單選取狀態
+            const items = document.querySelectorAll('#note-list li');
+            items.forEach(li => {
+                li.classList.remove('active');
+                if (li.innerText === (data.title || "無標題筆記")) li.classList.add('active');
+            });
+        }
+
+        // 3. 新增筆記
+        document.getElementById('add-note-btn').onclick = async () => {
+            if (!auth.currentUser) return;
+            const newNoteRef = doc(collection(db, "notes"));
+            const newData = {
+                uid: auth.currentUser.uid,
+                title: "新筆記",
+                content: "",
+                updatedAt: serverTimestamp()
+            };
+            await setDoc(newNoteRef, newData);
+            selectNote(newNoteRef.id, newData);
+        };
+
+        // 4. 自動儲存邏輯 (停止輸入 1 秒後觸發)
+        function saveData() {
+            if (!currentNoteId || !auth.currentUser) return;
+            
+            document.getElementById('save-indicator').innerText = "⏳ 正在同步至雲端...";
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                const docRef = doc(db, "notes", currentNoteId);
+                try {
+                    await setDoc(docRef, {
+                        title: document.getElementById('editor-title').value,
+                        content: document.getElementById('editor-body').innerHTML,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    document.getElementById('save-indicator').innerText = "✅ 已同步至雲端";
+                } catch (e) {
+                    document.getElementById('save-indicator').innerText = "❌ 儲存失敗";
+                }
+            }, 1000);
+        }
+
+        // 5. 刪除當前筆記
+        window.deleteCurrentNote = async () => {
+            if (!currentNoteId) return;
+            if (confirm("確定要刪除這份筆記嗎？此操作無法還原。")) {
+                const idToDelete = currentNoteId;
+                currentNoteId = null;
+                
+                document.getElementById('editor-container').style.visibility = 'hidden';
+                document.getElementById('no-note-selected').style.display = 'flex';
+                
+                await deleteDoc(doc(db, "notes", idToDelete));
+            }
+        };
+
+        // 監聽輸入事件
+        document.getElementById('editor-title').oninput = saveData;
+        document.getElementById('editor-body').oninput = saveData;
     </script>
-    
+
     <script type="module" src="./navbar.js"></script>
 </body>
 </html>
