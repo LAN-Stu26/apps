@@ -3,237 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional IDE - LAN Studio</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <title>Advanced Editor - LAN Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --editor-bg: #1e1e1e; --header-bg: #252526; --border-color: #3c3c3c;
-            --accent: #ffd966; --text-gray: #cccccc; --safe-green: #2ecc71;
+            --editor-bg: #1e1e1e;
+            --header-bg: #252526;
+            --border-color: #3c3c3c;
+            --accent: #ffd966;
+            --text-gray: #cccccc;
+            --tab-active: #1e1e1e;
+            --tab-inactive: #2d2d2d;
         }
 
         body, html { margin: 0; padding: 0; height: 100%; background-color: var(--editor-bg); font-family: 'Noto Sans TC', sans-serif; overflow: hidden; }
 
-        /* --- 頂部導覽與同步 --- */
-        .top-nav { display: flex; align-items: center; background: var(--header-bg); border-bottom: 1px solid var(--border-color); margin-top: 60px; height: 40px; padding: 0 10px; }
+        /* --- 遮罩與導覽列預留 --- */
+        #auth-overlay, #mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; text-align: center; backdrop-filter: blur(5px); }
+        .overlay-card { background: #2d2d2d; padding: 40px; border-radius: 20px; border: 1px solid var(--border-color); }
+
+        /* --- 多標籤系統 --- */
+        .tabs { display: flex; background: var(--header-bg); border-bottom: 1px solid var(--border-color); padding-left: 10px; }
+        .tab { padding: 10px 20px; color: var(--text-gray); font-size: 13px; cursor: pointer; background: var(--tab-inactive); border: 1px solid var(--border-color); border-bottom: none; margin-right: 5px; border-radius: 5px 5px 0 0; transition: 0.2s; }
+        .tab.active { background: var(--tab-active); color: var(--accent); border-top: 2px solid var(--accent); }
+
+        /* --- 工作區 --- */
+        .workspace { display: flex; height: calc(100vh - 105px); margin-top: 60px; }
+        .editor-pane, .preview-pane { flex: 1; display: flex; flex-direction: column; min-width: 300px; }
         
-        /* --- 標籤樣式：緊湊無空白 --- */
-        .tabs { display: flex; height: 100%; align-items: flex-end; }
-        .tab { 
-            padding: 0 15px; height: 32px; display: flex; align-items: center; 
-            color: #999; font-size: 13px; cursor: pointer; background: #2d2d2d;
-            border: 1px solid var(--border-color); border-bottom: none; margin-right: 2px;
-            border-radius: 5px 5px 0 0; transition: 0.2s; position: relative;
-        }
-        .tab.active { background: var(--editor-bg); color: var(--accent); border-top: 2px solid var(--accent); }
-        .tab .edit-icon { margin-left: 8px; font-size: 10px; opacity: 0.5; }
-        .tab:hover .edit-icon { opacity: 1; }
-
-        /* --- 工作區佈局：消除間隙 --- */
-        .workspace { display: flex; height: calc(100vh - 100px); width: 100%; background: var(--editor-bg); }
-        .editor-pane { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
-        .editor-container { flex: 1; display: flex; overflow: hidden; }
+        /* --- 行號系統 --- */
+        .editor-container { flex: 1; display: flex; background: var(--editor-bg); overflow: hidden; position: relative; }
+        .line-numbers { width: 40px; padding: 20px 5px; background: #252526; color: #858585; text-align: right; font-family: 'Fira Code', monospace; font-size: 15px; line-height: 1.6; user-select: none; border-right: 1px solid var(--border-color); overflow: hidden; }
         
-        .line-numbers { 
-            width: 45px; padding: 20px 0; background: #1e1e1e; color: #666; 
-            text-align: right; font-family: 'Fira Code', monospace; font-size: 14px; 
-            line-height: 1.6; border-right: 1px solid #333; overflow: hidden; padding-right: 10px;
+        #code-input {
+            flex: 1; background: transparent; color: #d4d4d4; border: none; padding: 20px;
+            font-family: 'Fira Code', monospace; font-size: 15px; outline: none; resize: none; 
+            line-height: 1.6; white-space: pre; overflow: auto;
         }
 
-        #code-input { 
-            flex: 1; background: transparent; color: #d4d4d4; border: none; padding: 20px; 
-            font-family: 'Fira Code', monospace; font-size: 14px; outline: none; 
-            resize: none; line-height: 1.6; white-space: pre; overflow: auto; 
-        }
+        /* --- 控制列 --- */
+        .pane-header { background: var(--header-bg); color: var(--text-gray); padding: 8px 15px; font-size: 13px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-action:hover { background: var(--accent); color: #000; }
 
-        /* 預覽區 */
-        .preview-pane { flex: 1; background: #fff; }
-        #preview-iframe { width: 100%; height: 100%; border: none; background: white; }
-
-        /* 同步開關 */
-        .sync-control { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #888; }
-        .switch { position: relative; display: inline-block; width: 30px; height: 16px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--safe-green); }
-        input:checked + .slider:before { transform: translateX(14px); }
-
-        #privacy-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 30000; justify-content: center; align-items: center; }
-        .modal-content { background: #2d2d2d; padding: 25px; border-radius: 12px; border: 1px solid var(--accent); max-width: 400px; }
+        #preview-iframe { flex: 1; background: white; border: none; }
     </style>
 </head>
 <body>
 
-    <div id="privacy-modal">
-        <div class="modal-content">
-            <h3 style="color:var(--accent); margin-top:0;">🔐 雲端加密同步</h3>
-            <p style="color:#eee; font-size: 14px;">開啟後，代碼將以 AES-256 加密存儲。我們無法讀取您的原始碼，確保您的技術不外流。</p>
-            <div style="text-align:right;">
-                <button onclick="confirmPrivacy(false)" style="background:none; border:none; color:#888; cursor:pointer;">取消</button>
-                <button onclick="confirmPrivacy(true)" style="background:var(--accent); border:none; padding:6px 15px; border-radius:4px; cursor:pointer; margin-left:10px;">同意並同步</button>
-            </div>
+    <div id="auth-overlay">
+        <div class="overlay-card">
+            <h1 style="color: var(--accent);">🔒 登入以解鎖多檔案標籤</h1>
+            <p style="color: #aaa;">非會員僅能編輯單一 index.html 檔案。</p>
+            <button style="padding:10px 20px; cursor:pointer;" onclick="document.getElementById('auth-overlay').style.display='none'">暫時體驗</button>
         </div>
     </div>
 
-    <div class="top-nav">
-        <div class="tabs" id="tab-list">
-            </div>
-        <div class="sync-control">
-            <span id="sync-text">本地模式</span>
-            <label class="switch">
-                <input type="checkbox" id="sync-toggle">
-                <span class="slider"></span>
-            </label>
-        </div>
+    <div class="tabs" id="editor-tabs" style="margin-top: 60px; display: none;">
+        <div class="tab active" onclick="switchTab('html')">index.html</div>
+        <div class="tab" id="css-tab" onclick="switchTab('css')">style.css</div>
+        <div class="tab" id="js-tab" onclick="switchTab('js')">script.js</div>
     </div>
 
-    <main class="workspace">
-        <div class="editor-pane">
+    <main class="workspace" id="main-workspace">
+        <section class="editor-pane">
+            <div class="pane-header">
+                <span id="current-filename">index.html</span>
+                <div class="btn-group">
+                    <button class="btn-action" onclick="triggerImport()">匯入檔案</button>
+                    <button class="btn-action" onclick="downloadCode()">下載檔案</button>
+                </div>
+            </div>
             <div class="editor-container">
                 <div class="line-numbers" id="line-numbers">1</div>
-                <textarea id="code-input" spellcheck="false" wrap="off" placeholder="在此輸入代碼..."></textarea>
+                <textarea id="code-input" spellcheck="false" wrap="off"></textarea>
             </div>
-        </div>
-        <div class="preview-pane">
+            <input type="file" id="file-import" style="display: none;" accept=".html,.css,.js">
+        </section>
+
+        <section class="preview-pane">
+            <div class="pane-header">即時預覽 (Live View)</div>
             <iframe id="preview-iframe"></iframe>
-        </div>
+        </section>
     </main>
 
     <script type="module" src="navbar.js"></script>
     <script type="module">
         import { auth } from './navbar.js';
-        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const db = getFirestore();
         const codeInput = document.getElementById('code-input');
         const lineNumbers = document.getElementById('line-numbers');
         const previewIframe = document.getElementById('preview-iframe');
-        const tabList = document.getElementById('tab-list');
-        const syncToggle = document.getElementById('sync-toggle');
+        const tabsEl = document.getElementById('editor-tabs');
+        
+        // 檔案內容儲存
+        let files = {
+            html: `<!DOCTYPE html>\n<html>\n<head>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>LAN Studio IDE</h1>\n  <p>試著切換標籤或匯入檔案！</p>\n  <script src="script.js"><\/script>\n</body>\n</html>`,
+            css: `body { background: #f4f4f4; text-align: center; font-family: sans-serif; transition: 0.5s; }\nh1 { color: #3498db; }`,
+            js: `console.log("Hello from LAN Studio!");\n// 點擊標題會變色\ndocument.querySelector('h1').onclick = () => {\n  document.body.style.background = '#ffd966';\n};`
+        };
+        let currentTab = 'html';
 
-        // 核心資料結構
-        let files = [
-            { id: 0, name: 'index.html', content: '<h1>Hello LAN!</h1>', type: 'html' },
-            { id: 1, name: 'style.css', content: 'h1 { color: gold; }', type: 'css' },
-            { id: 2, name: 'script.js', content: 'console.log("IDE Ready");', type: 'js' }
-        ];
-        let activeFileId = 0;
-        let isSyncEnabled = false;
-
-        // --- 1. 標籤自定義功能 ---
-        function renderTabs() {
-            tabList.innerHTML = '';
-            files.forEach(file => {
-                const tab = document.createElement('div');
-                tab.className = `tab ${file.id === activeFileId ? 'active' : ''}`;
-                tab.innerHTML = `${file.name} <span class="edit-icon">✎</span>`;
-                tab.onclick = () => switchFile(file.id);
-                tab.ondblclick = () => renameFile(file.id); // 雙擊重命名
-                tabList.appendChild(tab);
-            });
-        }
-
-        function renameFile(id) {
-            const newName = prompt("請輸入新的檔案名稱：", files[id].name);
-            if (newName) {
-                files[id].name = newName;
-                renderTabs();
-            }
-        }
-
-        function switchFile(id) {
-            // 先儲存當前編輯內容
-            const currentFile = files.find(f => f.id === activeFileId);
-            currentFile.content = codeInput.value;
-            
-            activeFileId = id;
-            const nextFile = files.find(f => f.id === id);
-            codeInput.value = nextFile.content;
-            renderTabs();
-            updateLineNumbers();
-        }
-
-        // --- 2. 真正即時預覽 (Blob 渲染) ---
-        function updatePreview() {
-            // 更新當前檔案物件內容
-            files.find(f => f.id === activeFileId).content = codeInput.value;
-
-            const htmlFile = files.find(f => f.type === 'html').content;
-            const cssFile = files.find(f => f.type === 'css').content;
-            const jsFile = files.find(f => f.type === 'js').content;
-
-            const finalCode = `
-                <!DOCTYPE html>
-                <html>
-                <head><style>${cssFile}</style></head>
-                <body>
-                    ${htmlFile}
-                    <script>${jsFile}<\/script>
-                </body>
-                </html>
-            `;
-
-            // 使用 Blob 確保大檔案也能即時渲染且不閃爍
-            const blob = new Blob([finalCode], { type: 'text/html' });
-            previewIframe.src = URL.createObjectURL(blob);
-            updateLineNumbers();
-            
-            if (isSyncEnabled) triggerCloudSave();
-        }
-
-        // --- 3. 界面優化 ---
+        // --- 1. 行號顯示邏輯 ---
         function updateLineNumbers() {
             const lines = codeInput.value.split('\n').length;
             lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
         }
 
-        // --- 🔒 加密與同步邏輯 ---
-        const encrypt = (t, k) => CryptoJS.AES.encrypt(t, k).toString();
-        const decrypt = (c, k) => { try { return CryptoJS.AES.decrypt(c, k).toString(CryptoJS.enc.Utf8); } catch { return ""; }};
+        // 同步捲動
+        codeInput.onscroll = () => {
+            lineNumbers.scrollTop = codeInput.scrollTop;
+        };
 
-        let saveTimeout;
-        function triggerCloudSave() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(async () => {
-                if (!isSyncEnabled || !auth.currentUser) return;
-                const key = auth.currentUser.uid;
-                await setDoc(doc(db, "user_ide", key), {
-                    payload: encrypt(JSON.stringify(files), key),
-                    updatedAt: serverTimestamp()
-                });
-            }, 1000);
+        // --- 2. 標籤切換邏輯 ---
+        window.switchTab = (type) => {
+            files[currentTab] = codeInput.value; // 儲存舊內容
+            currentTab = type;
+            
+            // 更新 UI
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('current-filename').innerText = `index.${type}`;
+            
+            codeInput.value = files[type];
+            updateLineNumbers();
+        };
+
+        // --- 3. 匯入邏輯 ---
+        window.triggerImport = () => document.getElementById('file-import').click();
+        document.getElementById('file-import').onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (res) => {
+                codeInput.value = res.target.result;
+                updatePreview();
+                updateLineNumbers();
+            };
+            reader.readAsText(file);
+        };
+
+        // --- 4. 預覽渲染 (整合 HTML/CSS/JS) ---
+        function updatePreview() {
+            if (currentTab !== 'html') files[currentTab] = codeInput.value;
+            
+            let combinedCode = files.html;
+            // 將 CSS 注入
+            combinedCode = combinedCode.replace('<link rel="stylesheet" href="style.css">', `<style>${files.css}</style>`);
+            // 將 JS 注入
+            combinedCode = combinedCode.replace('<script src="script.js"><\/script>', `<script>${files.js}<\/script>`);
+            
+            previewIframe.srcdoc = combinedCode;
+            updateLineNumbers();
         }
 
-        syncToggle.onchange = (e) => {
-            if (e.target.checked && !isSyncEnabled) {
-                document.getElementById('privacy-modal').style.display = 'flex';
-                e.target.checked = false;
-            } else if (!e.target.checked) {
-                isSyncEnabled = false;
-                document.getElementById('sync-text').innerText = "本地模式";
-            }
-        };
-
-        window.confirmPrivacy = (agreed) => {
-            document.getElementById('privacy-modal').style.display = 'none';
-            if (agreed) {
-                isSyncEnabled = true;
-                syncToggle.checked = true;
-                document.getElementById('sync-text').innerText = "雲端加密中";
-                triggerCloudSave();
-            }
-        };
-
-        // 初始化
-        codeInput.addEventListener('input', updatePreview);
-        codeInput.onscroll = () => lineNumbers.scrollTop = codeInput.scrollTop;
-        
+        // --- 5. 權限檢查 ---
         onAuthStateChanged(auth, (user) => {
-            renderTabs();
+            if (user) {
+                tabsEl.style.display = 'flex';
+                document.getElementById('main-workspace').style.marginTop = '0';
+            } else {
+                document.getElementById('auth-overlay').style.display = 'flex';
+            }
+            codeInput.value = files.html;
             updatePreview();
         });
+
+        window.downloadCode = () => {
+            const blob = new Blob([codeInput.value], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `index.${currentTab}`;
+            a.click();
+        };
+
+        codeInput.addEventListener('input', updatePreview);
     </script>
 </body>
 </html>
