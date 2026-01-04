@@ -135,7 +135,7 @@ const navbarHTML = `
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>            
-        <li id="auth-area"><a id="login-btn">載入中...</a></li>
+        <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
     </ul>
 </nav>
 `;
@@ -187,12 +187,20 @@ document.querySelectorAll('.dropdown').forEach(dd => {
     });
 });
 
-// 6. Firebase (監聽狀態並處理 UI)
+// 6. Firebase (監聽狀態並處理 UI - 會員選單替換)
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
-        area.innerHTML = `<img src="${user.photoURL}" id="user-pfp" title="${user.displayName}">`;
-        document.getElementById('user-pfp').onclick = () => { if(confirm("確定登出？")) signOut(auth); };
+        area.innerHTML = `
+            <div class="dropbtn" style="padding:0;">
+                <img src="${user.photoURL}" id="user-pfp" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966; vertical-align:middle;">
+            </div>
+            <div class="dropdown-content" style="right:0; left:auto;">
+                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;">Hi, ${user.displayName || '會員'}</a>
+                <a id="logout-btn" style="cursor:pointer;">登出</a>
+            </div>
+        `;
+        document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
     } else {
         area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
