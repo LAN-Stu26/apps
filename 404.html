@@ -82,6 +82,11 @@
     </div>
 
     <script type="module" src="navbar.js"></script>
+    <script>
+        if (is404Page) {
+            setTimeout(() => { window.location.href = 'home.html'; }, 5000);
+        }
+
+    </script>
 </body>
 </html>
-
