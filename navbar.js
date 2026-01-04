@@ -215,7 +215,7 @@ onAuthStateChanged(auth, (user) => {
 
 // 404 自動導回首頁
 if (is404Page) {
-    setTimeout(() => { window.location.href = 'index.html'; }, 5000);
+    setTimeout(() => { window.location.href = 'home.html'; }, 5000);
 }
 
 export { auth };
