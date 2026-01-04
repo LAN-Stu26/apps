@@ -3,83 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Editor - LAN Studio</title>
+    <title>Editor - LAN Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --editor-bg: #1e1e1e;
-            --header-bg: #252526;
-            --border-color: #3c3c3c;
-            --accent: #ffd966;
-            --text-gray: #cccccc;
-            --tab-active: #1e1e1e;
-            --tab-inactive: #2d2d2d;
-        }
-
+        :root { --editor-bg: #1e1e1e; --header-bg: #252526; --border-color: #3c3c3c; --accent: #ffd966; --text-gray: #cccccc; }
         body, html { margin: 0; padding: 0; height: 100%; background-color: var(--editor-bg); font-family: 'Noto Sans TC', sans-serif; overflow: hidden; }
-
-        /* --- 遮罩與導覽列預留 --- */
         #auth-overlay, #mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; text-align: center; backdrop-filter: blur(5px); }
-        .overlay-card { background: #2d2d2d; padding: 40px; border-radius: 20px; border: 1px solid var(--border-color); }
-
-        /* --- 多標籤系統 --- */
-        .tabs { display: flex; background: var(--header-bg); border-bottom: 1px solid var(--border-color); padding-left: 10px; }
-        .tab { padding: 10px 20px; color: var(--text-gray); font-size: 13px; cursor: pointer; background: var(--tab-inactive); border: 1px solid var(--border-color); border-bottom: none; margin-right: 5px; border-radius: 5px 5px 0 0; transition: 0.2s; }
-        .tab.active { background: var(--tab-active); color: var(--accent); border-top: 2px solid var(--accent); }
-
-        /* --- 工作區 --- */
-        .workspace { display: flex; height: calc(100vh - 105px); margin-top: 60px; }
+        .overlay-card { background: #2d2d2d; padding: 40px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .workspace { display: flex; height: calc(100vh - 60px); margin-top: 60px; }
         .editor-pane, .preview-pane { flex: 1; display: flex; flex-direction: column; min-width: 300px; }
-        
-        /* --- 行號系統 --- */
-        .editor-container { flex: 1; display: flex; background: var(--editor-bg); overflow: hidden; position: relative; }
-        .line-numbers { width: 40px; padding: 20px 5px; background: #252526; color: #858585; text-align: right; font-family: 'Fira Code', monospace; font-size: 15px; line-height: 1.6; user-select: none; border-right: 1px solid var(--border-color); overflow: hidden; }
-        
-        #code-input {
-            flex: 1; background: transparent; color: #d4d4d4; border: none; padding: 20px;
-            font-family: 'Fira Code', monospace; font-size: 15px; outline: none; resize: none; 
-            line-height: 1.6; white-space: pre; overflow: auto;
-        }
-
-        /* --- 控制列 --- */
-        .pane-header { background: var(--header-bg); color: var(--text-gray); padding: 8px 15px; font-size: 13px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .btn-group { display: flex; gap: 8px; }
-        .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .pane-header { background-color: var(--header-bg); color: var(--text-gray); padding: 8px 15px; font-size: 13px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        #code-input { flex: 1; background-color: var(--editor-bg); color: #d4d4d4; border: none; padding: 20px; font-family: 'Fira Code', monospace; font-size: 15px; outline: none; resize: none; line-height: 1.6; border-right: 1px solid var(--border-color); }
+        #preview-iframe { flex: 1; background-color: white; border: none; }
+        .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; margin-left: 5px; }
         .btn-action:hover { background: var(--accent); color: #000; }
-
-        #preview-iframe { flex: 1; background: white; border: none; }
+        .btn-continue { margin-top: 20px; background: #444; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
     </style>
 </head>
 <body>
 
-    <div id="auth-overlay">
-        <div class="overlay-card">
-            <h1 style="color: var(--accent);">🔒 登入以解鎖多檔案標籤</h1>
-            <p style="color: #aaa;">非會員僅能編輯單一 index.html 檔案。</p>
-            <button style="padding:10px 20px; cursor:pointer;" onclick="document.getElementById('auth-overlay').style.display='none'">暫時體驗</button>
-        </div>
-    </div>
+    <div id="auth-overlay"><div class="overlay-card"><h1 style="color: var(--accent);">🔒 您尚未登入</h1><button class="btn-continue" onclick="dismissOverlay()">繼續使用</button></div></div>
+    <div id="mobile-overlay"><div class="overlay-card"><h1 style="color: #ff4d4d;">💻 僅支援電腦版</h1></div></div>
 
-    <div class="tabs" id="editor-tabs" style="margin-top: 60px; display: none;">
-        <div class="tab active" onclick="switchTab('html')">index.html</div>
-        <div class="tab" id="css-tab" onclick="switchTab('css')">style.css</div>
-        <div class="tab" id="js-tab" onclick="switchTab('js')">script.js</div>
-    </div>
-
-    <main class="workspace" id="main-workspace">
+    <main class="workspace">
         <section class="editor-pane">
             <div class="pane-header">
-                <span id="current-filename">index.html</span>
-                <div class="btn-group">
+                <span>index.html</span>
+                <div>
                     <button class="btn-action" onclick="triggerImport()">匯入檔案</button>
                     <button class="btn-action" onclick="downloadCode()">下載檔案</button>
                 </div>
             </div>
-            <div class="editor-container">
-                <div class="line-numbers" id="line-numbers">1</div>
-                <textarea id="code-input" spellcheck="false" wrap="off"></textarea>
-            </div>
-            <input type="file" id="file-import" style="display: none;" accept=".html,.css,.js">
+            <textarea id="code-input" spellcheck="false"></textarea>
+            <input type="file" id="file-selector" style="display: none;" accept=".html,.txt">
         </section>
 
         <section class="preview-pane">
@@ -89,94 +45,56 @@
     </main>
 
     <script type="module" src="navbar.js"></script>
+
     <script type="module">
         import { auth } from './navbar.js';
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const codeInput = document.getElementById('code-input');
-        const lineNumbers = document.getElementById('line-numbers');
         const previewIframe = document.getElementById('preview-iframe');
-        const tabsEl = document.getElementById('editor-tabs');
-        
-        // 檔案內容儲存
-        let files = {
-            html: `<!DOCTYPE html>\n<html>\n<head>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>LAN Studio IDE</h1>\n  <p>試著切換標籤或匯入檔案！</p>\n  <script src="script.js"><\/script>\n</body>\n</html>`,
-            css: `body { background: #f4f4f4; text-align: center; font-family: sans-serif; transition: 0.5s; }\nh1 { color: #3498db; }`,
-            js: `console.log("Hello from LAN Studio!");\n// 點擊標題會變色\ndocument.querySelector('h1').onclick = () => {\n  document.body.style.background = '#ffd966';\n};`
-        };
-        let currentTab = 'html';
+        const authOverlay = document.getElementById('auth-overlay');
+        const fileSelector = document.getElementById('file-selector');
 
-        // --- 1. 行號顯示邏輯 ---
-        function updateLineNumbers() {
-            const lines = codeInput.value.split('\n').length;
-            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: sans-serif; text-align: center; padding-top: 50px; }\n  </style>\n</head>\n<body>\n  <h1>歡迎使用 LAN Editor</h1>\n  <p>請開始編輯...</p>\n</body>\n</html>`;
+
+        window.dismissOverlay = () => authOverlay.style.display = 'none';
+
+        function updatePreview() {
+            previewIframe.srcdoc = codeInput.value;
+            localStorage.setItem('lan-editor-temp', codeInput.value);
         }
 
-        // 同步捲動
-        codeInput.onscroll = () => {
-            lineNumbers.scrollTop = codeInput.scrollTop;
-        };
+        // --- 匯入功能 ---
+        window.triggerImport = () => fileSelector.click(); // 模擬點擊
 
-        // --- 2. 標籤切換邏輯 ---
-        window.switchTab = (type) => {
-            files[currentTab] = codeInput.value; // 儲存舊內容
-            currentTab = type;
-            
-            // 更新 UI
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('current-filename').innerText = `index.${type}`;
-            
-            codeInput.value = files[type];
-            updateLineNumbers();
-        };
-
-        // --- 3. 匯入邏輯 ---
-        window.triggerImport = () => document.getElementById('file-import').click();
-        document.getElementById('file-import').onchange = (e) => {
+        fileSelector.addEventListener('change', (e) => {
             const file = e.target.files[0];
+            if (!file) return;
+
             const reader = new FileReader();
-            reader.onload = (res) => {
-                codeInput.value = res.target.result;
-                updatePreview();
-                updateLineNumbers();
+            reader.onload = (event) => {
+                codeInput.value = event.target.result; // 把讀到的文字塞進去
+                updatePreview(); // 更新預覽
             };
             reader.readAsText(file);
-        };
-
-        // --- 4. 預覽渲染 (整合 HTML/CSS/JS) ---
-        function updatePreview() {
-            if (currentTab !== 'html') files[currentTab] = codeInput.value;
-            
-            let combinedCode = files.html;
-            // 將 CSS 注入
-            combinedCode = combinedCode.replace('<link rel="stylesheet" href="style.css">', `<style>${files.css}</style>`);
-            // 將 JS 注入
-            combinedCode = combinedCode.replace('<script src="script.js"><\/script>', `<script>${files.js}<\/script>`);
-            
-            previewIframe.srcdoc = combinedCode;
-            updateLineNumbers();
-        }
-
-        // --- 5. 權限檢查 ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                tabsEl.style.display = 'flex';
-                document.getElementById('main-workspace').style.marginTop = '0';
-            } else {
-                document.getElementById('auth-overlay').style.display = 'flex';
-            }
-            codeInput.value = files.html;
-            updatePreview();
         });
 
+        // --- 匯出功能 ---
         window.downloadCode = () => {
-            const blob = new Blob([codeInput.value], { type: 'text/plain' });
+            const blob = new Blob([codeInput.value], { type: 'text/html' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `index.${currentTab}`;
+            a.download = 'index.html';
             a.click();
         };
+
+        // 初始化與登入檢查
+        onAuthStateChanged(auth, (user) => {
+            authOverlay.style.display = user ? 'none' : 'flex';
+            const saved = localStorage.getItem('lan-editor-temp');
+            codeInput.value = saved || defaultCode;
+            updatePreview();
+        });
 
         codeInput.addEventListener('input', updatePreview);
     </script>
