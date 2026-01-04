@@ -107,7 +107,7 @@ const style = `
 
 // 3. HTML 生成邏輯 (完全保留原有文本)
 let pageTitle = document.title.split('-')[0].trim();
-const isHomePage = window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/');
+const isHomePage = window.location.pathname.includes('home.html') || window.location.pathname.endsWith('/');
 const is404Page = window.location.pathname.includes('404.html');
 
 const navbarHTML = `
@@ -117,7 +117,7 @@ const navbarHTML = `
         <span></span><span></span><span></span>
     </div>
     <ul id="nav-list">
-        <li><a href="index.html"><b>首頁</b></a></li>
+        <li><a href="home.html"><b>首頁</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
             <div class="dropdown-content">
@@ -140,7 +140,7 @@ const navbarHTML = `
 </nav>
 `;
 
-const breadcrumbContent = isHomePage ? `首頁` : `<a href="index.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
+const breadcrumbContent = isHomePage ? `首頁` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
 const footerHTML = `
 <footer id="custom-footer">
     <div class="footer-top">
