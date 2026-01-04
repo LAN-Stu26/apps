@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN Studio - 數位工具箱</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png" fetchpriority="high">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* --- 頁首圖片區 (原有設計) --- */
+        .hero-header {
+            position: relative;
+            width: 100%; 
+            height: 450px;
+            background-color: #000;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden;
+            aspect-ratio: 16 / 6;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.7);
+        }
+
+        .hero-title-box {
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #ffffff;
+            opacity: 0.9;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* --- 主內容區 (原有設計) --- */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            text-align: center; 
+            font-size: 2rem;
+            margin-bottom: 40px; 
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+        }
+
+        #news-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+
+        .news-mini-card {
+            background: var(--card-bg);
+            padding: 20px; 
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            /* 保留你最愛的動畫效果 */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .app-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
+        .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
+
+        /* Hover 特效 */
+        @media (hover: hover) {
+            .app-card:hover {
+                transform: translateY(-12px);
+                box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+                border-color: var(--accent-blue);
+            }
+        }
+
+        /* RWD 佈局 */
+        @media (max-width: 850px) {
+            .hero-title { font-size: 2.5rem; }
+            .app-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) { 
+            .hero-header { height: 250px; aspect-ratio: 16 / 9; }
+            .hero-title { font-size: 2rem; }
+            .app-grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-header">
+        <img 
+            src="Rainy_day_bokeh_background.png" 
+            alt="LAN Studio Banner" 
+            class="hero-image"
+            fetchpriority="high"
+            decoding="async">
+        
+        <div class="hero-title-box">
+            <h1 class="hero-title">LAN Studio</h1>
+            <div class="hero-subtitle">免費 Ai 製作的線上工具網站</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="latest-news-section" style="margin-bottom: 80px;">
+            <h2 class="section-title">最新公告</h2>
+            <div id="news-preview-container">
+                <div class="news-mini-card" style="visibility:hidden; height:100px;"></div>
+            </div>
+            <div style="text-align: center;">
+                <a href="news.html" style="color: var(--accent-blue); text-decoration: none; font-size: 0.9rem;">查看完整公告歷史 →</a>
+            </div>
+        </section>
+
+        <h2 class="section-title">工具控制台</h2>
+        
+        <div class="app-grid">
+            <a href="editor.html" class="app-card">
+                <div class="app-icon">💻</div>
+                <h3>HTML Editor</h3>
+                <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。</p>
+            </a>
+            <a href="marquee.html" class="app-card">
+                <div class="app-icon">📢</div>
+                <h3>跑馬燈</h3>
+                <p>專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。</p>
+            </a>
+            <a href="pomodoro_technique.html" class="app-card">
+                <div class="app-icon">⏱️</div>
+                <h3>番茄鐘</h3>
+                <p>簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。</p>
+            </a>
+            <a href="r_c-timer.html" class="app-card">
+                <div class="app-icon">🧩</div>
+                <h3>魔方計時器</h3>
+                <p>專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。</p>
+            </a>
+            <a href="字數計算器.html" class="app-card">
+                <div class="app-icon">✍️</div>
+                <h3><span style="color: #666;">字數計算器</span></h3>
+                <p>即時統計文字內容與字元數。<br><span style="color:#ff4d4d;">(此工具維護中，暫停使用)</span></p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function loadLatestNews() {
+            const container = document.getElementById('news-preview-container');
+            try {
+                const response = await fetch('news.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const cards = doc.querySelectorAll('.news-card');
+                container.innerHTML = ''; 
+                Array.from(cards).slice(0, 3).forEach(item => {
+                    const title = item.querySelector('.news-title').innerText;
+                    const date = item.querySelector('.news-date').innerText;
+                    const tagEl = item.querySelector('.news-tag');
+                    const miniCard = document.createElement('div');
+                    miniCard.className = 'news-mini-card';
+                    miniCard.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:${getComputedStyle(tagEl).color}; font-weight:bold;">${tagEl.innerText}</span>
+                            <span style="font-size:0.8rem; color:#7f8c8d;">${date}</span>
+                        </div>
+                        <h4 style="margin:12px 0 0 0; color:var(--primary-dark); font-size:1.1rem;">${title}</h4>
+                    `;
+                    container.appendChild(miniCard);
+                });
+            } catch (e) { container.innerHTML = '<p>公告同步失敗。</p>'; }
+        }
+        window.addEventListener('load', loadLatestNews);
+    </script>
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
