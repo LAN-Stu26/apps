@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雲端多功能筆記 - LAN Studio</title>
+    <title>加密雲端筆記 - LAN Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #ffd966; --bg: #1d1d1d; --card: #2d2d2d; --danger: #e74c3c; }
@@ -153,35 +154,27 @@
     <div class="main-layout" id="main-ui" style="display: none;">
         <div class="sidebar">
             <div class="sidebar-header">
-                <span style="font-weight: bold; letter-spacing: 1px;">我的筆記</span>
-                <button class="add-btn" id="add-note-btn" title="新增筆記">+</button>
+                <span>我的筆記 (加密中 🔐)</span>
+                <button class="add-btn" id="add-note-btn">+</button>
             </div>
-            <ul id="note-list">
-                </ul>
+            <ul id="note-list"></ul>
         </div>
 
         <div class="editor-area" id="editor-container" style="visibility: hidden;">
             <div class="toolbar">
-                <button onclick="execCmd('bold')" title="粗體"><b>B</b></button>
-                <button onclick="execCmd('italic')" title="斜體"><i>I</i></button>
-                <button onclick="execCmd('createLink', prompt('請輸入連結網址:', 'https://'))">🔗 連結</button>
-                <button onclick="execCmd('unlink')">移除連結</button>
-                <button onclick="deleteCurrentNote()" class="btn-delete">🗑️ 刪除筆記</button>
+                <button onclick="execCmd('bold')"><b>B</b></button>
+                <button onclick="execCmd('italic')"><i>I</i></button>
+                <button onclick="execCmd('createLink', prompt('網址:'))">🔗 連結</button>
+                <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ 刪除</button>
             </div>
             <input type="text" id="editor-title" placeholder="無標題筆記">
             <div id="editor-body" contenteditable="true"></div>
-            <div id="save-indicator">已同步至雲端</div>
+            <div id="save-indicator">已加密儲存</div>
         </div>
-        
-        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;">
-            <h3>請選擇或新增一份筆記</h3>
-        </div>
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;"><h3>請選擇或新增筆記</h3></div>
     </div>
 
-    <div id="login-overlay" style="display: none;">
-        <h2>🔐 請先登入以使用雲端多功能筆記</h2>
-        <p>登入後即可同步您的所有內容</p>
-    </div>
+    <div id="login-overlay" style="display: none;"><h2>🔐 請先登入以開啟加密空間</h2></div>
 
     <script type="module">
         import { auth } from "./navbar.js";
@@ -192,14 +185,20 @@
         let currentNoteId = null;
         let saveTimeout = null;
 
-        // 富文本指令工具
+        // --- 🔒 AES 加解密核心功能 ---
+        const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
+        const decrypt = (ciphertext, key) => {
+            try {
+                const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+                return bytes.toString(CryptoJS.enc.Utf8) || "(解密失敗)";
+            } catch (e) { return "(資料損毀)"; }
+        };
+
         window.execCmd = (cmd, val = null) => {
-            if (!currentNoteId) return;
             document.execCommand(cmd, false, val);
             saveData();
         };
 
-        // 監聽登入狀態
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('main-ui').style.display = 'flex';
@@ -211,102 +210,79 @@
             }
         });
 
-        // 1. 載入雲端筆記清單
         function loadNoteList(uid) {
             const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("updatedAt", "desc"));
             onSnapshot(q, (snapshot) => {
                 const listEl = document.getElementById('note-list');
                 listEl.innerHTML = "";
-                
-                if (snapshot.empty) {
-                    listEl.innerHTML = '<li style="text-align:center; color:#555;">尚無筆記</li>';
-                    return;
-                }
-
                 snapshot.forEach((doc) => {
                     const data = doc.data();
+                    // 解密標題以顯示在列表
+                    const decTitle = decrypt(data.title, auth.currentUser.uid);
                     const li = document.createElement('li');
-                    li.innerText = data.title || "無標題筆記";
+                    li.innerText = decTitle || "無標題筆記";
                     if (doc.id === currentNoteId) li.className = "active";
-                    
                     li.onclick = () => selectNote(doc.id, data);
                     listEl.appendChild(li);
                 });
             });
         }
 
-        // 2. 選擇並顯示筆記內容
         function selectNote(id, data) {
             currentNoteId = id;
+            const key = auth.currentUser.uid;
             document.getElementById('no-note-selected').style.display = 'none';
             document.getElementById('editor-container').style.visibility = 'visible';
             
-            document.getElementById('editor-title').value = data.title || "";
-            document.getElementById('editor-body').innerHTML = data.content || "";
-            
-            // 更新清單選取狀態
-            const items = document.querySelectorAll('#note-list li');
-            items.forEach(li => {
-                li.classList.remove('active');
-                if (li.innerText === (data.title || "無標題筆記")) li.classList.add('active');
-            });
+            // 解密標題與內容
+            document.getElementById('editor-title').value = decrypt(data.title, key);
+            document.getElementById('editor-body').innerHTML = decrypt(data.content, key);
         }
 
-        // 3. 新增筆記
         document.getElementById('add-note-btn').onclick = async () => {
-            if (!auth.currentUser) return;
+            const key = auth.currentUser.uid;
             const newNoteRef = doc(collection(db, "notes"));
             const newData = {
-                uid: auth.currentUser.uid,
-                title: "新筆記",
-                content: "",
+                uid: key,
+                title: encrypt("新筆記", key),
+                content: encrypt("", key),
                 updatedAt: serverTimestamp()
             };
             await setDoc(newNoteRef, newData);
             selectNote(newNoteRef.id, newData);
         };
 
-        // 4. 自動儲存邏輯 (停止輸入 1 秒後觸發)
         function saveData() {
             if (!currentNoteId || !auth.currentUser) return;
-            
-            document.getElementById('save-indicator').innerText = "⏳ 正在同步至雲端...";
+            const key = auth.currentUser.uid;
+            document.getElementById('save-indicator').innerText = "🔐 正在進行強加密同步...";
             
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
-                const docRef = doc(db, "notes", currentNoteId);
-                try {
-                    await setDoc(docRef, {
-                        title: document.getElementById('editor-title').value,
-                        content: document.getElementById('editor-body').innerHTML,
-                        updatedAt: serverTimestamp()
-                    }, { merge: true });
-                    document.getElementById('save-indicator').innerText = "✅ 已同步至雲端";
-                } catch (e) {
-                    document.getElementById('save-indicator').innerText = "❌ 儲存失敗";
-                }
+                const titleVal = document.getElementById('editor-title').value;
+                const bodyVal = document.getElementById('editor-body').innerHTML;
+                
+                await setDoc(doc(db, "notes", currentNoteId), {
+                    title: encrypt(titleVal, key),
+                    content: encrypt(bodyVal, key),
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                document.getElementById('save-indicator').innerText = "✅ 已完成端到端加密儲存";
             }, 1000);
         }
 
-        // 5. 刪除當前筆記
         window.deleteCurrentNote = async () => {
-            if (!currentNoteId) return;
-            if (confirm("確定要刪除這份筆記嗎？此操作無法還原。")) {
-                const idToDelete = currentNoteId;
-                currentNoteId = null;
-                
+            if (currentNoteId && confirm("刪除筆記？")) {
+                await deleteDoc(doc(db, "notes", currentNoteId));
                 document.getElementById('editor-container').style.visibility = 'hidden';
                 document.getElementById('no-note-selected').style.display = 'flex';
-                
-                await deleteDoc(doc(db, "notes", idToDelete));
+                currentNoteId = null;
             }
         };
 
-        // 監聽輸入事件
         document.getElementById('editor-title').oninput = saveData;
         document.getElementById('editor-body').oninput = saveData;
     </script>
-
     <script type="module" src="./navbar.js"></script>
 </body>
 </html>
