@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人雲端筆記 - LAN Studio</title>
+    <style>
+        /* 筆記專屬樣式 */
+        #note-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .note-header {
+            border-bottom: 2px solid #ffd966;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .note-header h2 { color: #ffd966; margin: 0; }
+        #save-status { font-size: 0.8rem; color: #7f8c8d; }
+
+        #note-title {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        #note-content {
+            width: 100%;
+            height: 400px;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+        #login-warning {
+            text-align: center;
+            padding: 50px;
+            color: #ffd966;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="note-container">
+        <div id="auth-check-area">
+            <p style="text-align: center; color: #7f8c8d;">正在驗證會員身份...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "./navbar.js"; // 引用你現有的 Firebase 設定
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore();
+        let timeout = null;
+
+        onAuthStateChanged(auth, (user) => {
+            const container = document.getElementById('auth-check-area');
+            if (user) {
+                // 已登入：渲染筆記介面
+                renderNoteUI(user);
+            } else {
+                // 未登入：提示登入
+                container.innerHTML = `
+                    <div id="login-warning">
+                        <h3>請先登入會員</h3>
+                        <p>雲端筆記功能需要登入後才能同步您的資料。</p>
+                    </div>
+                `;
+            }
+        });
+
+        async function renderNoteUI(user) {
+            const container = document.getElementById('auth-check-area');
+            const docRef = doc(db, "user_notes", user.uid);
+            
+            // 讀取現有筆記
+            const docSnap = await getDoc(docRef);
+            let initialData = { title: "", content: "" };
+            if (docSnap.exists()) {
+                initialData = docSnap.data();
+            }
+
+            container.innerHTML = `
+                <div class="note-header">
+                    <h2>My Note</h2>
+                    <span id="save-status">所有變更已儲存</span>
+                </div>
+                <input type="text" id="note-title" placeholder="輸入標題..." value="${initialData.title}">
+                <textarea id="note-content" placeholder="開始寫作...">${initialData.content}</textarea>
+            `;
+
+            const titleInput = document.getElementById('note-title');
+            const contentInput = document.getElementById('note-content');
+            const status = document.getElementById('save-status');
+
+            // 自動儲存邏輯 (Debounce)
+            const autoSave = () => {
+                status.innerText = "正在儲存...";
+                clearTimeout(timeout);
+                timeout = setTimeout(async () => {
+                    await setDoc(docRef, {
+                        title: titleInput.value,
+                        content: contentInput.value,
+                        lastUpdated: new Date()
+                    }, { merge: true });
+                    status.innerText = "所有變更已儲存";
+                }, 1000); // 停止輸入 1 秒後儲存
+            };
+
+            titleInput.addEventListener('input', autoSave);
+            contentInput.addEventListener('input', autoSave);
+        }
+    </script>
+    
+    <script type="module" src="./navbar.js"></script>
+</body>
+</html>
