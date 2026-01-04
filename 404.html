@@ -83,10 +83,18 @@
 
     <script type="module" src="navbar.js"></script>
     <script>
-        if (is404Page) {
-            setTimeout(() => { window.location.href = 'home.html'; }, 5000);
-        }
+        let seconds = 5;
+        const countdownElement = document.getElementById('timer'); // 假設你的 HTML 有個 id="timer" 的元素
 
+        const interval = setInterval(() => {
+            seconds--;
+            if (countdownElement) countdownElement.innerText = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = 'home.html';
+            }
+        }, 1000);
     </script>
 </body>
 </html>
