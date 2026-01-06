@@ -175,9 +175,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 歡迎來到 LAN Studio！我們現在支援 English 啦!!!</br>📢 Welcome to LAN Studio! We now support English!!!</div>
+    <div class="bar-content">嘿嘿??沒事哈哈(版主瘋了)</div>
     <div class="bar-actions">
-        <a href="en/home.html" class="btn-bar-go">Change language</a>
+        <a href="news.html" class="btn-bar-go">沒是逛逛</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -273,3 +273,4 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth };
+
