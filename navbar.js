@@ -165,7 +165,7 @@ const navbarHTML = `
             </span>
             <div class="dropdown-content">
                 <a href="home.html"><b>繁體中文</b></a>
-                <a href="en/home.html"><b>English(50％)</b></a>
+                <a href="home_EN.html"><b>English(50％)</b></a>
             </div>
         </li>
     </ul>
@@ -273,4 +273,5 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth };
+
 
