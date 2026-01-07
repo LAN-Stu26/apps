@@ -141,6 +141,7 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
             <div class="dropdown-content">
+                <a href="classroom.html"><b>抽號器</b></a>
                 <a href="editor.html"><b>Html Editor</b></a>
                 <a href="marquee.html"><b>跑馬燈</b></a>
                 <a href="pomodoro_technique.html"><b>番茄鐘</b></a>
