@@ -256,8 +256,8 @@ onAuthStateChanged(auth, (user) => {
                 <img src="${user.photoURL}" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966;">
             </div>
             <div class="dropdown-content">
-                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;">Hi, ${user.displayName || 'Member'}</a>
-                <a id="logout-btn" style="cursor:pointer;">Logout</a>
+                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || 'Member'}</b></a>
+                <a id="logout-btn" style="cursor:pointer;"><b>Logout</b></a>
             </div>
         `;
         document.getElementById('logout-btn').onclick = () => { if(confirm("Are you sure you want to log out?")) signOut(auth); };
