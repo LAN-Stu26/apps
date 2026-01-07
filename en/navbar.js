@@ -187,7 +187,7 @@ const navbarHTML = `
 // (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
 const isHomePage = window.location.pathname.match(/^(\/en)?\/($|home$|home\.html$)/) !== null;
-const breadcrumbContent = isHomePage ? `Home` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
+const breadcrumbContent = isHomePage ? `Home` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">Home</a> > ${pageTitle}`;
 
 const footerHTML = `
 <footer id="custom-footer">
@@ -274,3 +274,4 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth };
+
