@@ -144,7 +144,7 @@ const navbarHTML = `
                 <a href="classroom.html"><b>Class Draw Tool</b></a>
                 <a href="editor.html"><b>Html Editor</b></a>
                 <a href="marquee.html"><b>Marquee</b></a>
-                <a href="pomodoro_technique.html"><b>Pomodoro technique (zh-TW)</b></a>
+                <a href="pomodoro_technique.html"><b>Pomodoro technique</b></a>
                 <a href="r_c-timer.html"><b>Rubik's Cube Timer (zh-TW)</b></a>
                 <a href="#" style="color:#555 !important;">Word Counter (Under Maintenance)</a>
             </div>
@@ -274,4 +274,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth };
-
