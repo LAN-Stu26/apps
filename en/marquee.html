@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marquee - LAN Studio</title>
+    <style>
+        :root { 
+            --bg-color: #000000;
+            --title-bg-color: #000000;
+            --title-text-color: #ffffff;
+            --content-text-color: #ffffff;
+            --panel-bg: #ffffff;
+            --font-weight: 400;
+            --title-size: 80px;
+        }
+
+        body {
+            background-color: #1d1d1d !important;
+            color: #333;
+        }
+
+        /* --- 跑馬燈顯示區域 --- */
+        #marquee-display {
+            width: 100%;
+            height: 300px;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: height 0.3s ease;
+            font-weight: var(--font-weight);
+        }
+
+        #marquee-display.fullscreen {
+            height: 100vh !important;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 9999999;
+        }
+
+        #fixed-title {
+            padding: 0 30px;
+            white-space: nowrap;
+            z-index: 10;
+            background-color: var(--title-bg-color);
+            color: var(--title-text-color);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: var(--title-size);
+        }
+
+        #marquee-container {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            color: var(--content-text-color);
+        }
+
+        #marquee-content {
+            position: absolute;
+            white-space: nowrap;
+            will-change: transform;
+            line-height: 1.2;
+        }
+
+        /* 特效 CSS */
+        .highlight { background-color: #ffd966; color: black; padding: 0 10px; border-radius: 4px; }
+        .outlined { -webkit-text-stroke: 1px white; color: transparent; }
+        .blinking { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- 控制面板 --- */
+        #control-panel {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #222;
+            border-left: 5px solid #ffd966;
+            padding-left: 10px;
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.85rem; color: #666; font-weight: bold; }
+
+        input[type="text"], input[type="number"], select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .tag-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: sticky; top: 70px; z-index: 100;
+        }
+
+        .tag-btn {
+            background: white; border: 1px solid #ddd;
+            padding: 6px 12px; border-radius: 6px;
+            font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+        }
+        .tag-btn:hover { background: #ffd966; transform: translateY(-2px); }
+
+        .message-entry {
+            display: grid;
+            grid-template-columns: 1.5fr 3fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        button { cursor: pointer; border: none; font-weight: bold; border-radius: 8px; transition: 0.2s; }
+        .btn-add { background: #28a745; color: white; padding: 10px 20px; }
+        .btn-remove { background: #dc3545; color: white; padding: 0 15px; }
+        .btn-primary { background: #000; color: #ffd966; width: 100%; font-size: 1.2rem; padding: 18px; margin-top: 20px; border: 1px solid #ffd966; }
+        .btn-primary:hover { background: #ffd966; color: #000; }
+        .btn-file { background: #6f42c1; color: white; font-size: 0.85rem; padding: 5px 12px; }
+
+        @media (max-width: 768px) {
+            .message-entry { grid-template-columns: 1fr; }
+            .grid-layout { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="marquee-display">
+    <div id="fixed-title">Title</div>
+    <div id="marquee-container">
+        <div id="marquee-content">Please set the message and click "Update"</div>
+    </div>
+</div>
+
+<div id="control-panel">
+    <div class="section-title">
+        💾 Save & Load
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-file" onclick="exportConfig()">💾 Export Settings (.json)</button>
+            <button class="btn-file" onclick="document.getElementById('import-file').click()">📂 Load Settings</button>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importConfig(event)">
+        </div>
+    </div>
+
+    <div class="section-title">🎨 Style Settings</div>
+    <div class="grid-layout">
+        <div class="input-group"><label>Content Font Size (px)</label><input type="number" id="cfg-size" value="80"></div>
+        <div class="input-group"><label>Title Font Size (px)</label><input type="number" id="cfg-title-size" value="80"></div>
+        <div class="input-group"><label>Movement Speed (1-30)</label><input type="number" id="cfg-speed" value="5"></div>
+        <div class="input-group">
+            <label>Flow Direction</label>
+            <select id="cfg-direction">
+                <option value="right-to-left">From Right to Left ←</option>
+                <option value="left-to-right">From Left to Right →</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Marquee Background</label><input type="color" id="cfg-bg-color" value="#000000"></div>
+        <div class="input-group"><label>Title Background</label><input type="color" id="cfg-title-bg-color" value="#000000"></div>
+        <div class="input-group"><label>Title Text Color</label><input type="color" id="cfg-title-text-color" value="#ffffff"></div>
+        <div class="input-group"><label>Content Text Color</label><input type="color" id="cfg-content-text-color" value="#ffffff"></div>
+    </div>
+
+    <div class="section-title">🛠️ HTML Quick Tools (Click to Insert Tags)</div>
+    <div class="tag-toolbar">
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#ff4d4d\'>', '</span>')">🔴 Red</button>
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#4dff4d\'>', '</span>')">🟢 Green</button>
+        <button class="tag-btn" onclick="insertTag('<span style=\'color:#ffff4d\'>', '</span>')">🟡 Yellow</button>
+        <button class="tag-btn" onclick="insertTag('<span class=\'highlight\'>', '</span>')">🖍️ Highlighter</button>
+        <button class="tag-btn" onclick="insertTag('<span class=\'blinking\'>', '</span>')">✨ Blinking</button>
+        <button class="tag-btn" onclick="insertTag('<b>', '</b>')"><b>B</b></button>
+        <button class="tag-btn" onclick="insertTag('{time}', '')">⏰ Time</button>
+        <button class="tag-btn" style="background: #4b4b4b; color: white;" onclick="toggleFullscreen()">📺 Fullscreen</button>
+    </div>
+
+    <div class="section-title">📝 Message List</div>
+    <div id="message-list"></div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button class="btn-add" onclick="addMessageField('', '')">+ Add New Message</button>
+    </div>
+
+    <button class="btn-primary" onclick="applySettings()">🚀 Apply Now and Update Marquee</button>
+</div>
+
+<div id="fullscreen-hint" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:white; padding:10px 20px; border-radius:30px; display:none; z-index:10000000;">按 ESC 鍵退出全螢幕</div>
+
+<script>
+    const displayArea = document.getElementById('marquee-display');
+    const marqueeContainer = document.getElementById('marquee-container');
+    const marqueeContent = document.getElementById('marquee-content');
+    const fixedTitleElement = document.getElementById('fixed-title');
+    const messageList = document.getElementById('message-list');
+    const hint = document.getElementById('fullscreen-hint');
+
+    let animationId = null;
+    let currentMsgIndex = 0;
+    let dataQueue = []; 
+    let speed = 5;
+    let direction = 'right-to-left';
+    let timeUpdateInterval = null;
+    let lastFocusedInput = null;
+
+    // 焦點追蹤：讓工具列知道要把標籤插入哪一個框
+    function attachFocusListener(input) {
+        input.addEventListener('focus', function() { lastFocusedInput = this; });
+    }
+
+    // 新增訊息框 (完全復原原本功能)
+    function addMessageField(title = '', content = '') {
+        const div = document.createElement('div');
+        div.className = 'message-entry';
+        div.innerHTML = `
+            <div class="input-group">
+                <label>Title</label>
+                <input type="text" class="msg-title" placeholder="Title..." value="${title}">
+            </div>
+            <div class="input-group">
+                <label>Content</label>
+                <input type="text" class="msg-content" placeholder="Marquee Content..." value="${content}">
+            </div>
+            <button class="btn-remove" onclick="this.parentElement.remove()" style="align-self: center;">✕</button>
+        `;
+        messageList.appendChild(div);
+        div.querySelectorAll('input').forEach(attachFocusListener);
+        return div;
+    }
+
+    // 插入標籤功能 (完全復原)
+    function insertTag(startTag, endTag) {
+        if (!lastFocusedInput) return;
+        const input = lastFocusedInput;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        input.value = text.substring(0, start) + startTag + text.substring(start, end) + endTag + text.substring(end);
+        input.focus();
+    }
+
+    // 匯出設定檔 (修正版)
+    function exportConfig() {
+        const config = {
+            style: {
+                contentSize: document.getElementById('cfg-size').value,
+                titleSize: document.getElementById('cfg-title-size').value,
+                speed: document.getElementById('cfg-speed').value,
+                direction: document.getElementById('cfg-direction').value,
+                bgColor: document.getElementById('cfg-bg-color').value,
+                titleBgColor: document.getElementById('cfg-title-bg-color').value,
+                titleTextColor: document.getElementById('cfg-title-text-color').value,
+                contentTextColor: document.getElementById('cfg-content-text-color').value
+            },
+            messages: []
+        };
+        document.querySelectorAll('.message-entry').forEach(entry => {
+            config.messages.push({
+                title: entry.querySelector('.msg-title').value,
+                content: entry.querySelector('.msg-content').value
+            });
+        });
+        const blob = new Blob([JSON.stringify(config, null, 2)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "marquee_config.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // 載入設定檔 (修正版)
+    function importConfig(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const config = JSON.parse(e.target.result);
+                document.getElementById('cfg-size').value = config.style.contentSize;
+                document.getElementById('cfg-title-size').value = config.style.titleSize;
+                document.getElementById('cfg-speed').value = config.style.speed;
+                document.getElementById('cfg-direction').value = config.style.direction;
+                document.getElementById('cfg-bg-color').value = config.style.bgColor;
+                document.getElementById('cfg-title-bg-color').value = config.style.titleBgColor;
+                document.getElementById('cfg-title-text-color').value = config.style.titleTextColor;
+                document.getElementById('cfg-content-text-color').value = config.style.contentTextColor;
+
+                messageList.innerHTML = '';
+                config.messages.forEach(msg => addMessageField(msg.title, msg.content));
+                applySettings();
+            } catch (err) { alert('Configuration file format error!'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // 套用與跑馬燈邏輯 (核心功能復原)
+    function applySettings() {
+        speed = parseInt(document.getElementById('cfg-speed').value);
+        direction = document.getElementById('cfg-direction').value;
+
+        document.body.style.setProperty('--bg-color', document.getElementById('cfg-bg-color').value);
+        document.body.style.setProperty('--title-bg-color', document.getElementById('cfg-title-bg-color').value);
+        document.body.style.setProperty('--title-text-color', document.getElementById('cfg-title-text-color').value);
+        document.body.style.setProperty('--content-text-color', document.getElementById('cfg-content-text-color').value);
+        document.body.style.setProperty('--title-size', document.getElementById('cfg-title-size').value + 'px');
+        displayArea.style.fontSize = document.getElementById('cfg-size').value + 'px';
+
+        dataQueue = [];
+        document.querySelectorAll('.message-entry').forEach(entry => {
+            const t = entry.querySelector('.msg-title').value;
+            const c = entry.querySelector('.msg-content').value;
+            if (t.trim() || c.trim()) dataQueue.push({ title: t, content: c });
+        });
+
+        if (dataQueue.length === 0) dataQueue = [{ title: "System", content: "Please set the message" }];
+
+        if (animationId) cancelAnimationFrame(animationId);
+        if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+        
+        // 啟動時間即時更新
+        timeUpdateInterval = setInterval(updateDisplayContent, 1000);
+        currentMsgIndex = 0;
+        startMarquee();
+    }
+
+    function updateDisplayContent() {
+        if (dataQueue.length === 0) return;
+        const now = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+        const currentData = dataQueue[currentMsgIndex];
+        
+        fixedTitleElement.innerHTML = currentData.title.replace(/{time}/g, now);
+        marqueeContent.innerHTML = currentData.content.replace(/{time}/g, now);
+        fixedTitleElement.style.display = currentData.title.trim() ? 'flex' : 'none';
+    }
+
+    function startMarquee() {
+        updateDisplayContent();
+        const containerWidth = marqueeContainer.offsetWidth;
+        const textWidth = marqueeContent.offsetWidth;
+        let pos = (direction === 'right-to-left') ? containerWidth : -textWidth;
+
+        function step() {
+            if (direction === 'right-to-left') {
+                pos -= speed;
+                if (pos < -textWidth) {
+                    currentMsgIndex = (currentMsgIndex + 1) % dataQueue.length;
+                    startMarquee(); return;
+                }
+            } else {
+                pos += speed;
+                if (pos > containerWidth) {
+                    currentMsgIndex = (currentMsgIndex + 1) % dataQueue.length;
+                    startMarquee(); return;
+                }
+            }
+            marqueeContent.style.transform = `translateX(${pos}px)`;
+            animationId = requestAnimationFrame(step);
+        }
+        animationId = requestAnimationFrame(step);
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) displayArea.requestFullscreen();
+        else document.exitFullscreen();
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        const isFS = !!document.fullscreenElement;
+        displayArea.classList.toggle('fullscreen', isFS);
+        hint.style.display = isFS ? 'block' : 'none';
+    });
+
+    // 初始化與 Favicon 自動生成
+    addMessageField("<span class='blinking'>Important</span>", "Welcome to the Marquee Console! The current time is {time}");
+    applySettings();
+</script>
+
+<script type="module" src="navbar.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to LAN Studio!</title>
+    
+    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png">
+
+    <style>
+        body {
+            background-color: #1d1d1d;
+            color: #ffd966;
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .welcome-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
+            /* 優化：加入 forwards 讓動畫結束停留在狀態上 */
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+
+        .progress-container {
+            width: 300px;
+            height: 4px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffd966, #3498db);
+            box-shadow: 0 0 10px #ffd966;
+            /* 改成 ease-out 讓進度條最後一點點滑得更順 */
+            transition: width 0.2s ease-out;
+        }
+
+        .status-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+            min-height: 1.2em; /* 防止文字切換時閃爍 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-text">LAN Studio</div>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="status-text" id="status">Initializing environment...</div>
+
+    <script>
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('status');
+        
+        // 增加更有真實感的訊息
+        const messages = {
+            20: "Loading...",
+            50: "Loading...",
+            80: "Ready, entering...",
+            100: "Welcome to LAN Studio!"
+        };
+
+        let progress = 0;
+
+        const interval = setInterval(() => {
+            // 隨機增加進度，但在快結束時會變慢，模擬真實載入感
+            let increment = Math.random() * 12;
+            if (progress > 80) increment = Math.random() * 5;
+            
+            progress += increment;
+            
+            if (progress >= 100) {
+                progress = 100;
+                statusText.innerText = messages[100];
+                progressBar.style.width = '100%';
+                clearInterval(interval);
+                
+                // 稍微延遲讓使用者看到 100% 的快感
+                setTimeout(() => {
+                    window.location.replace("home.html");
+                }, 600);
+            } else {
+                progressBar.style.width = progress + '%';
+                // 根據進度區間更新文字
+                if (progress > 80) statusText.innerText = messages[80];
+                else if (progress > 50) statusText.innerText = messages[50];
+                else if (progress > 20) statusText.innerText = messages[20];
+            }
+        }, 180);
+    </script>
+</body>
+</html>

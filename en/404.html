@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1d1d1d; /* 與首頁一致的深色 */
+            --accent-red: #e74c3c;
+            --accent-blue: #3498db;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* 確保 body 至少跟螢幕一樣高 */
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+            text-align: center;
+        }
+
+        /* 讓錯誤訊息撐開空間，把頁尾推到底部 */
+        .error-wrapper {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 0;
+            color: var(--accent-red);
+            line-height: 1;
+            text-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: #bdc3c7;
+        }
+
+        .back-home {
+            display: inline-block;
+            padding: 12px 35px;
+            background-color: var(--accent-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .back-home:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        /* 針對行動裝置微調 */
+        @media (max-width: 600px) {
+            .error-code { font-size: 6rem; }
+            .error-message { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-wrapper">
+        <p class="error-code">404</p>
+        <p class="error-message">Oops! We can't find the page you're looking for.</p>
+        <a href="home.html" class="back-home">Return to Homepage</a>
+    </div>
+
+    <script type="module" src="navbar.js"></script>
+    <script>
+        let seconds = 5;
+        const countdownElement = document.getElementById('timer'); // 假設你的 HTML 有個 id="timer" 的元素
+
+        const interval = setInterval(() => {
+            seconds--;
+            if (countdownElement) countdownElement.innerText = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = 'home.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

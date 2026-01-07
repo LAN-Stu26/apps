@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加密雲端筆記 - LAN Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #ffd966; --bg: #1d1d1d; --card: #2d2d2d; --danger: #e74c3c; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        /* 導覽列預留空間 */
+        .main-layout { 
+            display: flex; 
+            max-width: 1200px; 
+            margin: 100px auto 40px; 
+            gap: 20px; 
+            padding: 0 20px; 
+            height: calc(100vh - 150px); 
+        }
+        
+        /* 左側筆記清單 */
+        .sidebar { 
+            width: 280px; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            border: 1px solid #333;
+        }
+        .sidebar-header { 
+            padding: 15px; 
+            background: #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--gold);
+        }
+        .add-btn { 
+            cursor: pointer; 
+            color: var(--gold); 
+            font-size: 1.5rem; 
+            background: none; 
+            border: none; 
+            transition: 0.3s;
+        }
+        .add-btn:hover { transform: scale(1.2); }
+
+        #note-list { flex: 1; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
+        #note-list li { 
+            padding: 15px; 
+            border-bottom: 1px solid #3d3d3d; 
+            cursor: pointer; 
+            transition: 0.3s;
+            font-size: 0.95rem;
+            color: #bbb;
+        }
+        #note-list li:hover { background: #3d3d3d; color: white; }
+        #note-list li.active { 
+            border-left: 4px solid var(--gold); 
+            background: #3d3d3d; 
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 右側編輯器 */
+        .editor-area { 
+            flex: 1; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 25px; 
+            position: relative; 
+            border: 1px solid #333;
+        }
+        .toolbar { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 15px;
+            align-items: center;
+        }
+        .toolbar button { 
+            background: #444; 
+            border: none; 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .toolbar button:hover { background: var(--gold); color: black; }
+        .btn-delete { margin-left: auto; background: var(--danger) !important; }
+        .btn-delete:hover { background: #c0392b !important; color: white !important; }
+
+        #editor-title { 
+            background: transparent; 
+            border: none; 
+            color: var(--gold); 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            outline: none; 
+            margin-bottom: 15px; 
+            width: 100%;
+        }
+        #editor-body { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: #ddd; 
+            outline: none; 
+            overflow-y: auto; 
+            line-height: 1.8; 
+            font-size: 1.1rem;
+        }
+        #editor-body[contenteditable]:empty:before { 
+            content: "在這裡輸入內容..."; 
+            color: #666; 
+        }
+
+        #save-indicator { 
+            position: absolute; 
+            bottom: 15px; 
+            right: 25px; 
+            font-size: 0.75rem; 
+            color: #555; 
+        }
+        
+        #login-overlay { 
+            text-align: center; 
+            margin-top: 150px; 
+            color: var(--gold); 
+        }
+
+        /* 捲軸美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1d1d1d; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout" id="main-ui" style="display: none;">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span>我的筆記 (加密中 🔐)</span>
+                <button class="add-btn" id="add-note-btn">+</button>
+            </div>
+            <ul id="note-list"></ul>
+        </div>
+
+        <div class="editor-area" id="editor-container" style="visibility: hidden;">
+            <div class="toolbar">
+                <button onclick="execCmd('bold')"><b>B</b></button>
+                <button onclick="execCmd('italic')"><i>I</i></button>
+                <button onclick="execCmd('createLink', prompt('網址:'))">🔗 連結</button>
+                <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ 刪除</button>
+            </div>
+            <input type="text" id="editor-title" placeholder="無標題筆記">
+            <div id="editor-body" contenteditable="true"></div>
+            <div id="save-indicator">已加密儲存</div>
+        </div>
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;"><h3>請選擇或新增筆記</h3></div>
+    </div>
+
+    <div id="login-overlay" style="display: none;"><h2>🔐 請先登入以開啟加密空間</h2></div>
+
+    <script type="module">
+        import { auth } from "./navbar.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore();
+        let currentNoteId = null;
+        let saveTimeout = null;
+
+        // --- 🔒 AES 加解密核心功能 ---
+        const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
+        const decrypt = (ciphertext, key) => {
+            try {
+                const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+                return bytes.toString(CryptoJS.enc.Utf8) || "(解密失敗)";
+            } catch (e) { return "(資料損毀)"; }
+        };
+
+        window.execCmd = (cmd, val = null) => {
+            document.execCommand(cmd, false, val);
+            saveData();
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('main-ui').style.display = 'flex';
+                document.getElementById('login-overlay').style.display = 'none';
+                loadNoteList(user.uid);
+            } else {
+                document.getElementById('main-ui').style.display = 'none';
+                document.getElementById('login-overlay').style.display = 'block';
+            }
+        });
+
+        function loadNoteList(uid) {
+            const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("updatedAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const listEl = document.getElementById('note-list');
+                listEl.innerHTML = "";
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // 解密標題以顯示在列表
+                    const decTitle = decrypt(data.title, auth.currentUser.uid);
+                    const li = document.createElement('li');
+                    li.innerText = decTitle || "無標題筆記";
+                    if (doc.id === currentNoteId) li.className = "active";
+                    li.onclick = () => selectNote(doc.id, data);
+                    listEl.appendChild(li);
+                });
+            });
+        }
+
+        function selectNote(id, data) {
+            currentNoteId = id;
+            const key = auth.currentUser.uid;
+            document.getElementById('no-note-selected').style.display = 'none';
+            document.getElementById('editor-container').style.visibility = 'visible';
+            
+            // 解密標題與內容
+            document.getElementById('editor-title').value = decrypt(data.title, key);
+            document.getElementById('editor-body').innerHTML = decrypt(data.content, key);
+        }
+
+        document.getElementById('add-note-btn').onclick = async () => {
+            const key = auth.currentUser.uid;
+            const newNoteRef = doc(collection(db, "notes"));
+            const newData = {
+                uid: key,
+                title: encrypt("新筆記", key),
+                content: encrypt("", key),
+                updatedAt: serverTimestamp()
+            };
+            await setDoc(newNoteRef, newData);
+            selectNote(newNoteRef.id, newData);
+        };
+
+        function saveData() {
+            if (!currentNoteId || !auth.currentUser) return;
+            const key = auth.currentUser.uid;
+            document.getElementById('save-indicator').innerText = "🔐 正在進行強加密同步...";
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                const titleVal = document.getElementById('editor-title').value;
+                const bodyVal = document.getElementById('editor-body').innerHTML;
+                
+                await setDoc(doc(db, "notes", currentNoteId), {
+                    title: encrypt(titleVal, key),
+                    content: encrypt(bodyVal, key),
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                document.getElementById('save-indicator').innerText = "✅ 已完成端到端加密儲存";
+            }, 1000);
+        }
+
+        window.deleteCurrentNote = async () => {
+            if (currentNoteId && confirm("刪除筆記？")) {
+                await deleteDoc(doc(db, "notes", currentNoteId));
+                document.getElementById('editor-container').style.visibility = 'hidden';
+                document.getElementById('no-note-selected').style.display = 'flex';
+                currentNoteId = null;
+            }
+        };
+
+        document.getElementById('editor-title').oninput = saveData;
+        document.getElementById('editor-body').oninput = saveData;
+    </script>
+    <script type="module" src="./navbar.js"></script>
+</body>
+</html>
