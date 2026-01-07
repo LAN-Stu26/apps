@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加密雲端筆記 - LAN Studio</title>
+    <title>Note - LAN Studio</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -125,7 +125,7 @@
             font-size: 1.1rem;
         }
         #editor-body[contenteditable]:empty:before { 
-            content: "在這裡輸入內容..."; 
+            content: "Enter content here..."; 
             color: #666; 
         }
 
@@ -154,7 +154,7 @@
     <div class="main-layout" id="main-ui" style="display: none;">
         <div class="sidebar">
             <div class="sidebar-header">
-                <span>我的筆記 (加密中 🔐)</span>
+                <span>My Notes (Encrypted 🔐)</span>
                 <button class="add-btn" id="add-note-btn">+</button>
             </div>
             <ul id="note-list"></ul>
@@ -164,17 +164,17 @@
             <div class="toolbar">
                 <button onclick="execCmd('bold')"><b>B</b></button>
                 <button onclick="execCmd('italic')"><i>I</i></button>
-                <button onclick="execCmd('createLink', prompt('網址:'))">🔗 連結</button>
-                <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ 刪除</button>
+                <button onclick="execCmd('createLink', prompt('URL:'))">🔗 Link</button>
+                <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ Delete</button>
             </div>
-            <input type="text" id="editor-title" placeholder="無標題筆記">
+            <input type="text" id="editor-title" placeholder="Untitled Note">
             <div id="editor-body" contenteditable="true"></div>
-            <div id="save-indicator">已加密儲存</div>
+            <div id="save-indicator">Saved with Encryption</div>
         </div>
-        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;"><h3>請選擇或新增筆記</h3></div>
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;"><h3>Please select or create a note</h3></div>
     </div>
 
-    <div id="login-overlay" style="display: none;"><h2>🔐 請先登入以開啟加密空間</h2></div>
+    <div id="login-overlay" style="display: none;"><h2>🔐 Please login to access the encrypted space</h2></div>
 
     <script type="module">
         import { auth } from "./navbar.js";
@@ -190,8 +190,8 @@
         const decrypt = (ciphertext, key) => {
             try {
                 const bytes = CryptoJS.AES.decrypt(ciphertext, key);
-                return bytes.toString(CryptoJS.enc.Utf8) || "(解密失敗)";
-            } catch (e) { return "(資料損毀)"; }
+                return bytes.toString(CryptoJS.enc.Utf8) || "(Decryption Failed)";
+            } catch (e) { return "(Data Corrupted)"; }
         };
 
         window.execCmd = (cmd, val = null) => {
@@ -220,7 +220,7 @@
                     // 解密標題以顯示在列表
                     const decTitle = decrypt(data.title, auth.currentUser.uid);
                     const li = document.createElement('li');
-                    li.innerText = decTitle || "無標題筆記";
+                    li.innerText = decTitle || "Untitled Note";
                     if (doc.id === currentNoteId) li.className = "active";
                     li.onclick = () => selectNote(doc.id, data);
                     listEl.appendChild(li);
@@ -244,7 +244,7 @@
             const newNoteRef = doc(collection(db, "notes"));
             const newData = {
                 uid: key,
-                title: encrypt("新筆記", key),
+                title: encrypt("New Note", key),
                 content: encrypt("", key),
                 updatedAt: serverTimestamp()
             };
@@ -255,7 +255,7 @@
         function saveData() {
             if (!currentNoteId || !auth.currentUser) return;
             const key = auth.currentUser.uid;
-            document.getElementById('save-indicator').innerText = "🔐 正在進行強加密同步...";
+            document.getElementById('save-indicator').innerText = "🔐 Performing Strongly Encrypted Sync...";
             
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
@@ -267,12 +267,12 @@
                     content: encrypt(bodyVal, key),
                     updatedAt: serverTimestamp()
                 }, { merge: true });
-                document.getElementById('save-indicator').innerText = "✅ 已完成端到端加密儲存";
+                document.getElementById('save-indicator').innerText = "✅ End-to-End Encryption Completed";
             }, 1000);
         }
 
         window.deleteCurrentNote = async () => {
-            if (currentNoteId && confirm("刪除筆記？")) {
+            if (currentNoteId && confirm("Delete this note?")) {
                 await deleteDoc(doc(db, "notes", currentNoteId));
                 document.getElementById('editor-container').style.visibility = 'hidden';
                 document.getElementById('no-note-selected').style.display = 'flex';
