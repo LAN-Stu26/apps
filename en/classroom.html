@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #1d1d1d;
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .content-wrapper {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        .container { max-width: 900px; width: 100%; margin-top: 20px; }
+
+        .main-display {
+            background: #252526;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid #ffd966;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            min-height: 280px;
+        }
+
+        #result-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .number-circle {
+            width: 110px;
+            height: 110px;
+            background: #1a1a1a;
+            border: 4px solid #ffd966;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ffd966;
+            box-shadow: 0 0 15px rgba(255, 217, 102, 0.3);
+        }
+
+        .history-tag {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .card { background: #252526; padding: 20px; border-radius: 12px; border: 1px solid #3c3c3c; }
+        h3 { color: #ffd966; margin-top: 0; border-bottom: 1px solid #3c3c3c; padding-bottom: 10px; font-size: 1.1rem; }
+        label { display: block; margin: 12px 0 5px; font-size: 0.85rem; color: #aaa; }
+        
+        input, select {
+            width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #3c3c3c;
+            color: white; border-radius: 6px; box-sizing: border-box; font-size: 1rem;
+        }
+
+        .btn-draw {
+            width: 100%; max-width: 320px; padding: 18px; background: #ffd966;
+            color: black; border: none; border-radius: 12px; font-size: 1.3rem;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+
+        .btn-draw:hover { background: #f0c95a; transform: translateY(-3px); }
+        
+        .btn-reset {
+            background: transparent; color: #ff6666; border: 1px solid #ff6666;
+            padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 10px;
+        }
+        .btn-reset:hover { background: #ff6666; color: white; }
+
+        .method-info { font-size: 1rem; color: #ffd966; margin-bottom: 15px; font-weight: bold; }
+
+        /* 切換開關樣式 */
+        .switch-box { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <script type="module" src="/navbar.js"></script>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <div class="main-display">
+                <div id="method-display" class="method-info">Ready to Go</div>
+                <div id="result-area">
+                    <div class="number-circle">?</div>
+                </div>
+                <button class="btn-draw" onclick="luckyDraw()">Start Simultaneous Draw</button>
+                <div class="history-tag">
+                    People Selected:<span id="history-count">0</span> 
+                    <button class="btn-reset" onclick="resetHistory()">Reset History</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="card">
+                    <h3>👥 Class Settings</h3>
+                    <label>Total Number of Students</label>
+                    <input type="number" id="total-students" value="30" min="1">
+                    <label>Absent Seat Numbers (separated by commas)</label>
+                    <input type="text" id="absent-list" placeholder="Example: 3, 12">
+                    <label>Number of Students to Draw</label>
+                    <input type="number" id="draw-count" value="1" min="1" max="10">
+                    
+                    <div class="switch-box">
+                        <label style="margin:0;">Exclude Previously Selected Students</label>
+                        <input type="checkbox" id="exclude-history" style="width:20px; height:20px;">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚖️ Rule Selection</h3>
+                    <select id="draw-rule" style="margin-top: 15px;">
+                        <option value="random">1. Pure Random (Absolutely Fair)</option>
+                    </select>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Forced Weighting</h3>
+                    <label>Priority Selection Range (e.g., 1–10)</label>
+                    <input type="text" id="priority-range" placeholder="Example: 5-10">
+                    <label>Weight Multiplier</label>
+                    <select id="priority-weight">
+                        <option value="1">Normal (1×)</option>
+                        <option value="10">Very High Probability (10×)</option>
+                        <option value="50">Chosen One (50×)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 儲存已抽過的歷史名單
+        let historyList = [];
+
+        function resetHistory() {
+            historyList = [];
+            document.getElementById('history-count').innerText = "0";
+            alert("History has been cleared. All participants have been re-added to the draw. ✅");
+        }
+
+        function luckyDraw() {
+            const total = parseInt(document.getElementById('total-students').value);
+            const absentStr = document.getElementById('absent-list').value;
+            const absent = absentStr ? absentStr.split(',').map(n => parseInt(n.trim())) : [];
+            const drawCount = parseInt(document.getElementById('draw-count').value);
+            const rule = document.getElementById('draw-rule').value;
+            const priorityRange = document.getElementById('priority-range').value;
+            const weight = parseInt(document.getElementById('priority-weight').value);
+            const isExcludeHistory = document.getElementById('exclude-history').checked;
+            
+            const resultArea = document.getElementById('result-area');
+            const methodDisplay = document.getElementById('method-display');
+
+            let pStart = -1, pEnd = -1;
+            if (priorityRange.includes('-')) {
+                [pStart, pEnd] = priorityRange.split('-').map(Number);
+            }
+
+            // 1. 建立「抽獎籤桶」
+            let ticketBucket = [];
+            for (let i = 1; i <= total; i++) {
+                // 跳過缺席
+                if (absent.includes(i)) continue; 
+                
+                // 如果開啟了排除歷史，跳過已抽過的人
+                if (isExcludeHistory && historyList.includes(i)) continue;
+
+                let ticketCount = 1;
+                if (i >= pStart && i <= pEnd) {
+                    ticketCount = weight; 
+                }
+
+                for (let t = 0; t < ticketCount; t++) {
+                    ticketBucket.push(i);
+                }
+            }
+
+            // 2. 檢查名額是否足夠
+            if (ticketBucket.length === 0) {
+                alert("No eligible students available.(All students may have already been selected or marked as absent.)");
+                return;
+            }
+
+            let finalResults = [];
+            let tempBucket = [...ticketBucket];
+            
+            // 3. 執行抽取
+            while (finalResults.length < drawCount && tempBucket.length > 0) {
+                let randomIndex = Math.floor(Math.random() * tempBucket.length);
+                let picked = tempBucket[randomIndex];
+                
+                if (!finalResults.includes(picked)) {
+                    finalResults.push(picked);
+                    if (isExcludeHistory) historyList.push(picked); // 紀錄到歷史
+                }
+                tempBucket = tempBucket.filter(num => num !== picked);
+            }
+
+            // 4. 更新介面
+            methodDisplay.innerText = "Selecting Students…";
+            resultArea.innerHTML = finalResults.map(() => `<div class="number-circle">?</div>`).join('');
+
+            setTimeout(() => {
+                methodDisplay.innerText = "Draw Complete! ✅";
+                resultArea.innerHTML = finalResults.map(num => `<div class="number-circle">${num}</div>`).join('');
+                document.getElementById('history-count').innerText = historyList.length;
+            }, 800);
+        }
+    </script>
+</body>
+</html>
