@@ -1,8 +1,3 @@
-/**
- * LAN Studio - 核心 UI 組件 (v2.9)
- * 更新重點：修正漢堡選單位置（靠右）、保留地球選單與所有原始設計
- */
-
 // 1. 引入 Firebase SDK (保持不變)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -186,7 +181,7 @@ const navbarHTML = `
 
 // (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
-const isHomePage = window.location.pathname.includes('home.html') || window.location.pathname.endsWith('/');
+const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
 const breadcrumbContent = isHomePage ? `首頁` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
 
 const footerHTML = `
