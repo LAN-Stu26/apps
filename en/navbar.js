@@ -164,7 +164,7 @@ const navbarHTML = `
                 <div class="lang-sphere"></div>
             </span>
             <div class="dropdown-content">
-                <a href="https://lan.ddns.net/home"><b>繁體中文</b></a>
+                <a href="/home.html"><b>繁體中文</b></a>
                 <a href="home.html"><b>English(50％)</b></a>
             </div>
         </li>
@@ -177,7 +177,7 @@ const navbarHTML = `
 <div id="announcement-bar">
     <div class="bar-content">📢 歡迎來到 LAN Studio！我們現在支援 English 啦!!!</br>📢 Welcome to LAN Studio! We now support English!!!</div>
     <div class="bar-actions">
-        <a href="https://lan.ddns.net/home" class="btn-bar-go">Change language</a>
+        <a href="/home.html" class="btn-bar-go">更換語言</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -185,7 +185,7 @@ const navbarHTML = `
 
 // (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
-const isHomePage = window.location.pathname.includes('home.html') || window.location.pathname.endsWith('/');
+const isHomePage = window.location.pathname.match(/^(\/en)?\/($|home$|home\.html$)/) !== null;
 const breadcrumbContent = isHomePage ? `Home` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
 
 const footerHTML = `
