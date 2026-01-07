@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>番茄鐘 - LAN Studio</title>
+  <title>Pomodoro Technique - LAN Studio</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wdth,wght@100..900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --yellow: #FFD700;
-      --light-bg: #ffffff;
+      --yellow: #FFD966;
+      --light-bg: #818181;
       --dark-bg: #1a1a1a;
-      --light-text: #000000;
+      --light-text: #2d2d2d;
       --dark-text: #ffffff;
     }
 
@@ -72,21 +72,21 @@
 <body>
 
   <div class="pomodoro-app">
-    <h1 id="pageTitle">超懶得努力</h1>
-    <div id="statusText">努力中 💪</div>
+    <h1 id="pageTitle">LAZY!!!!!!</h1>
+    <div id="statusText">Hard-worknging 💪</div>
     <h1 id="timer">25:00</h1>
 
     <div class="controls">
-      <button onclick="startTimer()">開始</button>
-      <button onclick="resetTimer()">重設</button>
-      <button onclick="toggleSettings()">設定</button>
+      <button onclick="startTimer()">Start</button>
+      <button onclick="resetTimer()">Reset</button>
+      <button onclick="toggleSettings()">Settings</button>
     </div>
 
     <div class="settings" id="settings">
-      <label>用功時間（分鐘）: <input type="number" id="workTime" value="25" min="1" /></label>
-      <label>休息時間（分鐘）: <input type="number" id="breakTime" value="5" min="1" /></label>
-      <label>自訂標題: <input type="text" id="customTitle" placeholder="例如：考試倒數中…" /></label>
-      <button onclick="applySettings()">套用設定</button>
+      <label>Study Time (minutes): <input type="number" id="workTime" value="25" min="1" /></label>
+      <label>Break Time (minutes): <input type="number" id="breakTime" value="5" min="1" /></label>
+      <label>Custom Title: <input type="text" id="customTitle" placeholder="For example: Countdown to Exam…" /></label>
+      <button onclick="applySettings()">Apply Settings</button>
     </div>
   </div>
 
@@ -111,7 +111,7 @@
     }
 
     function updateStatus() {
-      statusText.textContent = isWorking ? "努力中 💪" : "休息中 💤";
+      statusText.textContent = isWorking ? "Hard-worknging 💪" : "Resting 💤";
     }
 
     function startTimer() {
