@@ -141,6 +141,7 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>Web Application Tools ▾</b></span>
             <div class="dropdown-content">
+                <a href="classroom.html"><b>Class Draw Tool</b></a>
                 <a href="editor.html"><b>Html Editor</b></a>
                 <a href="marquee.html"><b>Marquee</b></a>
                 <a href="pomodoro_technique.html"><b>Pomodoro technique (zh-TW)</b></a>
