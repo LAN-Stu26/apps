@@ -256,7 +256,7 @@ onAuthStateChanged(auth, (user) => {
                 <img src="${user.photoURL}" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966;">
             </div>
             <div class="dropdown-content">
-                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;">Hi, ${user.displayName || '會員'}</a>
+                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
                 <a id="logout-btn" style="cursor:pointer;">登出</a>
             </div>
         `;
