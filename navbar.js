@@ -1,3 +1,8 @@
+/**
+ * LAN Studio - 核心 UI 組件 (v2.9)
+ * 更新重點：修正漢堡選單位置（靠右）、保留地球選單與所有原始設計
+ */
+
 // 1. 引入 Firebase SDK (保持不變)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -161,7 +166,7 @@ const navbarHTML = `
             </span>
             <div class="dropdown-content">
                 <a href="home.html"><b>繁體中文</b></a>
-                <a href="en/home.html"><b>English</b></a>
+                <a href="/en/home.html"><b>English</b></a>
             </div>
         </li>
     </ul>
@@ -173,7 +178,7 @@ const navbarHTML = `
 <div id="announcement-bar">
     <div class="bar-content">📢 歡迎來到 LAN Studio！我們現在支援 English 啦!!!</br>📢 Welcome to LAN Studio! We now support English!!!</div>
     <div class="bar-actions">
-        <a href="en/home.html" class="btn-bar-go">Change language</a>
+        <a href="/en/home.html" class="btn-bar-go">Change language</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
