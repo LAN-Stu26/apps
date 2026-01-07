@@ -257,7 +257,7 @@ onAuthStateChanged(auth, (user) => {
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <a id="logout-btn" style="cursor:pointer;">登出</a>
+                <a id="logout-btn" style="cursor:pointer;"><b>登出</b></a>
             </div>
         `;
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
