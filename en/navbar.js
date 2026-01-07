@@ -145,16 +145,16 @@ const navbarHTML = `
                 <a href="editor.html"><b>Html Editor</b></a>
                 <a href="marquee.html"><b>Marquee</b></a>
                 <a href="pomodoro_technique.html"><b>Pomodoro technique</b></a>
-                <a href="r_c-timer.html"><b>Rubik's Cube Timer (zh-TW)</b></a>
+                <a href="r_c-timer.html"><b>Rubik's Cube Timer</b></a>
                 <a href="#" style="color:#555 !important;">Word Counter (Under Maintenance)</a>
             </div>
         </li>
-        <li><a href="news.html"><b>News (zh-TW)</b></a></li>
+        <li><a href="news.html"><b>News TW</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>Members Only / Upgrade Program ▾</b></span>
             <div class="dropdown-content">
                 <a href="#" style="color:#555 !important;">Members Only▾▾▾</a>
-                <a href="note.html"><b>Note (zh-TW)</b></a>
+                <a href="note.html"><b>Note</b></a>
                 <a href="#" style="color:#555 !important;">Upgrade Program▾▾▾</a>
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
@@ -166,7 +166,7 @@ const navbarHTML = `
             </span>
             <div class="dropdown-content">
                 <a href="/home.html"><b>繁體中文</b></a>
-                <a href="home.html"><b>English(50％)</b></a>
+                <a href="home.html"><b>English</b></a>
             </div>
         </li>
     </ul>
