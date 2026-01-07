@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>魔術方塊計時器 - LAN Studio</title>
+    <title>Rubik's Cube Timer - LAN Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
@@ -31,9 +31,9 @@
 <body class="min-h-screen flex flex-col p-4 md:p-8">
 
     <div class="flex-grow flex flex-col justify-center items-center">
-        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-blue-400">魔術方塊計時器</h1>
+        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-blue-400">Rubik's Cube Timer</h1>
         <p id="instruction" class="text-xl mb-12 text-gray-400">
-            按下「空白鍵」直到準備就緒，然後「鬆開」開始計時。
+            Press and hold the [Space] key until ready, then release to start the timer.
         </p>
 
         <div id="timer-display" class="font-mono font-extrabold text-white">
@@ -41,20 +41,20 @@
         </div>
 
         <div id="status-message" class="text-xl mt-4 h-8 text-gray-500">
-            就緒 (IDLE)
+            Ready (IDLE)
         </div>
 
     </div>
 
     <div class="w-full max-w-4xl mx-auto mt-8 p-4 bg-gray-800 rounded-xl shadow-2xl">
         <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-            <h2 class="text-xl font-semibold text-blue-300">成績歷史記錄</h2>
+            <h2 class="text-xl font-semibold text-blue-300">Score History</h2>
             <button onclick="clearTimes()" class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-lg text-sm transition duration-150">
-                清除記錄
+                Clear History
             </button>
         </div>
         <div id="times-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
-            <p class="text-gray-500 text-sm italic" id="empty-message">目前沒有成績記錄。</p>
+            <p class="text-gray-500 text-sm italic" id="empty-message">No scores recorded yet.</p>
         </div>
     </div>
 
@@ -86,7 +86,7 @@
         function startTimer() {
             timerState = 'RUNNING';
             startTime = performance.now();
-            statusMessage.textContent = '計時中 (RUNNING)';
+            statusMessage.textContent = 'RUNNING';
             timerDisplay.style.color = 'white';
 
             timerInterval = setInterval(() => {
@@ -101,7 +101,7 @@
             timerInterval = null;
 
             timerState = 'STOPPED';
-            statusMessage.textContent = '已停止 (STOPPED)';
+            statusMessage.textContent = 'STOPPED';
             timerDisplay.style.color = '#4ade80'; 
 
             const finalTime = currentDisplayTime;
@@ -120,24 +120,24 @@
         function renderTimes() {
             timesList.innerHTML = '';
             if (times.length === 0) {
-                timesList.innerHTML = '<p class="text-gray-500 text-sm italic" id="empty-message">目前沒有成績記錄。</p>';
+                timesList.innerHTML = '<p class="text-gray-500 text-sm italic" id="empty-message">No scores recorded yet.</p>';
                 return;
             }
 
             // 計算平均 (Average of 5)
             const ao5 = times.length >= 5
                 ? calculateAverage(times.slice(0, 5), 5)
-                : '不足 5 筆';
+                : 'Less than 5 entries';
 
             // 計算平均 (Average of 12)
             const ao12 = times.length >= 12
                 ? calculateAverage(times.slice(0, 12), 12)
-                : '不足 12 筆';
+                : 'Less than 12 entries';
 
             const summary = document.createElement('div');
             summary.className = 'text-sm font-medium mb-3 p-2 bg-gray-700 rounded-lg flex justify-around';
             summary.innerHTML = `
-                <span class="text-blue-300">最新成績: ${formatTime(times[0])}s</span>
+                <span class="text-blue-300">Latest Score: ${formatTime(times[0])}s</span>
                 <span class="text-yellow-300">Avg of 5: ${ao5}</span>
                 <span class="text-purple-300">Avg of 12: ${ao12}</span>
             `;
@@ -167,14 +167,14 @@
         }
 
         function clearTimes() {
-            if (confirm('確定要清除所有成績記錄嗎？')) {
+            if (confirm('Are you sure you want to clear all score records?')) {
                 times = [];
                 localStorage.removeItem('cube_times');
                 renderTimes();
                 updateTimerDisplay(0);
                 timerDisplay.style.color = 'white';
                 timerState = 'IDLE';
-                statusMessage.textContent = '就緒 (IDLE)';
+                statusMessage.textContent = 'IDLE';
             }
         }
 
@@ -189,12 +189,12 @@
 
             if (timerState === 'IDLE' || timerState === 'STOPPED') {
                 timerState = 'INSPECTING';
-                statusMessage.textContent = '按住... (HOLDING)';
+                statusMessage.textContent = 'HOLDING';
                 timerDisplay.style.color = '#fcd34d'; // 黃色
 
                 inspectionTimeout = setTimeout(() => {
                     timerState = 'READY';
-                    statusMessage.textContent = '準備就緒 (READY)';
+                    statusMessage.textContent = 'READY';
                     timerDisplay.style.color = '#4ade80'; // 綠色
                 }, READY_THRESHOLD);
             }
@@ -209,7 +209,7 @@
                 inspectionTimeout = null;
 
                 timerState = 'IDLE';
-                statusMessage.textContent = '就緒 (IDLE)';
+                statusMessage.textContent = 'IDLE';
                 timerDisplay.style.color = 'white';
                 return;
             }
@@ -224,7 +224,7 @@
 
             if (timerState === 'STOPPED') {
                 timerState = 'IDLE';
-                statusMessage.textContent = '就緒 (IDLE)';
+                statusMessage.textContent = 'IDLE';
                 updateTimerDisplay(0);
                 timerDisplay.style.color = 'white';
             }
