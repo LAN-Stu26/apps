@@ -3,115 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to LAN Studio!</title>
-    
-    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png">
-
+    <title>Welcome to LAN Studio !</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #1d1d1d;
+            --card-bg: #252526;
+            --accent: #ffd966;
+            --text: #ffffff;
+        }
+
         body {
-            background-color: #1d1d1d;
-            color: #ffd966;
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             overflow: hidden;
         }
 
-        .welcome-text {
-            font-size: 2.5rem;
+        /* Portal Card with Rise Animation */
+        .portal-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 217, 102, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            animation: cardRise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        /* Staggered Content Animation */
+        .portal-card > * {
+            animation: contentFadeUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
             font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+            animation-delay: 0.3s;
+        }
+
+        .status-msg {
+            font-size: 0.85rem;
+            color: #888;
             margin-bottom: 30px;
-            letter-spacing: 5px;
-            text-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
-            /* 優化：加入 forwards 讓動畫結束停留在狀態上 */
-            animation: fadeIn 1.5s ease-in-out forwards;
+            animation-delay: 0.4s;
         }
 
-        .progress-container {
-            width: 300px;
-            height: 4px;
-            background: #333;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation-delay: 0.5s;
         }
 
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffd966, #3498db);
-            box-shadow: 0 0 10px #ffd966;
-            /* 改成 ease-out 讓進度條最後一點點滑得更順 */
-            transition: width 0.2s ease-out;
+        .btn {
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: block;
         }
 
-        .status-text {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            letter-spacing: 1px;
-            min-height: 1.2em; /* 防止文字切換時閃爍 */
+        /* English is now the Main Button */
+        .btn-main { background: var(--accent); color: #000; border: none; }
+        .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); }
+
+        .auto-redirect-tip {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #555;
+            animation-delay: 0.7s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        #target-lang { color: var(--accent); font-weight: bold; }
+
+        @keyframes cardRise {
+            0% { transform: translateY(100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes contentFadeUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <div class="welcome-text">LAN Studio</div>
-    
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
+    <div class="portal-card">
+        <div class="welcome-title">LAN Studio</div>
+        <div id="geo-status" class="status-msg">Optimizing your experience...</div>
+        
+        <div class="button-group">
+            <a href="home.html" class="btn btn-main" onclick="stopTimer()">English Services</a>
+            <a href="/home.html" class="btn btn-outline" onclick="stopTimer()">繁體中文服務 (Traditional Chinese)</a>
+        </div>
+
+        <div class="auto-redirect-tip">
+            Redirecting to <span id="target-lang">Detecting...</span> in <span id="countdown">5</span>s
+        </div>
     </div>
-    
-    <div class="status-text" id="status">Initializing environment...</div>
 
     <script>
-        const progressBar = document.getElementById('progressBar');
-        const statusText = document.getElementById('status');
-        
-        // 增加更有真實感的訊息
-        const messages = {
-            20: "Loading...",
-            50: "Loading...",
-            80: "Ready, entering...",
-            100: "Welcome to LAN Studio!"
-        };
+        let timeLeft = 5;
+        let redirectUrl = "home.html"; // Default to English
+        let langName = "English Page";
+        let timer;
 
-        let progress = 0;
+        function stopTimer() { clearInterval(timer); }
 
-        const interval = setInterval(() => {
-            // 隨機增加進度，但在快結束時會變慢，模擬真實載入感
-            let increment = Math.random() * 12;
-            if (progress > 80) increment = Math.random() * 5;
-            
-            progress += increment;
-            
-            if (progress >= 100) {
-                progress = 100;
-                statusText.innerText = messages[100];
-                progressBar.style.width = '100%';
-                clearInterval(interval);
+        async function detectLocation() {
+            try {
+                // Geo-location detection
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
                 
-                // 稍微延遲讓使用者看到 100% 的快感
-                setTimeout(() => {
-                    window.location.replace("home.html");
-                }, 600);
-            } else {
-                progressBar.style.width = progress + '%';
-                // 根據進度區間更新文字
-                if (progress > 80) statusText.innerText = messages[80];
-                else if (progress > 50) statusText.innerText = messages[50];
-                else if (progress > 20) statusText.innerText = messages[20];
+                // Logic: TW, HK, MO use Chinese, others (including CN) use English
+                if (['TW', 'HK', 'MO'].includes(data.country_code)) {
+                    redirectUrl = "/home.html";
+                    langName = "繁體中文";
+                } else {
+                    redirectUrl = "home.html";
+                    langName = "English Page";
+                }
+                
+                document.getElementById('geo-status').innerText = `Location detected: ${data.country_name || data.country_code}`;
+            } catch (error) {
+                document.getElementById('geo-status').innerText = "System ready, entering...";
+            } finally {
+                document.getElementById('target-lang').innerText = langName;
+                startCountdown();
             }
-        }, 180);
+        }
+
+        function startCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            timer = setInterval(() => {
+                timeLeft--;
+                countdownEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    window.location.replace(redirectUrl);
+                }
+            }, 1000);
+        }
+
+        detectLocation();
     </script>
 </body>
 </html>
