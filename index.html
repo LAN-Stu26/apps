@@ -1,117 +1,161 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歡迎來到 LAN Studio !</title>
-    
-    <link rel="preload" as="image" href="Rainy_day_bokeh_background.png">
-
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #1d1d1d;
+            --card-bg: #252526;
+            --accent: #ffd966;
+            --text: #ffffff;
+            --border: #3c3c3c;
+        }
+
         body {
-            background-color: #1d1d1d;
-            color: #ffd966;
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             overflow: hidden;
         }
 
-        .welcome-text {
-            font-size: 2.5rem;
+        /* 服務選擇字卡 */
+        .portal-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
             font-weight: bold;
-            margin-bottom: 30px;
-            letter-spacing: 5px;
-            text-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
-            /* 優化：加入 forwards 讓動畫結束停留在狀態上 */
-            animation: fadeIn 1.5s ease-in-out forwards;
+            color: var(--accent);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255, 217, 102, 0.2);
         }
 
-        .progress-container {
-            width: 300px;
-            height: 4px;
-            background: #333;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffd966, #3498db);
-            box-shadow: 0 0 10px #ffd966;
-            /* 改成 ease-out 讓進度條最後一點點滑得更順 */
-            transition: width 0.2s ease-out;
-        }
-
-        .status-text {
-            margin-top: 15px;
+        .welcome-subtitle {
             font-size: 0.9rem;
-            color: #7f8c8d;
-            letter-spacing: 1px;
-            min-height: 1.2em; /* 防止文字切換時閃爍 */
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* 按鈕群組 */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 主按鈕：中文服務 */
+        .btn-main {
+            background: var(--accent);
+            color: #000;
+            border: none;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 217, 102, 0.4);
+        }
+
+        /* 次按鈕：英文服務 */
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 217, 102, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* 自動跳轉提示 */
+        .auto-redirect-tip {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        #countdown {
+            color: var(--accent);
+            font-weight: bold;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="welcome-text">LAN Studio</div>
-    
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
+    <div class="portal-card">
+        <div class="welcome-title">LAN Studio</div>
+        <div class="welcome-subtitle">Professional Digital Solutions</div>
+        
+        <div class="button-group">
+            <a href="home.html" class="btn btn-main" id="btn-zh">
+                繼續使用中文服務
+            </a>
+            
+            <a href="/en/home.html" class="btn btn-outline" id="btn-en">
+                English Services
+            </a>
+        </div>
+
+        <div class="auto-redirect-tip">
+            將在 <span id="countdown">3</span> 秒後自動跳轉至中文首頁
+        </div>
     </div>
-    
-    <div class="status-text" id="status">正在初始化環境...</div>
 
     <script>
-        const progressBar = document.getElementById('progressBar');
-        const statusText = document.getElementById('status');
+        let timeLeft = 3;
+        const countdownEl = document.getElementById('countdown');
         
-        // 增加更有真實感的訊息
-        const messages = {
-            20: "正在預載視覺資源...",
-            50: "核心組件載入完畢...",
-            80: "準備就緒，正在進入...",
-            100: "歡迎來到 LAN Studio"
-        };
-
-        let progress = 0;
-
-        const interval = setInterval(() => {
-            // 隨機增加進度，但在快結束時會變慢，模擬真實載入感
-            let increment = Math.random() * 12;
-            if (progress > 80) increment = Math.random() * 5;
+        // 倒數計時邏輯
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownEl.innerText = timeLeft;
             
-            progress += increment;
-            
-            if (progress >= 100) {
-                progress = 100;
-                statusText.innerText = messages[100];
-                progressBar.style.width = '100%';
-                clearInterval(interval);
-                
-                // 稍微延遲讓使用者看到 100% 的快感
-                setTimeout(() => {
-                    window.location.replace("home.html");
-                }, 600);
-            } else {
-                progressBar.style.width = progress + '%';
-                // 根據進度區間更新文字
-                if (progress > 80) statusText.innerText = messages[80];
-                else if (progress > 50) statusText.innerText = messages[50];
-                else if (progress > 20) statusText.innerText = messages[20];
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                // 執行自動跳轉
+                window.location.replace("home.html");
             }
-        }, 180);
+        }, 1000);
+
+        // 如果使用者主動點擊按鈕，停止倒數防止衝突
+        document.getElementById('btn-zh').addEventListener('click', () => clearInterval(timer));
+        document.getElementById('btn-en').addEventListener('click', () => clearInterval(timer));
     </script>
 </body>
 </html>
