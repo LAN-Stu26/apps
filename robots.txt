@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 這裡最重要，直接導向你的地圖
+Sitemap: https://lan.ddns.net/sitemap.xml
