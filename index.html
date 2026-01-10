@@ -11,7 +11,6 @@
             --card-bg: #252526;
             --accent: #ffd966;
             --text: #ffffff;
-            --border: #3c3c3c;
         }
 
         body {
@@ -26,93 +25,84 @@
             overflow: hidden;
         }
 
-        /* 服務選擇字卡 */
+        /* 服務選擇字卡 - 核心上升動畫 */
         .portal-card {
             background: var(--card-bg);
             padding: 40px;
-            border-radius: 20px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 217, 102, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             text-align: center;
-            max-width: 400px;
+            max-width: 380px;
             width: 90%;
-            animation: fadeIn 1s ease-out forwards;
+            /* 動畫設定：持續 1.2 秒，帶有優雅的彈出感 */
+            animation: cardRise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        /* 子元素分批進場動畫 */
+        .portal-card > * {
+            animation: contentFadeUp 0.8s ease-out forwards;
+            opacity: 0;
         }
 
         .welcome-title {
             font-size: 2.2rem;
             font-weight: bold;
             color: var(--accent);
-            margin-bottom: 10px;
-            letter-spacing: 3px;
-            text-shadow: 0 0 15px rgba(255, 217, 102, 0.2);
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+            animation-delay: 0.3s; /* 延遲進場 */
         }
 
-        .welcome-subtitle {
-            font-size: 0.9rem;
+        .status-msg {
+            font-size: 0.85rem;
             color: #888;
             margin-bottom: 30px;
+            animation-delay: 0.4s;
         }
 
-        /* 按鈕群組 */
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            animation-delay: 0.5s;
         }
 
         .btn {
-            padding: 15px 25px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
         }
 
-        /* 主按鈕：中文服務 */
-        .btn-main {
-            background: var(--accent);
-            color: #000;
-            border: none;
-        }
+        .btn-main { background: var(--accent); color: #000; border: none; }
+        .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); }
 
-        .btn-main:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255, 217, 102, 0.4);
-        }
-
-        /* 次按鈕：英文服務 */
-        .btn-outline {
-            background: transparent;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-
-        .btn-outline:hover {
-            background: rgba(255, 217, 102, 0.1);
-            transform: translateY(-3px);
-        }
-
-        /* 自動跳轉提示 */
         .auto-redirect-tip {
-            margin-top: 25px;
-            font-size: 0.8rem;
+            margin-top: 30px;
+            font-size: 0.75rem;
             color: #555;
+            animation-delay: 0.7s;
         }
 
-        #countdown {
-            color: var(--accent);
-            font-weight: bold;
+        #target-lang { color: var(--accent); font-weight: bold; }
+
+        /* 動畫定義 */
+        @keyframes cardRise {
+            0% { transform: translateY(100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes contentFadeUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -120,42 +110,63 @@
 
     <div class="portal-card">
         <div class="welcome-title">LAN Studio</div>
-        <div class="welcome-subtitle">Professional Digital Solutions</div>
+        <div id="geo-status" class="status-msg">正在優化您的瀏覽體驗...</div>
         
         <div class="button-group">
-            <a href="home.html" class="btn btn-main" id="btn-zh">
-                繼續使用中文服務
-            </a>
-            
-            <a href="/en/home.html" class="btn btn-outline" id="btn-en">
-                English Services
-            </a>
+            <a href="home.html" class="btn btn-main" onclick="stopTimer()">繁體中文服務 (Traditional Chinese)</a>
+            <a href="/en/home.html" class="btn btn-outline" onclick="stopTimer()">English Services</a>
         </div>
 
         <div class="auto-redirect-tip">
-            將在 <span id="countdown">3</span> 秒後自動跳轉至中文首頁
+            <span id="target-lang">偵測中...</span> 將於 <span id="countdown">5</span> 秒後自動跳轉
         </div>
     </div>
 
     <script>
-        let timeLeft = 3;
-        const countdownEl = document.getElementById('countdown');
-        
-        // 倒數計時邏輯
-        const timer = setInterval(() => {
-            timeLeft--;
-            countdownEl.innerText = timeLeft;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                // 執行自動跳轉
-                window.location.replace("home.html");
-            }
-        }, 1000);
+        let timeLeft = 5;
+        let redirectUrl = "home.html";
+        let langName = "繁體中文";
+        let timer;
 
-        // 如果使用者主動點擊按鈕，停止倒數防止衝突
-        document.getElementById('btn-zh').addEventListener('click', () => clearInterval(timer));
-        document.getElementById('btn-en').addEventListener('click', () => clearInterval(timer));
+        function stopTimer() { clearInterval(timer); }
+
+        async function detectLocation() {
+            try {
+                // 地理位置偵測
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                
+                // 邏輯判斷：台港澳使用繁中，其他(含中國)使用英文
+                if (['TW', 'HK', 'MO'].includes(data.country_code)) {
+                    redirectUrl = "home.html";
+                    langName = "繁體中文頁面";
+                } else {
+                    redirectUrl = "/en/home.html";
+                    langName = "English Page";
+                }
+                
+                document.getElementById('geo-status').innerText = `偵測區域：${data.country_name || data.country_code}`;
+            } catch (error) {
+                document.getElementById('geo-status').innerText = "系統就緒，準備進入";
+            } finally {
+                document.getElementById('target-lang').innerText = langName;
+                startCountdown();
+            }
+        }
+
+        function startCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            timer = setInterval(() => {
+                timeLeft--;
+                countdownEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    window.location.replace(redirectUrl);
+                }
+            }, 1000);
+        }
+
+        detectLocation();
     </script>
 </body>
 </html>
