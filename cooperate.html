@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合作商家 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ffd966;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            /* 預留導覽列空間，navbar.js 會自動處理 padding，但這裡加一點保險 */
+            padding-top: 20px; 
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .partner-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partner-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            border-color: var(--primary-color);
+        }
+
+        .partner-icon { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
+        .partner-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: var(--primary-color); }
+        .partner-desc { color: #aaa; line-height: 1.6; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">合作商家</h1>
+        <div class="partner-grid">
+            <a href="https://freegeometricgames.com/" target="_blank" class="partner-card">
+                <img src="合作商家圖片/幾何遊戲icon.png" class="partner-icon" alt="Geometricgame Studio">
+                <div class="partner-name">Geometricgame Studio</div>
+                <div class="partner-desc">提供多種免費且有趣遊戲體驗。</div>
+            </a>
+        </div>
+    </div>
+    <script type="module" src="navbar.js"></script>
+</body>
+</html>
