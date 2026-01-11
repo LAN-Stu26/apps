@@ -146,7 +146,7 @@ const navbarHTML = `
                 <a href="marquee.html"><b>跑馬燈</b></a>
                 <a href="pomodoro_technique.html"><b>番茄鐘</b></a>
                 <a href="r_c-timer.html"><b>魔方計時器</b></a>
-                <a href="#" style="color:#555 !important;">字數計算器</a>
+                <a href="word_counter.html"><b>字數計算器</b></a>
             </div>
         </li>
         <li><a href="news.html"><b>最新消息</b></a></li>
@@ -176,7 +176,7 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 歡迎來到 LAN Studio！我們現在支援 English 啦!!!</br>📢 Welcome to LAN Studio! We now support English!!!</div>
+    <div class="bar-content">📢 Welcome to LAN Studio! We now support English!!!</div>
     <div class="bar-actions">
         <a href="/en/home.html" class="btn-bar-go">Change language</a>
         <button class="btn-bar-close" id="close-bar">×</button>
