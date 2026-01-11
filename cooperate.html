@@ -67,6 +67,33 @@
         .partner-icon { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
         .partner-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: var(--primary-color); }
         .partner-desc { color: #aaa; line-height: 1.6; font-size: 0.95rem; }
+
+        /* 新增：加入合作商家按鈕區塊樣式 */
+        .join-section {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #333;
+            animation: fadeIn 0.8s ease;
+        }
+        .join-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background-color: var(--primary-color);
+            color: #000;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
+        }
+        .join-btn:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -78,6 +105,11 @@
                 <div class="partner-name">Geometricgame Studio</div>
                 <div class="partner-desc">提供多種免費且有趣遊戲體驗。</div>
             </a>
+        </div>
+
+        <div class="join-section">
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 1.1rem;">想要與我們合作嗎？歡迎加入 LAN Studio 夥伴計畫！</p>
+            <a href="from/partner-with-us.html" class="join-btn">立即成為合作商家</a>
         </div>
     </div>
     <script type="module" src="navbar.js"></script>
