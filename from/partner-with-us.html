@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成為合作商家 - LAN Studio</title>
+    <!-- 引入同資料夾下的 navbar.js -->
+    <script type="module" src="navbar.js"></script>
+    <style>
+        /* 表單容器樣式，配合 navbar.js 的全域深色背景 */
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #2a2a2a;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h1 {
+            color: #ffd966;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p.subtitle {
+            color: #ccc;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #ffd966;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ffd966;
+            box-shadow: 0 0 8px rgba(255, 217, 102, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #ffd966;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        .submit-btn:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>成為合作商家</h1>
+        <p class="subtitle">歡迎加入 LAN Studio 合作夥伴計畫！<br>請填寫以下資訊，我們將盡快與您聯繫。</p>
+        
+        <form id="partner-form">
+            <div class="form-group">
+                <label for="store-name">商家名稱 / Store Name</label>
+                <input type="text" id="store-name" name="store-name" required placeholder="請輸入您的商家名稱">
+            </div>
+            
+            <div class="form-group">
+                <label for="contact-person">聯絡人 / Contact Person</label>
+                <input type="text" id="contact-person" name="contact-person" required placeholder="請輸入聯絡人姓名">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">電子郵件 / Email</label>
+                <input type="email" id="email" name="email" required placeholder="example@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="website">合作網站 / Website (Optional)</label>
+                <input type="url" id="website" name="website" placeholder="https://your-website.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">合作內容簡介 / Message</label>
+                <textarea id="message" name="message" required placeholder="請簡述您的合作提案、商家介紹或任何想告訴我們的事..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">送出申請</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { app, auth } from './navbar.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore(app);
+        const emailInput = document.getElementById('email');
+
+        // 監聽登入狀態，自動填入會員 Email
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                emailInput.value = user.email;
+                emailInput.readOnly = true; // 鎖定不讓修改，確保是會員本人
+                emailInput.style.opacity = '0.7';
+                emailInput.title = "已帶入會員信箱";
+            } else {
+                emailInput.value = '';
+                emailInput.readOnly = false;
+                emailInput.style.opacity = '1';
+                emailInput.title = "";
+            }
+        });
+
+        document.getElementById('partner-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = '傳送中...';
+
+            try {
+                await addDoc(collection(db, "partner_requests"), {
+                    storeName: document.getElementById('store-name').value,
+                    contactPerson: document.getElementById('contact-person').value,
+                    email: emailInput.value,
+                    website: document.getElementById('website').value,
+                    message: document.getElementById('message').value,
+                    submittedAt: serverTimestamp(),
+                    uid: auth.currentUser ? auth.currentUser.uid : null
+                });
+
+                alert('感謝您的申請！我們已收到您的資料，將盡快與您聯繫。');
+                this.reset();
+                // 重置後如果還是登入狀態，要把 Email 填回去
+                if (auth.currentUser) emailInput.value = auth.currentUser.email;
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert('傳送失敗，請稍後再試。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+            }
+        });
+    </script>
+</body>
+</html>
