@@ -146,7 +146,7 @@ const navbarHTML = `
                 <a href="marquee.html"><b>跑馬燈</b></a>
                 <a href="pomodoro_technique.html"><b>番茄鐘</b></a>
                 <a href="r_c-timer.html"><b>魔方計時器</b></a>
-                <a href="word_counter.html"><b>字數計算器</b></a>
+                <a href="#" style="color:#555 !important;">字數計算器</a>
             </div>
         </li>
         <li><a href="news.html"><b>最新消息</b></a></li>
@@ -158,7 +158,8 @@ const navbarHTML = `
                 <a href="#" style="color:#555 !important;">體驗升級!!!▾▾▾</a>
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
-        </li>            
+        </li>
+        <li><a href="cooperate.html"><b>合作</b></a></li>       
         <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
         <li class="dropdown">
             <span class="dropbtn" style="padding: 10px;">
