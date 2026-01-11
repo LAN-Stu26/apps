@@ -38,8 +38,8 @@
 
         .partner-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
         }
 
         .partner-card {
@@ -67,6 +67,14 @@
         .partner-icon { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
         .partner-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: var(--primary-color); }
         .partner-desc { color: #aaa; line-height: 1.6; font-size: 0.95rem; }
+
+        /* RWD 佈局 (配合 home.html 風格) */
+        @media (max-width: 850px) {
+            .partner-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) { 
+            .partner-grid { grid-template-columns: 1fr; } 
+        }
 
         /* 新增：加入合作商家按鈕區塊樣式 */
         .join-section {
@@ -105,6 +113,18 @@
                 <div class="partner-name">Geometricgame Studio</div>
                 <div class="partner-desc">提供多種免費且有趣遊戲體驗。</div>
             </a>
+
+            <a href="from/partner-with-us.html" class="partner-card">
+                <div style="font-size: 3.5rem; margin-bottom: 20px;">🤝</div>
+                <div class="partner-name">誠徵合作預留位</div>
+                <div class="partner-desc">您的品牌也可以在這裡曝光！點擊立即申請加入我們。</div>
+            </a>
+
+            <a href="from/partner-with-us.html" class="partner-card">
+                <div style="font-size: 3.5rem; margin-bottom: 20px;">🤝</div>
+                <div class="partner-name">誠徵合作預留位</div>
+                <div class="partner-desc">您的品牌也可以在這裡曝光！點擊立即申請加入我們。</div>
+            </a>
         </div>
 
         <div class="join-section">
@@ -115,3 +135,5 @@
     <script type="module" src="navbar.js"></script>
 </body>
 </html>
+
+
