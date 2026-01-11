@@ -138,29 +138,35 @@ const navbarHTML = `
 <nav id="custom-navbar">
     <div class="logo">LAN Studio</div>
     <ul id="nav-list">
-        <li><a href="../home.html"><b>首頁</b></a></li>
+        <li><a href="/home.html"><b>首頁</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
             <div class="dropdown-content">
-                <a href="../classroom.html"><b>抽號器</b></a>
-                <a href="../editor.html"><b>Html Editor</b></a>
-                <a href="../marquee.html"><b>跑馬燈</b></a>
-                <a href="../pomodoro_technique.html"><b>番茄鐘</b></a>
-                <a href="../r_c-timer.html"><b>魔方計時器</b></a>
-                <a href="../word_counter.html"><b>字數計算器</b></a>
+                <a href="/classroom.html"><b>抽號器</b></a>
+                <a href="/editor.html"><b>Html Editor</b></a>
+                <a href="/marquee.html"><b>跑馬燈</b></a>
+                <a href="/pomodoro_technique.html"><b>番茄鐘</b></a>
+                <a href="/r_c-timer.html"><b>魔方計時器</b></a>
+                <a href="/word_counter.html"><b>字數計算器</b></a>
             </div>
         </li>
-        <li><a href="../news.html"><b>最新消息</b></a></li>
+        <li><a href="/news.html"><b>最新消息</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="#" style="color:#555 !important;">會員專屬▾▾▾</a>
-                <a href="../note.html"><b>加密雲端筆記</b></a>
+                <a href="/note.html"><b>加密雲端筆記</b></a>
                 <a href="#" style="color:#555 !important;">體驗升級!!!▾▾▾</a>
-                <a href="../editor.html"><b>Html Editor</b></a>
+                <a href="/editor.html"><b>Html Editor</b></a>
             </div>
         </li>
-        <li><a href="../cooperate.html"><b>合作商家</b></a></li>       
+        <li class="dropdown">
+            <span class="dropbtn"><b>關於本站 ▾</b></span>
+            <div class="dropdown-content">
+                <a href="/cooperate.html"><b>合作商家</b></a>
+                <a href="improve-website.html"><b>改善表單</b></a>
+            </div>
+        </li>
         <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
         <li class="dropdown">
             <span class="dropbtn" style="padding: 10px;">
