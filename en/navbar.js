@@ -146,7 +146,7 @@ const navbarHTML = `
                 <a href="marquee.html"><b>Marquee</b></a>
                 <a href="pomodoro_technique.html"><b>Pomodoro technique</b></a>
                 <a href="r_c-timer.html"><b>Rubik's Cube Timer</b></a>
-                <a href="#" style="color:#555 !important;">Word Counter (Under Maintenance)</a>
+                <a href="word_counter.html"><b>Word Counter</b></a>
             </div>
         </li>
         <li><a href="news.html"><b>News TW</b></a></li>

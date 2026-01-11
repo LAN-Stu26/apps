@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Center - LAN Stdio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* --- 簡潔標題區：改為純色深色背景 --- */
+        .hero-header {
+            width: 100%; 
+            height: 200px;
+            background: linear-gradient(180deg, #111 0%, var(--bg-color) 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 217, 102, 0.1);
+        }
+
+        .hero-title-box {
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            letter-spacing: 5px;
+        }
+
+        /* --- 內容區佈局 --- */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            text-align: center; 
+            font-size: 1.8rem;
+            margin-bottom: 40px; 
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+        }
+
+        /* --- 教學區域 --- */
+        .tutorial-banner {
+            background: rgba(45, 45, 45, 0.5);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px dashed var(--primary-dark);
+            margin-bottom: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .tutorial-text { flex: 2; min-width: 300px; }
+        .tutorial-text h3 { color: var(--primary-dark); margin-top: 0; font-size: 1.2rem; }
+        .tutorial-steps { 
+            flex: 1; 
+            min-width: 250px; 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        /* --- 下載字卡網格 --- */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .app-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(255, 217, 102, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .app-info { flex-grow: 1; }
+        .app-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.3rem; }
+        .app-card p { margin: 0 0 20px 0; color: #7f8c8d; font-size: 0.9rem; }
+
+        .download-btn {
+            background: transparent;
+            border: 1.5px solid var(--primary-dark);
+            color: var(--primary-dark);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .app-card:hover .download-btn {
+            background: var(--primary-dark);
+            color: #000;
+        }
+
+        @media (max-width: 600px) {
+            .hero-title { font-size: 2.2rem; }
+            .hero-header { height: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <header class="hero-header">
+        <div class="hero-title-box">
+            <h1 class="hero-title">Download Center</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <section class="tutorial-banner">
+            <div class="tutorial-text">
+                <h3>💡 AI Recommendation: Install as App</h3>
+                <p>Install LAN Studio on your computer and you can quickly launch it from your desktop without a network connection, enjoying a full-screen operating experience.</p>
+            </div>
+            <div class="tutorial-steps">
+                <b>Chrome installation tutorial:</b><br>
+                1. Click the three dots in the upper right corner.<br>
+                2. Save and share > Installation page is for the application
+            </div>
+        </section>
+
+        <h2 class="section-title">Offline tool download</h2>
+        
+        <div class="app-grid">
+            <div class="app-card">
+                <div class="app-info">
+                    <div class="app-icon">🧑‍🏫</div>
+                    <h3>Class Draw Tool</h3>
+                    <p>Does the class not have a lottery drum? Come and use the one made by LAN Studio!!!</p>
+                </div>
+                <a href="classroom.html" download="LAN_Classroom.html" class="download-btn">Download HTML file</a>
+            </div>
+
+            <div class="app-card">
+                <div class="app-info">
+                    <div class="app-icon">⏱️</div>
+                    <h3>番茄鐘 (Pomodoro)</h3>
+                    <p>極簡專注計時器，內建離線鈴聲，助您高效辦公。</p>
+                </div>
+                <a href="pomodoro_technique.html" download="LAN_Pomodoro.html" class="download-btn">Download HTML file</a>
+            </div>
+
+            <div class="app-card">
+                <div class="app-info">
+                    <div class="app-icon">🧩</div>
+                    <h3>魔方計時器 (Timer)</h3>
+                    <p>專為玩家打造的計時工具，支援手機與電腦離線使用。</p>
+                </div>
+                <a href="r_c-timer.html" download="LAN_Timer.html" class="download-btn">Download HTML file</a>
+            </div>
+
+            <div class="app-card">
+                <div class="app-info">
+                    <div class="app-icon">📢</div>
+                    <h3>跑馬燈 (Marquee)</h3>
+                    <p>全螢幕公告工具，可自由修改文字顏色與滾動速度。</p>
+                </div>
+                <a href="marquee.html" download="LAN_Marquee.html" class="download-btn">Download HTML file</a>
+            </div>
+
+            <div class="app-card">
+                <div class="app-info">
+                    <div class="app-icon">💻</div>
+                    <h3>HTML Editor</h3>
+                    <p>輕量程式碼預覽工具，適合教學展示與快速測試。</p>
+                </div>
+                <a href="editor.html" download="LAN_Editor.html" class="download-btn">Download HTML file</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>

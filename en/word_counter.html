@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter - LAN Studio</title>
+    <style>
+        /* Word Counter Specific Styles (Dark Mode Adapted) */
+        .counter-wrapper {
+            width: 90%;
+            max-width: 800px;
+            background: #252525;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 20px auto;
+        }
+
+        .header {
+            padding: 20px;
+            background: #ffd966; /* LAN Studio Theme Yellow */
+            color: #000;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .input-area { padding: 20px; }
+
+        textarea {
+            width: 100%; height: 300px; padding: 15px;
+            background: #1d1d1d; color: #fff;
+            border: 1px solid #444; border-radius: 8px;
+            font-size: 16px; line-height: 1.6; resize: vertical;
+            box-sizing: border-box; outline: none;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: #ffd966; }
+
+        .stats-bar {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1px; background: #444; border-top: 1px solid #444;
+        }
+
+        .stat-item { background: #252525; padding: 15px; text-align: center; }
+        .stat-value { display: block; font-size: 1.5rem; font-weight: bold; color: #ffd966; margin-bottom: 5px; }
+        .stat-label { font-size: 0.85rem; color: #aaa; }
+
+        .controls { padding: 10px 20px; display: flex; justify-content: flex-end; background: #2a2a2a; border-top: 1px solid #333; }
+        
+        button.clear-btn {
+            background: #ff5252; color: white; border: none; padding: 8px 16px;
+            border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+        }
+        button.clear-btn:hover { background: #e04848; }
+    </style>
+</head>
+<body>
+    <div class="counter-wrapper">
+        <div class="header">Word Count Tool</div>
+        <div class="input-area">
+            <textarea id="textInput" placeholder="Please enter or paste your text here..."></textarea>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item"><span class="stat-value" id="wordCount">0</span><span class="stat-label">Words</span></div>
+            <div class="stat-item"><span class="stat-value" id="charCount">0</span><span class="stat-label">Chars (w/ spaces)</span></div>
+            <div class="stat-item"><span class="stat-value" id="charCountNoSpace">0</span><span class="stat-label">Chars (no spaces)</span></div>
+            <div class="stat-item"><span class="stat-value" id="lineCount">0</span><span class="stat-label">Lines</span></div>
+            <div class="stat-item"><span class="stat-value" id="paragraphCount">0</span><span class="stat-label">Paragraphs</span></div>
+        </div>
+        <div class="controls">
+            <button class="clear-btn" onclick="clearText()">Clear Content</button>
+        </div>
+    </div>
+
+    <!-- Import Core Navbar -->
+    <script type="module" src="navbar.js"></script>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const els = {
+            word: document.getElementById('wordCount'),
+            char: document.getElementById('charCount'),
+            charNoSpace: document.getElementById('charCountNoSpace'),
+            line: document.getElementById('lineCount'),
+            para: document.getElementById('paragraphCount')
+        };
+
+        textInput.addEventListener('input', () => {
+            const text = textInput.value;
+            els.char.textContent = text.length;
+            els.charNoSpace.textContent = text.replace(/\s/g, '').length;
+            els.line.textContent = text ? text.split(/\r\n|\r|\n/).length : 0;
+            els.para.textContent = text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+            
+            // Mixed word count logic (CJK = 1 word, English word = 1 word)
+            const cjk = (text.match(/[\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+            const eng = text.replace(/[\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff]/g, ' ')
+                            .split(/[\s,.\/#!$%\^&\*;:{}=\-_`~()\[\]"'+?<>]+/)
+                            .filter(w => w.length > 0).length;
+            els.word.textContent = cjk + eng;
+        });
+
+        function clearText() { textInput.value = ''; textInput.dispatchEvent(new Event('input')); textInput.focus(); }
+    </script>
+</body>
+</html>
