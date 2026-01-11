@@ -159,7 +159,7 @@ const navbarHTML = `
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>
-        <li><a href="cooperate.html"><b>合作</b></a></li>       
+        <li><a href="cooperate.html"><b>合作商家</b></a></li>       
         <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
         <li class="dropdown">
             <span class="dropbtn" style="padding: 10px;">
