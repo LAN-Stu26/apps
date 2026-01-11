@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>改善網站建議 - LAN Studio</title>
+    <!-- 引入同資料夾下的 navbar.js -->
+    <script type="module" src="navbar.js"></script>
+    <style>
+        /* 樣式與 partner-with-us.html 保持一致 */
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #2a2a2a;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h1 {
+            color: #ffd966;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p.subtitle {
+            color: #ccc;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #ffd966;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #ffd966;
+            box-shadow: 0 0 8px rgba(255, 217, 102, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #ffd966;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        .submit-btn:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>改善網站建議</h1>
+        <p class="subtitle">發現 Bug 或有新功能點子？<br>歡迎告訴我們，讓我們做得更好！</p>
+        
+        <form id="feedback-form">
+            <div class="form-group">
+                <label for="feedback-type">建議類型 / Type</label>
+                <select id="feedback-type" name="feedback-type">
+                    <option value="bug">🐛 Bug 回報 (Bug Report)</option>
+                    <option value="feature">💡 功能建議 (Feature Request)</option>
+                    <option value="ui">🎨 介面設計 (UI/UX)</option>
+                    <option value="other">📝 其他 (Other)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="email">電子郵件 / Email (Optional)</label>
+                <input type="email" id="email" name="email" placeholder="example@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">詳細內容 / Description</label>
+                <textarea id="message" name="message" required placeholder="請描述您遇到的問題或建議..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">送出建議</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { app, auth } from './navbar.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore(app);
+        const emailInput = document.getElementById('email');
+
+        // 監聽登入狀態，自動填入會員 Email
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                emailInput.value = user.email;
+                emailInput.readOnly = true;
+                emailInput.style.opacity = '0.7';
+                emailInput.title = "已帶入會員信箱";
+            }
+        });
+
+        document.getElementById('feedback-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = '傳送中...';
+
+            try {
+                await addDoc(collection(db, "website_feedback"), {
+                    type: document.getElementById('feedback-type').value,
+                    email: emailInput.value || 'Anonymous',
+                    message: document.getElementById('message').value,
+                    submittedAt: serverTimestamp(),
+                    uid: auth.currentUser ? auth.currentUser.uid : null,
+                    userAgent: navigator.userAgent // 收集瀏覽器資訊有助於 Debug
+                });
+
+                alert('感謝您的回饋！我們會認真參考您的建議。');
+                this.reset();
+                if (auth.currentUser) emailInput.value = auth.currentUser.email;
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert('傳送失敗，請稍後再試。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+            }
+        });
+    </script>
+</body>
+</html>
