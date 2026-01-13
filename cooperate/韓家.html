@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>韓家 - 合作商家介紹</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ffd966;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --accent-blue: #3498db;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding-top: 60px; /* 預留導覽列空間 */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, var(--bg-color) 100%);
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin: 0 0 15px 0;
+            text-shadow: 0 4px 20px rgba(255, 217, 102, 0.2);
+            letter-spacing: 4px;
+            font-weight: bold;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            letter-spacing: 2px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 50px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--primary-color);
+        }
+
+        .info-item {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #3d3d3d;
+            padding-bottom: 20px;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .label {
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .value {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #eee;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            color: #7f8c8d;
+            text-decoration: none;
+            transition: 0.3s;
+            margin-top: 40px;
+        }
+        .back-link:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <h1 class="hero-title">韓家</h1>
+        <div class="hero-subtitle">舊 Google Chat 時代遺留的唯一勢力，正統理念的延續者。</div>
+    </div>
+
+    <div class="container">
+        <div class="info-card">
+            <div class="info-item">
+                <span class="label">商家介紹</span>
+                <div class="value">
+                    韓家創立於 7 年前，是舊 Google Chat 時代遺留下來的唯一勢力，也是現在唯一的正統勢力。我們始終保持著絕對的理念繼續營運，致力於維護社群的核心價值與歷史傳承。
+                </div>
+            </div>
+
+            <div class="info-item">
+                <span class="label">現任 CEO / 負責人</span>
+                <div class="value">劉O昇 / 韓O</div>
+            </div>
+
+            <div class="info-item">
+                <span class="label">合作期間</span>
+                <div class="value">2025 - 2026</div>
+            </div>
+
+            <div class="info-item">
+                <span class="label">聯絡資訊</span>
+                <div class="value">
+                    <span style="color: #aaa;">商家尚未提供聯絡資訊。</span>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <span class="label">服務網站</span>
+                <div class="value">
+                    <span style="color: #aaa;">本頁面即為韓家官方指定介紹頁</span>
+                </div>
+            </div>
+        </div>
+
+        <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
+    </div>
+
+    <script type="module" src="navbar.js"></script>
+</body>
+</html>
