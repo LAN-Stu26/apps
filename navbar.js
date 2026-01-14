@@ -128,7 +128,8 @@ const style = `
 
     #custom-footer { background-color: #000; color: #ecf0f1; padding: 40px 20px; border-top: 1px solid #222; }
     .footer-top { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; }
-    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; }
+    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; animation: shine 4s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
+    .ai-notice-navbar { font-weight: bold; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4) 0% center / 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
 </style>
 `;
 
@@ -139,14 +140,13 @@ const navbarHTML = `
     <ul id="nav-list">
         <li><a href="home.html"><b>首頁</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
+            <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
+                <a href="apps.html"><b>所有網頁程式</b></a>
+                <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="fullscreen.html"><b>全螢幕顏色</b></a>
                 <a href="classroom.html"><b>抽號器</b></a>
                 <a href="editor.html"><b>Html Editor</b></a>
-                <a href="marquee.html"><b>跑馬燈</b></a>
-                <a href="pomodoro_technique.html"><b>番茄鐘</b></a>
-                <a href="r_c-timer.html"><b>魔方計時器</b></a>
-                <a href="word_counter.html"><b>字數計算器</b></a>
             </div>
         </li>
         <li><a href="news.html"><b>最新消息</b></a></li>
