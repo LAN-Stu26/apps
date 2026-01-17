@@ -162,6 +162,7 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>關於本站 ▾</b></span>
             <div class="dropdown-content">
+                <a href="https://github.com/LAN-Stu26/apps"><b>Github</b></a>
                 <a href="/cooperate.html"><b>合作商家</b></a>
                 <a href="/from/improve-website.html"><b>改善表單</b></a>
             </div>
