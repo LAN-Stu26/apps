@@ -158,7 +158,9 @@ const navbarHTML = `
                 <a href="#" style="color:#555 !important;">Upgrade Program▾▾▾</a>
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
-        </li>            
+        </li>
+        <li><a href="https://github.com/LAN-Stu26/apps"><b>Github</b></a></li>
+        <li class="dropdown">
         <li id="auth-area" class="dropdown"><a id="login-btn">Loading…</a></li>
         <li class="dropdown">
             <span class="dropbtn" style="padding: 10px;">
