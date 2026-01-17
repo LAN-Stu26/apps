@@ -128,7 +128,8 @@ const style = `
 
     #custom-footer { background-color: #000; color: #ecf0f1; padding: 40px 20px; border-top: 1px solid #222; }
     .footer-top { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; }
-    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; }
+    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; animation: shine 4s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
+    .ai-notice-navbar { font-weight: bold; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4) 0% center / 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
 </style>
 `;
 
@@ -139,17 +140,16 @@ const navbarHTML = `
     <ul id="nav-list">
         <li><a href="home.html"><b>Home</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>Web Application Tools ▾</b></span>
+            <span class="dropbtn"><b>Web Tools ▾</b></span>
             <div class="dropdown-content">
+                <a href="apps.html"><b>All tools</b></a>
+                <a href="#"  class="ai-notice-navbar">NEW ▾▾▾</a>
+                <a href="fullscreen.html"><b>Full screen color</b></a>
                 <a href="classroom.html"><b>Class Draw Tool</b></a>
                 <a href="editor.html"><b>Html Editor</b></a>
-                <a href="marquee.html"><b>Marquee</b></a>
-                <a href="pomodoro_technique.html"><b>Pomodoro technique</b></a>
-                <a href="r_c-timer.html"><b>Rubik's Cube Timer</b></a>
-                <a href="word_counter.html"><b>Word Counter</b></a>
             </div>
         </li>
-        <li><a href="news.html"><b>News TW</b></a></li>
+        <li><a href="/news.html"><b>News zh-TW</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>Members Only / Upgrade Program ▾</b></span>
             <div class="dropdown-content">
@@ -176,7 +176,7 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 歡迎來到 LAN Studio！我們現在支援 English 啦!!!</br>📢 Welcome to LAN Studio! We now support English!!!</div>
+    <div class="bar-content">📢 您現在正在使用英文，是否更換語言?</div>
     <div class="bar-actions">
         <a href="/home.html" class="btn-bar-go">更換語言</a>
         <button class="btn-bar-close" id="close-bar">×</button>
@@ -269,7 +269,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 (function() {
-    const link = document.createElement('link'); link.rel = 'icon'; link.href = '標籤頭像.png';
+    const link = document.createElement('link'); link.rel = 'icon'; link.href = '/圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
 
