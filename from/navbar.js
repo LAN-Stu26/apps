@@ -1,7 +1,6 @@
 /**
- * LAN Studio - 核心 UI 組件 (v2.9) - Subdirectory Version
+ * LAN Studio - 核心 UI 組件 (v2.9)
  * 更新重點：修正漢堡選單位置（靠右）、保留地球選單與所有原始設計
- * 注意：此檔案位於子目錄，連結路徑已調整為指向上一層 (../)
  */
 
 // 1. 引入 Firebase SDK (保持不變)
@@ -129,25 +128,25 @@ const style = `
 
     #custom-footer { background-color: #000; color: #ecf0f1; padding: 40px 20px; border-top: 1px solid #222; }
     .footer-top { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; }
-    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; }
+    .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; animation: shine 4s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
+    .ai-notice-navbar { font-weight: bold; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4) 0% center / 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
 </style>
 `;
 
-// 3. HTML 生成 (路徑已修正為 ../)
+// 3. HTML 生成
 const navbarHTML = `
 <nav id="custom-navbar">
     <div class="logo">LAN Studio</div>
     <ul id="nav-list">
         <li><a href="/home.html"><b>首頁</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>網頁應用工具 ▾</b></span>
+            <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
+                <a href="/apps.html"><b>所有網頁程式</b></a>
+                <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/fullscreen.html"><b>全螢幕顏色</b></a>
                 <a href="/classroom.html"><b>抽號器</b></a>
                 <a href="/editor.html"><b>Html Editor</b></a>
-                <a href="/marquee.html"><b>跑馬燈</b></a>
-                <a href="/pomodoro_technique.html"><b>番茄鐘</b></a>
-                <a href="/r_c-timer.html"><b>魔方計時器</b></a>
-                <a href="/word_counter.html"><b>字數計算器</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -164,7 +163,7 @@ const navbarHTML = `
             <span class="dropbtn"><b>關於本站 ▾</b></span>
             <div class="dropdown-content">
                 <a href="/cooperate.html"><b>合作商家</b></a>
-                <a href="improve-website.html"><b>改善表單</b></a>
+                <a href="/from/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
         <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
@@ -173,7 +172,7 @@ const navbarHTML = `
                 <div class="lang-sphere"></div>
             </span>
             <div class="dropdown-content">
-                <a href="../home.html"><b>繁體中文</b></a>
+                <a href="home.html"><b>繁體中文</b></a>
                 <a href="/en/home.html"><b>English</b></a>
             </div>
         </li>
@@ -184,9 +183,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">歡迎使用 LAN Studio From</div>
+    <div class="bar-content">疑難排解???</div>
     <div class="bar-actions">
-        <a href="/home.html" class="btn-bar-go">回到首頁</a>
+        <a href="mailto:lanstudio.ser25@gmail.com" class="btn-bar-go">點我開啟聯絡信箱</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -195,7 +194,7 @@ const navbarHTML = `
 // (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
 const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
-const breadcrumbContent = isHomePage ? `首頁` : `<a href="../home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
+const breadcrumbContent = isHomePage ? `首頁` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
 
 const footerHTML = `
 <footer id="custom-footer">
@@ -277,8 +276,8 @@ onAuthStateChanged(auth, (user) => {
 });
 
 (function() {
-    const link = document.createElement('link'); link.rel = 'icon'; link.href = '../標籤頭像.png';
+    const link = document.createElement('link'); link.rel = 'icon'; link.href = '/圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
 
-export { auth, app };
+export { auth };
