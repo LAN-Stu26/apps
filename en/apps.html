@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="LAN Studio - All tools">
+    <meta property="og:title" content="LAN Studio | All tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All tools - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            text-align: center; 
+            font-size: 2.5rem;
+            margin-bottom: 50px; 
+            color: var(--primary-dark);
+            letter-spacing: 3px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .app-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
+        .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; flex-grow: 1; }
+
+        @media (hover: hover) {
+            .app-card:hover {
+                transform: translateY(-12px);
+                box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+                border-color: var(--accent-blue);
+            }
+        }
+
+        /* RWD 佈局 */
+        @media (max-width: 850px) {
+            .app-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) { 
+            .section-title { font-size: 2rem; }
+            .app-grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="section-title">All tools</h1>
+        <div class="app-grid">
+            <a href="fullscreen.html" class="app-card">
+                <div class="app-icon">🎨</div>
+                <h3>full screen color</h3>
+                <p>Does the class not have a lottery drum? Come and use the one made by LAN Studio!!!</p>
+            </a>
+            <a href="classroom.html" class="app-card">
+                <div class="app-icon">🧑‍🏫</div>
+                <h3>Class Draw Tool</h3>
+                <p>Does the class not have a lottery drum? Come and use the one made by LAN Studio!!!"</p>
+            </a>   
+            <a href="note.html" class="app-card">
+                <div class="app-icon">📓</div>
+                <h3>Note</h3>
+                <p><span style="color:#ff4d4d;">Member Exclusive!!!</span>Cloud Notes!!!! Encrypted with AES-256, feel free to use it.</p>
+            </a>
+            <a href="editor.html" class="app-card">
+                <div class="app-icon">💻</div>
+                <h3>HTML Editor</h3>
+                <p>Cloud-based real-time coding tool. Supports live HTML/CSS preview and offers exclusive development space for members.</p>
+            </a>
+            <a href="marquee.html" class="app-card">
+                <div class="app-icon">📢</div>
+                <h3>Marquee</h3>
+                <p>Professional console, supports various colors, HTML tag insertion, and fullscreen playback mode.</p>
+            </a>
+            <a href="pomodoro_technique.html" class="app-card">
+                <div class="app-icon">⏱️</div>
+                <h3>Pomodoro Technique</h3>
+                <p>A simple and intuitive focus tool to help you manage work time and rest intervals.</p>
+            </a>
+            <a href="r_c-timer.html" class="app-card">
+                <div class="app-icon">🧩</div>
+                <h3>Rubik's Cube Timer</h3>
+                <p>Provides precise timing and a historical record tracking system.</p>
+            </a>
+            <a href="word_counter.html" class="app-card">
+                <div class="app-icon">🧩</div>
+                <h3>Word Count</h3>
+                <p>Real-time statistics of text content and number of characters.</p>
+            </a>
+        </div>
+    </div>
+    
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
