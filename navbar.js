@@ -276,7 +276,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 (function() {
-    const link = document.createElement('link'); link.rel = 'icon'; link.href = '標籤頭像.png';
+    const link = document.createElement('link'); link.rel = 'icon'; link.href = '圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
 
