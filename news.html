@@ -15,6 +15,7 @@
             --tag-important: #e74c3c;
             --tag-new: #2ecc71;
             --tag-other: #95a5a6;
+            --tag-english: #ffd966;
         }
 
         body {
@@ -123,6 +124,9 @@
         .news-card[data-category="other"] { border-left-color: var(--tag-other); }
         .tag-other { color: var(--tag-other); border: 1px solid var(--tag-other); }
 
+        .news-card[data-category="english"] { border-left-color: var(--tag-english); }
+        .tag-english { color: var(--tag-english); border: 1px solid var(--tag-english); }
+
         .news-date {
             float: right;
             color: #7f8c8d;
@@ -164,13 +168,23 @@
 
         <div class="filter-container">
             <button class="filter-btn active" onclick="filterNews('all')">全部</button>
+            <button class="filter-btn" onclick="filterNews('english')">English Web</button>
             <button class="filter-btn" onclick="filterNews('new')">NEW</button>
             <button class="filter-btn" onclick="filterNews('important')">IMPORTANT</button>
             <button class="filter-btn" onclick="filterNews('update')">UPDATE</button>
-            <button class="filter-btn" onclick="filterNews('other')">其他</button>
+            <button class="filter-btn" onclick="filterNews('other')">Other</button>
         </div>
 
         <div id="news-list">
+
+            <div class="news-card" data-category="english">
+                <span class="news-tag tag-english">English</span>
+                <span class="news-date">2026-01-17</span>
+                <h2 class="news-title">所有英文網頁公告在這!<br>All English web announcements are here!</h2>
+                <div class="news-content">
+                    The reason why we did this is to reduce the number of updates to GitHub and changed the approach
+                </div>
+            </div>
 
             <div class="news-card" data-category="other">
                 <span class="news-tag tag-other">OTHER</span>
