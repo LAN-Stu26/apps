@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>現在時間 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="圖片/標籤頭像.png">
+
+    <style>
+        :root {
+            --default-yellow: #ffd966;
+            --primary-dark: #ffd966;
+            --bg-color: #1d1d1d;
+            --secondary-dark: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #main-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        #time-container {
+            font-size: 6rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            letter-spacing: 5px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        #date-display {
+            font-size: 1.6rem;
+            color: #888;
+            margin-bottom: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--primary-dark);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* --- 全螢幕徹底隱藏邏輯 --- */
+        body.fullscreen {
+            padding: 0;
+            margin: 0;
+            background-color: black;
+        }
+
+        body.fullscreen nav, 
+        body.fullscreen header, 
+        body.fullscreen #navbar-container,
+        body.fullscreen #custom-footer, 
+        body.fullscreen [id*="nav"], 
+        body.fullscreen [class*="nav"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+
+        body.fullscreen #main-title,
+        body.fullscreen .controls {
+            display: none !important;
+        }
+
+        body.fullscreen #time-container {
+            font-size: 18vw;
+            margin-bottom: 5px;
+        }
+
+        body.fullscreen #date-display {
+            font-size: 3vw;
+            color: #666;
+        }
+
+        /* --- 彈窗樣式 --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background-color: var(--secondary-dark);
+            margin: 5% auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px; /* 加寬一點以容納更多時區 */
+            border-radius: 15px;
+            border: 1px solid #444;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .timezone-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .timezone-btn-item {
+            background: rgba(255,255,255,0.05);
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 10px 5px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timezone-btn-item.active {
+            background: var(--primary-dark);
+            color: var(--bg-color);
+            border-color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        /* 自定義捲軸 */
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            #time-container { font-size: 4rem; }
+            body.fullscreen #time-container { font-size: 22vw; }
+            body.fullscreen #date-display { font-size: 5vw; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="main-title">Global Time Center</h1>
+        
+        <div id="time-container">
+            <div id="current-time">00:00:00</div>
+        </div>
+
+        <div id="date-display">載入中...</div>
+
+        <div class="controls">
+            <button id="timezone-btn">🌍 選擇時區</button>
+            <button id="fullscreen-btn">⛶ 全螢幕模式</button>
+            <button id="settings-btn">⚙️ 介面設定</button>
+        </div>
+    </div>
+
+    <div id="timezoneModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('timezoneModal')">&times;</span>
+            <h2 style="color: var(--primary-dark); font-size: 1.2rem; margin-bottom: 10px;">全球主要時區</h2>
+            <div class="timezone-selector" id="timezoneSelector"></div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 20px;">偏好設定</h2>
+            <div style="margin-bottom: 20px; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+                <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: pointer; font-size: 1.1rem;">
+                    <input type="checkbox" id="showDateToggle" style="width: 18px; height: 18px;" checked> 顯示日期資訊
+                </label>
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1.1rem;">
+                    時間文字顏色：
+                    <input type="color" id="timeColorPicker" value="#ffd966" style="border: none; width: 40px; height: 40px; background: none; cursor: pointer;">
+                </label>
+            </div>
+            <button id="reset-all-btn" style="width: 100%; background-color: #e74c3c; color: white;">恢復出廠預設值</button>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_COLOR = '#ffd966';
+        
+        // 擴充後的時區清單
+        const timezones = [
+            { name: '台北/香港', id: 'Asia/Taipei' },
+            { name: '東京/首爾', id: 'Asia/Tokyo' },
+            { name: '曼谷/河內', id: 'Asia/Bangkok' },
+            { name: '新加坡', id: 'Asia/Singapore' },
+            { name: '雪梨', id: 'Australia/Sydney' },
+            { name: '倫敦', id: 'Europe/London' },
+            { name: '巴黎/柏林', id: 'Europe/Paris' },
+            { name: '莫斯科', id: 'Europe/Moscow' },
+            { name: '紐約/東部', id: 'America/New_York' },
+            { name: '芝加哥/中部', id: 'America/Chicago' },
+            { name: '洛杉磯/太平洋', id: 'America/Los_Angeles' },
+            { name: '夏威夷', id: 'Pacific/Honolulu' },
+            { name: '杜拜', id: 'Asia/Dubai' },
+            { name: '德里', id: 'Asia/Kolkata' },
+            { name: 'UTC標準', id: 'UTC' }
+        ];
+
+        let state = {
+            timezone: 'Asia/Taipei',
+            showDate: true,
+            color: DEFAULT_COLOR
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem('timeClockState');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+            }
+            applyState();
+        }
+
+        function saveState() {
+            localStorage.setItem('timeClockState', JSON.stringify(state));
+        }
+
+        function applyState() {
+            document.documentElement.style.setProperty('--primary-dark', state.color);
+            document.getElementById('timeColorPicker').value = state.color;
+            document.getElementById('showDateToggle').checked = state.showDate;
+            renderTimezoneButtons();
+            updateTime();
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-Hant', { 
+                timeZone: state.timezone, 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+            });
+            document.getElementById('current-time').textContent = timeStr;
+
+            const dateDisplay = document.getElementById('date-display');
+            if (state.showDate) {
+                dateDisplay.style.setProperty('display', 'block', 'important');
+                dateDisplay.textContent = now.toLocaleDateString('zh-Hant', {
+                    timeZone: state.timezone,
+                    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                });
+            } else {
+                dateDisplay.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+                document.body.classList.add('fullscreen');
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('fullscreen');
+            }
+        });
+
+        function renderTimezoneButtons() {
+            const container = document.getElementById('timezoneSelector');
+            container.innerHTML = '';
+            timezones.forEach(tz => {
+                const btn = document.createElement('button');
+                btn.className = `timezone-btn-item ${state.timezone === tz.id ? 'active' : ''}`;
+                btn.textContent = tz.name;
+                btn.onclick = () => {
+                    state.timezone = tz.id;
+                    saveState();
+                    applyState();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        document.getElementById('fullscreen-btn').onclick = toggleFullscreen;
+        document.getElementById('timezone-btn').onclick = () => document.getElementById('timezoneModal').style.display='block';
+        document.getElementById('settings-btn').onclick = () => document.getElementById('settingsModal').style.display='block';
+
+        document.getElementById('showDateToggle').onchange = (e) => {
+            state.showDate = e.target.checked;
+            saveState();
+            updateTime();
+        };
+
+        document.getElementById('timeColorPicker').oninput = (e) => {
+            state.color = e.target.value;
+            document.documentElement.style.setProperty('--primary-dark', state.color);
+            saveState();
+        };
+
+        document.getElementById('reset-all-btn').onclick = () => {
+            if (confirm('這將清除所有自定義設定並恢復初始狀態，確定嗎？')) {
+                localStorage.removeItem('timeClockState');
+                state = {
+                    timezone: 'Asia/Taipei',
+                    showDate: true,
+                    color: DEFAULT_COLOR
+                };
+                applyState();
+                closeModal('settingsModal');
+            }
+        };
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        loadState();
+        setInterval(updateTime, 1000);
+    </script>
+    
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
