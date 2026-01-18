@@ -126,6 +126,11 @@
 
         .news-card[data-category="english"] { border-left-color: var(--tag-english); }
         .tag-english { color: var(--tag-english); border: 1px solid var(--tag-english); }
+        
+        /* New combined tag for English and New */
+        .news-card[data-category="english-new"] { border-left-color: var(--tag-new); }
+        .news-card[data-category="english-important"] { border-left-color: var(--tag-important); }
+
 
         .news-date {
             float: right;
@@ -177,10 +182,20 @@
 
         <div id="news-list">
 
+            <div class="news-card" data-category="english-important">
+                <span class="news-tag tag-important">IMPORTANT</span>
+                <span class="news-tag tag-english">ENGLISH</span>
+                <span class="news-date">2026-01-16</span>
+                <h2 class="news-title">9 款免費工具!!!</h2>
+                <div class="news-content">
+                    我們已經把 9 款免費好用的工具上架啦!!!<br><span style='color:#7b7b7b'>English ▾▾▾</span><br>9 Free Tools!!!  We've already made 9 free and useful tools available!
+                </div>
+            </div>
+
             <div class="news-card" data-category="english">
                 <span class="news-tag tag-english">English</span>
                 <span class="news-date">2026-01-17</span>
-                <h2 class="news-title">所有英文網頁公告在這!<br>All English web announcements are here!</h2>
+                <h2 class="news-title">All English web announcements are here!</h2>
                 <div class="news-content">
                     The reason why we did this is to reduce the number of updates to GitHub and changed the approach
                 </div>
@@ -310,15 +325,25 @@
             // 更新按鈕樣式
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            // 由於 filterNews 會被點擊事件觸發，event.currentTarget 是當前點擊的按鈕
+            // 這裡假設你已經有一個全局的 event 物件或者從事件參數傳入
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                // 如果沒有 event 物件，則手動找到對應的按鈕
+                document.querySelector(`.filter-btn[onclick="filterNews('${category}')"]`).classList.add('active');
+            }
+
 
             // 過濾卡片
             const cards = document.querySelectorAll('.news-card');
             cards.forEach(card => {
+                const cardCategories = card.getAttribute('data-category').split('-'); // 支援多個 category
+
                 if (category === 'all') {
                     card.classList.remove('hidden');
                 } else {
-                    if (card.getAttribute('data-category') === category) {
+                    if (cardCategories.includes(category)) {
                         card.classList.remove('hidden');
                     } else {
                         card.classList.add('hidden');
@@ -326,6 +351,11 @@
                 }
             });
         }
+        
+        // 頁面加載時調用一次，確保初始狀態正確
+        document.addEventListener('DOMContentLoaded', () => {
+            filterNews('all'); // 預設顯示所有新聞
+        });
     </script>
     <script type="module" src="navbar.js"></script>
 </body>
