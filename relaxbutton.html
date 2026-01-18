@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stress Relief Button - LAN Studio</title>
+    <title>紓壓按鈕 - LAN Studio</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,7 @@
             box-sizing: border-box;
         }
 
+        body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--bg-color);
             color: white;
@@ -77,7 +78,6 @@
             transform: scale(0.9);
         }
 
-        /* 長按蓄力狀態 */
         #stress-button.charging {
             background-color: #fff;
             box-shadow: 0 0 80px #fff, 0 0 120px var(--primary-dark);
@@ -97,17 +97,17 @@
             letter-spacing: 1px;
         }
 
-        /* --- 強化後的連擊文字 --- */
+        /* --- 稱讚文字視覺強化 --- */
         .combo-text {
             position: absolute;
-            font-family: 'Black Ops One', cursive, system-ui; /* 使用較粗獷的字體 */
+            font-family: 'Black Ops One', cursive, system-ui;
             font-weight: bold;
-            font-size: 3rem;
+            font-size: 3.5rem;
             color: var(--primary-dark);
             text-shadow: 
-                3px 3px 0px #000, 
+                4px 4px 0px #000, 
                 -1px -1px 0px #000,
-                0 0 20px var(--accent-glow);
+                0 0 30px var(--accent-glow);
             pointer-events: none;
             z-index: 100;
             white-space: nowrap;
@@ -115,12 +115,12 @@
         }
 
         @keyframes popAndFloat {
-            0% { transform: translate(-50%, 0) scale(0.5) rotate(-10deg); opacity: 0; }
-            30% { transform: translate(-50%, -50px) scale(1.2) rotate(10deg); opacity: 1; }
-            100% { transform: translate(-50%, -150px) scale(1) rotate(0deg); opacity: 0; }
+            0% { transform: translate(-50%, 0) scale(0.3) rotate(-15deg); opacity: 0; }
+            30% { transform: translate(-50%, -60px) scale(1.3) rotate(10deg); opacity: 1; }
+            100% { transform: translate(-50%, -180px) scale(1) rotate(0deg); opacity: 0; }
         }
 
-        /* --- 控制區 --- */
+        /* --- 操作按鈕區 --- */
         .controls {
             display: flex;
             gap: 15px;
@@ -131,10 +131,10 @@
             background-color: var(--secondary-dark);
             color: var(--primary-dark);
             border: 2px solid var(--primary-dark);
-            padding: 10px 22px;
+            padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: bold;
             transition: all 0.2s;
         }
@@ -144,7 +144,7 @@
             color: var(--bg-color);
         }
 
-        /* --- 設定模態框 --- */
+        /* --- 設定彈窗 --- */
         .modal {
             display: none;
             position: fixed;
@@ -180,40 +180,40 @@
 <body>
 
     <div class="container" id="game-area">
-        <h1 style="font-size: 1rem; color: var(--primary-dark); opacity: 0.5; margin-bottom: 20px; letter-spacing: 5px;">STRESS LESS</h1>
+        <h1 style="font-size: 1rem; color: var(--primary-dark); opacity: 0.5; margin-bottom: 20px; letter-spacing: 5px; font-family: 'Black Ops One';">STRESS LESS</h1>
         
         <div class="button-stage">
             <button id="stress-button">PUSH</button>
         </div>
 
-        <div id="click-count">TOTAL ENERGY: <span id="count-num" style="color: white; font-weight: bold;">0</span></div>
+        <div id="click-count">能量釋放總計: <span id="count-num" style="color: white; font-weight: bold;">0</span></div>
 
         <div class="controls">
-            <button class="tool-btn" id="settings-btn">⚙️ SETTINGS</button>
-            <button class="tool-btn" id="reset-btn">🔄 RESET</button>
+            <button class="tool-btn" id="settings-btn">⚙️ 功能設定</button>
+            <button class="tool-btn" id="reset-btn">🔄 數據重設</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <h2 style="color: var(--primary-dark); margin-bottom: 20px; text-align: center;">PREFERENCES</h2>
+            <h2 style="color: var(--primary-dark); margin-bottom: 25px; text-align: center;">個人偏好設定</h2>
             
             <div class="setting-item">
-                <span>Combo Visuals</span>
+                <span>連擊文字特效</span>
                 <input type="checkbox" id="combo-toggle" checked>
             </div>
 
             <div class="setting-item">
-                <span>Master Volume</span>
+                <span>主音量控制</span>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
             </div>
 
-            <div class="setting-item" style="border-top: 1px solid #444; padding-top: 20px;">
-                <span>Custom Sound</span>
-                <button class="tool-btn" style="padding: 5px 15px;" onclick="document.getElementById('audio-upload').click()">UPLOAD</button>
+            <div class="setting-item" style="border-top: 1px solid #444; padding-top: 25px;">
+                <span>上傳自訂音效</span>
+                <button class="tool-btn" style="padding: 6px 16px; font-size: 0.9rem;" onclick="document.getElementById('audio-upload').click()">選擇檔案</button>
             </div>
 
-            <button class="tool-btn" id="close-settings" style="width: 100%; margin-top: 20px; background: var(--primary-dark); color: var(--bg-color);">SAVE & CLOSE</button>
+            <button class="tool-btn" id="close-settings" style="width: 100%; margin-top: 20px; background: var(--primary-dark); color: var(--bg-color);">儲存並關閉</button>
         </div>
     </div>
 
@@ -238,27 +238,19 @@
 
         countDisplay.textContent = count;
 
-        // --- 點擊與長按監聽 ---
-        btn.addEventListener('mousedown', (e) => {
-            if(e.button !== 0) return;
-            startPress();
-        });
-        btn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            startPress();
-        });
-        
+        // --- 互動邏輯 ---
+        btn.addEventListener('mousedown', (e) => { if(e.button === 0) startPress(); });
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(); });
         window.addEventListener('mouseup', endPress);
         window.addEventListener('touchend', endPress);
-        
         btn.addEventListener('click', handleClick);
 
         function handleClick() {
-            if (btn.classList.contains('charging')) return; // 蓄力中不觸發單點
+            if (btn.classList.contains('charging')) return;
 
             audio.currentTime = 0;
             audio.volume = state.volume;
-            audio.play();
+            audio.play().catch(()=>{});
 
             count++;
             countDisplay.textContent = count;
@@ -276,8 +268,8 @@
             }
         }
 
-        // --- 連擊動畫文字 ---
-        const comboWords = ["NICE!", "GREAT!", "WOW!", "PERFECT!", "AMAZING!", "EXCELLENT!", "UNSTOPPABLE!", "GODLIKE!"];
+        // --- 連擊與稱讚文字 (保持英文) ---
+        const comboWords = ["NICE!", "GREAT!", "AWESOME!", "PERFECT!", "AMAZING!", "EXCELLENT!", "UNSTOPPABLE!", "GODLIKE!"];
         function showComboText(isSuper) {
             const text = document.createElement('div');
             text.className = 'combo-text';
@@ -290,13 +282,12 @@
             }
             
             text.style.left = `50%`;
-            text.style.top = `45%`;
+            text.style.top = `40%`;
             
             document.getElementById('game-area').appendChild(text);
             setTimeout(() => text.remove(), 700);
         }
 
-        // --- 長按邏輯 ---
         function startPress() {
             pressTimer = setTimeout(() => {
                 btn.classList.add('charging');
@@ -315,16 +306,14 @@
             count += 15;
             countDisplay.textContent = count;
             localStorage.setItem('stress_clicks', count);
-            
             if (state.comboEnabled) showComboText(true);
             
-            // 震動回饋
             const area = document.getElementById('game-area');
             area.style.animation = "shakeArea 0.2s ease-in-out";
             setTimeout(() => area.style.animation = "", 200);
         }
 
-        // --- 設定控制 ---
+        // --- 中文操作邏輯 ---
         document.getElementById('settings-btn').onclick = () => modal.style.display = 'block';
         document.getElementById('close-settings').onclick = () => modal.style.display = 'none';
         document.getElementById('combo-toggle').onchange = (e) => state.comboEnabled = e.target.checked;
@@ -334,13 +323,16 @@
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (e) => audio.src = e.target.result;
+                reader.onload = (e) => {
+                    audio.src = e.target.result;
+                    alert('音效更換成功！');
+                };
                 reader.readAsDataURL(file);
             }
         };
 
         document.getElementById('reset-btn').onclick = () => {
-            if(confirm('Reset all progress?')) {
+            if(confirm('確定要歸零所有能量數據嗎？')) {
                 count = 0;
                 countDisplay.textContent = count;
                 localStorage.setItem('stress_clicks', 0);
