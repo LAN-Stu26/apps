@@ -144,9 +144,9 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/time.html"><b>現在時間</b></a>
                 <a href="/fullscreen.html"><b>全螢幕顏色</b></a>
                 <a href="/classroom.html"><b>抽號器</b></a>
-                <a href="/editor.html"><b>Html Editor</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
