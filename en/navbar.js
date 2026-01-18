@@ -144,9 +144,9 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="apps.html"><b>All tools</b></a>
                 <a href="#"  class="ai-notice-navbar">NEW ▾▾▾</a>
+                <a href="time.html"><b>Now Time</b></a>
                 <a href="fullscreen.html"><b>Full screen color</b></a>
                 <a href="classroom.html"><b>Class Draw Tool</b></a>
-                <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>News zh-TW</b></a></li>
