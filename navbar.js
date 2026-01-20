@@ -184,9 +184,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 Welcome to LAN Studio! We now support English!!!</div>
+    <div class="bar-content">📢 全新工具"現在時間"工具已經上線啦!</div>
     <div class="bar-actions">
-        <a href="/en/home.html" class="btn-bar-go">Change language</a>
+        <a href="time.html" class="btn-bar-go">立即打開!</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
