@@ -1,8 +1,3 @@
-/**
- * LAN Studio - 核心 UI 組件 (v2.9)
- * 更新重點：修正漢堡選單位置（靠右）、保留地球選單與所有原始設計
- */
-
 // 1. 引入 Firebase SDK (保持不變)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -110,6 +105,53 @@ const style = `
     #auth-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ffd966; cursor: pointer; vertical-align: middle; }
     #login-btn { border: 1px solid #ffd966; padding: 5px 15px !important; border-radius: 20px; color: #ffd966 !important; cursor: pointer; }
 
+/* 搜尋按鈕 - 修正版 */
+    .search-nav-btn {
+        width: 35px; /* 增加點擊範圍 */
+        height: 35px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        margin: 0 5px;
+    }
+
+    /* 放大鏡圓形 */
+    .search-nav-btn::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #ffd966;
+        border-radius: 50%;
+        box-sizing: border-box;
+    }
+
+    /* 放大鏡握把 */
+    .search-nav-btn::after {
+        content: "";
+        position: absolute;
+        top: 22px;
+        left: 22px;
+        width: 7px;
+        height: 2px;
+        background: #ffd966;
+        transform: rotate(45deg);
+        border-radius: 2px;
+    }
+
+    .search-nav-btn:hover {
+        background: rgba(255, 217, 102, 0.1);
+        border-radius: 50%;
+        transform: scale(1.1);
+    }
+
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 850px) {
@@ -168,6 +210,9 @@ const navbarHTML = `
             </div>
         </li>
         <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
+        <li>
+            <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
+        </li>
         <li class="dropdown">
             <span class="dropbtn" style="padding: 10px;">
                 <div class="lang-sphere"></div>
@@ -257,6 +302,14 @@ document.querySelectorAll('.dropdown').forEach(dd => {
     });
 });
 
+// 搜尋按鈕功能
+const searchNavBtn = document.getElementById('search-nav-btn');
+if (searchNavBtn) {
+    searchNavBtn.addEventListener('click', () => {
+        window.location.href = 'search.html';
+    });
+}
+
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
@@ -282,4 +335,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth };
-
