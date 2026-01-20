@@ -153,16 +153,16 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
-                <a href="#" style="color:#555 !important;">會員專屬▾▾▾</a>
+                <a href="#" style="color: #555 !important;">會員專屬▾▾▾</a>
                 <a href="/note.html"><b>加密雲端筆記</b></a>
-                <a href="#" style="color:#555 !important;">體驗升級!!!▾▾▾</a>
+                <a href="#" style="color: #555 !important;">體驗升級!!!▾▾▾</a>
                 <a href="/editor.html"><b>Html Editor</b></a>
             </div>
         </li>
         <li class="dropdown">
             <span class="dropbtn"><b>關於本站 ▾</b></span>
             <div class="dropdown-content">
-                <a href="https://github.com/LAN-Stu26/apps"><b>Github</b></a>
+                <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
                 <a href="/cooperate.html"><b>合作商家</b></a>
                 <a href="/from/improve-website.html"><b>改善表單</b></a>
             </div>
@@ -204,7 +204,7 @@ const footerHTML = `
             <h4 style="margin:0; font-size:0.85rem; color:#aaa;">您現在位置...</h4>
             <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
-        <div class="ai-notice">Studio JS v2.9 <br> 所有頁面皆由 AI 生成</div>
+        <div class="ai-notice">Studio JS v3.0 <br> 所有頁面皆由 AI 生成</div>
     </div>
     <div style="text-align:center; font-size:0.85rem; color:#555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio 版權所有</div>
 </footer>
