@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="LAN Studio - 網站搜尋">
+    <meta property="og:title" content="LAN Studio | 網站搜尋">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網站搜尋 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            color: var(--primary-dark);
+            letter-spacing: 3px;
+        }
+
+        /* --- 搜尋框樣式 --- */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-input::placeholder {
+            color: #7f8c8d;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 12px rgba(255, 217, 102, 0.3);
+        }
+
+        .search-btn {
+            background: var(--primary-dark);
+            border: none;
+            color: #1d1d1d;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 217, 102, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        /* --- 結果統計 --- */
+        .result-stats {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #bdc3c7;
+            font-size: 0.95rem;
+        }
+
+        .result-stats .count {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        /* --- 結果卡片 --- */
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-item {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border-left: 5px solid var(--accent-blue);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .result-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.2);
+            border-left-color: var(--primary-dark);
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin: 0 0 10px 0;
+        }
+
+        .result-description {
+            color: #bdc3c7;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+
+        .result-path {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .result-category {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background: rgba(255, 217, 102, 0.1);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary-dark);
+            margin-top: 10px;
+        }
+
+        /* --- 無結果提示 --- */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .no-results-text {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        /* RWD 佈局 */
+        @media (max-width: 600px) {
+            .page-title { font-size: 2rem; }
+            .search-container { flex-direction: column; }
+            .search-btn { width: 100%; }
+            .result-item { padding: 20px; }
+            .result-title { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">搜尋網站</h1>
+        
+        <!-- 搜尋框 -->
+        <div class="search-container">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="輸入關鍵字搜尋...（如：時間、編輯、工具）"
+                autocomplete="off"
+            >
+            <button class="search-btn" id="searchBtn">搜尋</button>
+        </div>
+
+        <!-- 結果統計 -->
+        <div class="result-stats">
+            <span>找到 <span class="count" id="resultCount">0</span> 個結果</span>
+        </div>
+
+        <!-- 搜尋結果 -->
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <script type="module" src="navbar.js" defer></script>
+    <script>
+        // 網站內容資料庫
+        const siteData = [
+            {
+                title: '首頁',
+                description: '資訊總攬，探索 LAN Studio 提供的各種實用工具與最新消息。',
+                path: 'home.html',
+                category: '首頁',
+                keywords: ['工具', '推薦', '公告標題', '數位工具', '數位', 'ALL']
+            },
+            {
+                title: '現在時間',
+                description: '沉浸式全螢幕時鐘。支援多國時區切換、自定義色彩與全螢幕顯示，讓螢幕成為專業的數位時鐘。',
+                path: 'time.html',
+                category: '時間工具',
+                keywords: ['現在', '時間', '時鐘', '時區', '數位', 'ALL']
+            },
+            {
+                title: '全螢幕顏色',
+                description: '使用整個螢幕顯示您選擇的顏色，適合用於情境照明或背景板。',
+                path: 'fullscreen.html',
+                category: '螢幕工具',
+                keywords: ['全螢幕', '顏色', '色彩', '螢幕', '照明', 'ALL']
+            },
+            {
+                title: '抽號器',
+                description: '班級沒有抽籤筒嗎？快來使用 LAN Studio 製作的抽號器！',
+                path: 'classroom.html',
+                category: '生產力',
+                keywords: ['抽號', '抽籤', '班級', '教室', '選擇', 'ALL']
+            },
+            {
+                title: '加密雲端筆記',
+                description: '會員限定！雲端筆記！使用 AES-256 加密，請放心使用。',
+                path: 'note.html',
+                category: '會員專屬',
+                keywords: ['筆記', '雲端', '加密', '會員', 'AES', 'ALL']
+            },
+            {
+                title: 'HTML Editor',
+                description: '雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。',
+                path: 'editor.html',
+                category: '會員專屬',
+                keywords: ['編輯', 'HTML', 'CSS', '編程', '程式', 'ALL']
+            },
+            {
+                title: '跑馬燈',
+                description: '專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。',
+                path: 'marquee.html',
+                category: '創意工具',
+                keywords: ['跑馬燈', '播放', '色彩', 'HTML', '控制台', 'ALL']
+            },
+            {
+                title: '番茄鐘',
+                description: '簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。',
+                path: 'pomodoro_technique.html',
+                category: '生產力',
+                keywords: ['番茄', '鐘', '時間', '專注', '工作', 'ALL']
+            },
+            {
+                title: '魔方計時器',
+                description: '專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。',
+                path: 'r_c-timer.html',
+                category: '時間工具',
+                keywords: ['魔方', '計時', '計時器', '方塊', '紀錄', 'ALL']
+            },
+            {
+                title: '字數計算器',
+                description: '即時統計文字內容與字元數。',
+                path: 'word_counter.html',
+                category: '生產力',
+                keywords: ['字數', '計算', '文字', '字元', '統計', 'ALL']
+            },
+            {
+                title: '所有工具',
+                description: 'LAN Studio 提供的所有實用工具合集。',
+                path: 'apps.html',
+                category: '工具集',
+                keywords: ['工具', '合集', '應用', '所有', 'ALL']
+            },
+            {
+                title: '最新公告',
+                description: 'LAN Studio 的最新動態與重要公告。',
+                path: 'news.html',
+                category: '公告',
+                keywords: ['公告', '新聞', '動態', '最新', 'ALL']
+            },
+            {
+                title: '合作表單',
+                description: '立即成為 LAN Studio 的合作夥伴，一起打造更棒的數位工具！',
+                path: 'from/partner-with-us.html',
+                category: '合作',
+                keywords: ['合作', '商家', '表單', '成為', 'ALL']
+            },
+            {
+                title: '改善表單',
+                description: '讓我們知道您對 LAN Studio 網站的建議與想法，幫助我們持續改進！',
+                path: 'from/improve-website.html',
+                category: '改善網站',
+                keywords: ['改善', '建議', '想法', '想', '表單', 'ALL']
+            }
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchResults = document.getElementById('searchResults');
+        const resultCount = document.getElementById('resultCount');
+
+        // 執行搜尋
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            if (searchTerm === '') {
+                searchResults.innerHTML = '';
+                resultCount.textContent = '0';
+                return;
+            }
+
+            // 搜尋匹配的結果
+            const results = siteData.filter(item => {
+                const titleMatch = item.title.toLowerCase().includes(searchTerm);
+                const descriptionMatch = item.description.toLowerCase().includes(searchTerm);
+                const keywordsMatch = item.keywords.some(keyword => 
+                    keyword.toLowerCase().includes(searchTerm)
+                );
+                const categoryMatch = item.category.toLowerCase().includes(searchTerm);
+
+                return titleMatch || descriptionMatch || keywordsMatch || categoryMatch;
+            });
+
+            // 更新結果統計
+            resultCount.textContent = results.length;
+
+            // 渲染結果
+            if (results.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <p class="no-results-text">找不到符合「${searchTerm}」的結果</p>
+                    </div>
+                `;
+            } else {
+                searchResults.innerHTML = results.map(item => `
+                    <a href="${item.path}" class="result-item">
+                        <h3 class="result-title">${item.title}</h3>
+                        <p class="result-description">${item.description}</p>
+                        <p class="result-path">📄 ${item.path}</p>
+                        <span class="result-category">${item.category}</span>
+                    </a>
+                `).join('');
+            }
+        }
+
+        // 搜尋按鈕點擊
+        searchBtn.addEventListener('click', performSearch);
+
+        // Enter 鍵搜尋
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 輸入時即時搜尋
+        searchInput.addEventListener('input', () => {
+            performSearch();
+        });
+
+        // 頁面載入時聚焦搜尋框
+        window.addEventListener('load', () => {
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html>
