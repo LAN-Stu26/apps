@@ -17,6 +17,11 @@
             --accent-blue: #3498db;
             --bg-color: #1d1d1d;
             --card-bg: #2d2d2d;
+            --tag-time: #3498db;
+            --tag-color: #2ecc71;
+            --tag-productivity: #9b59b6;
+            --tag-creative: #e74c3c;
+            --tag-member: #f39c12;
         }
 
         body {
@@ -36,9 +41,72 @@
         .section-title {
             text-align: center; 
             font-size: 2.5rem;
-            margin-bottom: 50px; 
+            margin-bottom: 40px; 
             color: var(--primary-dark);
             letter-spacing: 3px;
+        }
+
+        /* --- 分類篩選器樣式 --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #bdc3c7;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-dark);
+            color: #1d1d1d;
+            font-weight: bold;
+            border-color: var(--primary-dark);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            width: 200px;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-input::placeholder {
+            color: #7f8c8d;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 8px rgba(255, 217, 102, 0.3);
         }
 
         .app-grid {
@@ -61,9 +129,37 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .app-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .app-card.hidden {
+            display: none;
+        }
+
+        .app-icon { font-size: 3.5rem; margin-bottom: 15px; }
         .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
         .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; flex-grow: 1; }
+
+        .app-tags {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .app-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .app-tag.tag-time { color: var(--tag-time); border-color: var(--tag-time); }
+        .app-tag.tag-color { color: var(--tag-color); border-color: var(--tag-color); }
+        .app-tag.tag-productivity { color: var(--tag-productivity); border-color: var(--tag-productivity); }
+        .app-tag.tag-creative { color: var(--tag-creative); border-color: var(--tag-creative); }
+        .app-tag.tag-member { color: var(--tag-member); border-color: var(--tag-member); }
 
         @media (hover: hover) {
             .app-card:hover {
@@ -76,66 +172,165 @@
         /* RWD 佈局 */
         @media (max-width: 850px) {
             .app-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-container { gap: 8px; flex-direction: column; }
+            .filter-btn { padding: 6px 14px; font-size: 0.85rem; }
+            .search-box { margin-left: 0; width: 100%; }
+            .search-input { width: 100%; }
         }
 
         @media (max-width: 600px) { 
             .section-title { font-size: 2rem; }
             .app-grid { grid-template-columns: 1fr; } 
+            .app-tags { gap: 6px; }
+            .app-tag { font-size: 0.65rem; padding: 3px 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="section-title">所有工具</h1>
+        
+        <!-- 分類篩選器 -->
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="time">時間工具</button>
+            <button class="filter-btn" data-filter="color">螢幕工具</button>
+            <button class="filter-btn" data-filter="productivity">生產力</button>
+            <button class="filter-btn" data-filter="creative">創意工具</button>
+            <button class="filter-btn" data-filter="member">會員專屬/升級程式</button>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜尋工具名稱...">
+            </div>
+        </div>
+
         <div class="app-grid">
-            <a href="time.html" class="app-card">
+            <a href="time.html" class="app-card" data-category="time color">
                 <div class="app-icon">🕒</div>
                 <h3>現在時間</h3>
                 <p>沉浸式全螢幕時鐘。支援多國時區切換、自定義色彩與全螢幕顯示，讓螢幕成為專業的數位時鐘。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-time">時間工具</span>
+                    <span class="app-tag tag-color">螢幕工具</span>
+                </div>
             </a>
-            <a href="fullscreen.html" class="app-card">
+            <a href="fullscreen.html" class="app-card" data-category="color">
                 <div class="app-icon">🎨</div>
                 <h3>全螢幕顏色</h3>
                 <p>使用整個螢幕顯示您選擇的顏色，適合用於情境照明或背景板。(比工具邦的更佳自由好用)</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-color">螢幕工具</span>
+                </div>
             </a>
-            <a href="classroom.html" class="app-card">
+            <a href="classroom.html" class="app-card" data-category="productivity">
                 <div class="app-icon">🧑‍🏫</div>
                 <h3>抽號器</h3>
                 <p>班級沒有抽籤筒嗎?快來使用 LAN Studio 製作的!!!</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
             </a>
-            <a href="note.html" class="app-card">
+            <a href="note.html" class="app-card" data-category="member productivity">
                 <div class="app-icon">📓</div>
                 <h3>加密雲端筆記</h3>
                 <p><span style="color:#ff4d4d;">會員限定!!!</span>雲端筆記!!!!使用 AES-256 加密，請放心使用。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-member">會員專屬程式</span>
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
             </a>
-            <a href="editor.html" class="app-card">
+            <a href="editor.html" class="app-card" data-category="member productivity">
                 <div class="app-icon">💻</div>
                 <h3>HTML Editor</h3>
                 <p>雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-member">會員升級程式</span>
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
             </a>
-            <a href="marquee.html" class="app-card">
+            <a href="marquee.html" class="app-card" data-category="color creative">
                 <div class="app-icon">📢</div>
                 <h3>跑馬燈</h3>
                 <p>專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-color">螢幕工具</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
             </a>
-            <a href="pomodoro_technique.html" class="app-card">
+            <a href="pomodoro_technique.html" class="app-card" data-category="productivity">
                 <div class="app-icon">⏱️</div>
                 <h3>番茄鐘</h3>
                 <p>簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-time">時間工具</span>
+                </div>
             </a>
-            <a href="r_c-timer.html" class="app-card">
+            <a href="r_c-timer.html" class="app-card" data-category="time">
                 <div class="app-icon">🧩</div>
                 <h3>魔方計時器</h3>
                 <p>專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-time">時間工具</span>
+                </div>
             </a>
-            <a href="word_counter.html" class="app-card">
+            <a href="word_counter.html" class="app-card" data-category="productivity">
                 <div class="app-icon">✍️</div>
                 <h3>字數計算器</h3>
                 <p>即時統計文字內容與字元數。</p>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
             </a>
         </div>
     </div>
     
     <script type="module" src="navbar.js" defer></script>
+    <script>
+        // 分類篩選功能 & 搜尋功能
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const appCards = document.querySelectorAll('.app-card');
+        const searchInput = document.getElementById('searchInput');
+        let currentFilter = 'all';
+
+        function filterAndSearch() {
+            appCards.forEach(card => {
+                const categories = card.getAttribute('data-category').split(' ');
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const searchTerm = searchInput.value.toLowerCase();
+
+                // 檢查分類篩選
+                const categoryMatch = currentFilter === 'all' || categories.includes(currentFilter);
+                
+                // 檢查搜尋條件
+                const searchMatch = searchTerm === '' || title.includes(searchTerm);
+
+                // 兩個條件都符合才顯示
+                if (categoryMatch && searchMatch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // 分類按鈕點擊事件
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentFilter = btn.getAttribute('data-filter');
+
+                // 更新按鈕狀態
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                filterAndSearch();
+            });
+        });
+
+        // 搜尋輸入框事件
+        searchInput.addEventListener('input', () => {
+            filterAndSearch();
+        });
+    </script>
 </body>
 </html>
