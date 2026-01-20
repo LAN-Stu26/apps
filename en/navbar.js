@@ -153,9 +153,9 @@ const navbarHTML = `
         <li class="dropdown">
             <span class="dropbtn"><b>Members Only / Upgrade Program ▾</b></span>
             <div class="dropdown-content">
-                <a href="#" style="color:#555 !important;">Members Only▾▾▾</a>
+                <a href="#"  class="ai-notice-navbar">Members Only▾▾▾</a>
                 <a href="note.html"><b>Note</b></a>
-                <a href="#" style="color:#555 !important;">Upgrade Program▾▾▾</a>
+                <a href="#"  class="ai-notice-navbar">Upgrade Program▾▾▾</a>
                 <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>
@@ -178,9 +178,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 您現在正在使用英文，是否更換語言?</div>
+    <div class="bar-content">📢 The new tool "Now Time" tool is now online!</div>
     <div class="bar-actions">
-        <a href="/home.html" class="btn-bar-go">更換語言</a>
+        <a href="time.html" class="btn-bar-go">Open now!</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
