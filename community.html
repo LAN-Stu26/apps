@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="LAN Studio 社群平台 - 分享程式碼、發問交流">
+    <meta property="og:title" content="LAN Studio Community | 社群平台">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Beta - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* --- 頁首區域 --- */
+        .hero-header {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-title-box {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 3px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+            margin-top: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* --- 主容器 --- */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        /* --- 驗證提示 --- */
+        .auth-required {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .auth-required p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+        }
+
+        .auth-required .btn-login {
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: var(--primary-dark);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-required .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        /* --- 區段標題 --- */
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 50px 0 35px 0;
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--accent-blue);
+            border-radius: 2px;
+        }
+
+        /* --- 操作按鈕組 --- */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 217, 102, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* --- 貼文卡片 --- */
+        .posts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .post-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .post-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .post-user-details h4 {
+            margin: 0 0 4px 0;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .post-user-details .timestamp {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .post-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-blue);
+            color: #fff;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .post-type-badge.question {
+            background: #e74c3c;
+        }
+
+        .post-type-badge.code {
+            background: #27ae60;
+        }
+
+        /* --- 貼文內容 --- */
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            color: var(--primary-dark);
+            line-height: 1.4;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 15px;
+            overflow: hidden;
+            max-height: 200px;
+        }
+
+        .post-code-block {
+            background: #1a1a1a;
+            border-left: 3px solid var(--accent-blue);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .post-code-block code {
+            color: #a8e6cf;
+        }
+
+        /* --- 貼文操作區 --- */
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .post-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: #aaa;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-blue);
+            color: #fff;
+            border-color: var(--accent-blue);
+        }
+
+        /* --- 表單 --- */
+        .form-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--accent-blue);
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            background: rgba(52, 152, 219, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .file-upload-area p {
+            margin: 0;
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+
+        /* --- 空狀態 --- */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+
+        /* --- RWD 設計 --- */
+        @media (max-width: 850px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .post-header {
+                flex-direction: column;
+            }
+
+            .post-type-badge {
+                margin-left: 0;
+                align-self: flex-start;
+            }
+
+            .post-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-header {
+                height: 250px;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* --- 載入動畫 --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* --- 隱藏元素 (JS 控制) --- */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar 由 navbar.js 插入 -->
+
+    <!-- 頁首區域 -->
+    <div class="hero-header">
+        <div class="hero-title-box">
+            <h1 class="hero-title">社群平台</h1>
+            <p class="hero-subtitle">分享程式碼、交流想法、解決問題</p>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 驗證提示 -->
+        <div id="auth-prompt" class="auth-required" style="display: none;">
+            <p>⚠️ 您需要登入才能發問和上傳程式碼</p>
+            <button class="btn-login" id="auth-prompt-btn">使用 Google 帳號登入</button>
+        </div>
+
+        <!-- 已登入用戶操作區 -->
+        <div id="auth-success" style="display: none;">
+            <!-- 操作按鈕 -->
+            <div class="action-buttons">
+                <button class="btn-primary" id="btn-new-question">
+                    ❓ 發起問題
+                </button>
+                <button class="btn-primary" id="btn-share-code">
+                    💻 分享程式碼
+                </button>
+                <button class="btn-secondary" id="btn-my-posts">
+                    📝 我的貼文
+                </button>
+            </div>
+
+            <!-- 發問表單 (初始隱藏) -->
+            <div id="question-form" class="form-container hidden">
+                <h3 style="color: var(--primary-dark); margin-top: 0;">發起新問題</h3>
+                <form id="form-question">
+                    <div class="form-group">
+                        <label for="question-title">問題標題 *</label>
+                        <input type="text" id="question-title" placeholder="請簡潔描述您的問題" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question-content">問題詳情 *</label>
+                        <textarea id="question-content" placeholder="詳細描述您遇到的問題，包括錯誤訊息或預期行為" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question-tags">標籤 (用逗號分隔)</label>
+                        <input type="text" id="question-tags" placeholder="例如: JavaScript, CSS, Bug">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn-primary">發布問題</button>
+                        <button type="button" class="btn-secondary" id="btn-cancel-question">取消</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 分享程式碼表單 (初始隱藏) -->
+            <div id="code-form" class="form-container hidden">
+                <h3 style="color: var(--primary-dark); margin-top: 0;">分享修改後的程式碼</h3>
+                <form id="form-code">
+                    <div class="form-group">
+                        <label for="code-title">程式碼標題 *</label>
+                        <input type="text" id="code-title" placeholder="例如: 優化的待辦事項應用程式" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code-description">描述此修改 *</label>
+                        <textarea id="code-description" placeholder="說明您做了什麼改進或修改，以及為什麼這樣改" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code-language">程式語言 *</label>
+                        <select id="code-language" required>
+                            <option value="">選擇語言</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="csharp">C#</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code-snippet">程式碼 *</label>
+                        <textarea id="code-snippet" placeholder="貼上您修改後的程式碼" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>上傳檔案 (可選)</label>
+                        <div class="file-upload-area" id="file-upload">
+                            <p>🔗 點擊或拖拽上傳檔案</p>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">支援: .js, .html, .css, .py 等</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code-tags">標籤 (用逗號分隔)</label>
+                        <input type="text" id="code-tags" placeholder="例如: React, Component, Hook">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn-primary">分享程式碼</button>
+                        <button type="button" class="btn-secondary" id="btn-cancel-code">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 篩選器 -->
+        <div style="margin: 30px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-secondary" id="filter-all" style="background: var(--accent-blue); color: #fff;">全部</button>
+            <button class="btn-secondary" id="filter-questions">❓ 問題</button>
+            <button class="btn-secondary" id="filter-code">💻 程式碼分享</button>
+        </div>
+
+        <!-- 貼文區域 -->
+        <h2 class="section-title">最新貼文</h2>
+        <div id="posts-container" class="posts-container">
+            <!-- 動態插入貼文 -->
+        </div>
+
+        <!-- 空狀態 -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🌱</div>
+            <h3>還沒有貼文</h3>
+            <p>成為第一個分享或發問的人吧！</p>
+        </div>
+    </div>
+
+    <!-- Navbar 腳本引入 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, getDocs, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjG4P9ZNX2OYOdXw69oFboPoilvAZLG_Q",
+            authDomain: "lan-member-studio.firebaseapp.com",
+            projectId: "lan-member-studio",
+            storageBucket: "lan-member-studio.firebasestorage.app",
+            messagingSenderId: "239900590732",
+            appId: "1:239900590732:web:f37b953aa04d0cab3a71a9",
+            measurementId: "G-TTWM9YD7KF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allPosts = [];
+        let currentFilter = 'all';
+
+        // 驗證狀態監聽
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateUIBasedOnAuth();
+            if (user) {
+                loadPosts();
+            }
+        });
+
+        // 更新 UI 基於驗證狀態
+        function updateUIBasedOnAuth() {
+            const authPrompt = document.getElementById('auth-prompt');
+            const authSuccess = document.getElementById('auth-success');
+
+            if (currentUser) {
+                authPrompt.style.display = 'none';
+                authSuccess.style.display = 'block';
+            } else {
+                authPrompt.style.display = 'block';
+                authSuccess.style.display = 'none';
+            }
+        }
+
+        // 登入按鈕事件
+        document.getElementById('auth-prompt-btn').addEventListener('click', () => {
+            // 使用 navbar.js 中的登入函數
+            window.loginWithGoogle?.();
+        });
+
+        // 發問按鈕
+        document.getElementById('btn-new-question').addEventListener('click', () => {
+            document.getElementById('question-form').classList.remove('hidden');
+            document.getElementById('code-form').classList.add('hidden');
+        });
+
+        // 分享程式碼按鈕
+        document.getElementById('btn-share-code').addEventListener('click', () => {
+            document.getElementById('code-form').classList.remove('hidden');
+            document.getElementById('question-form').classList.add('hidden');
+        });
+
+        // 取消按鈕
+        document.getElementById('btn-cancel-question').addEventListener('click', () => {
+            document.getElementById('question-form').classList.add('hidden');
+            document.getElementById('form-question').reset();
+        });
+
+        document.getElementById('btn-cancel-code').addEventListener('click', () => {
+            document.getElementById('code-form').classList.add('hidden');
+            document.getElementById('form-code').reset();
+        });
+
+        // 發問表單提交
+        document.getElementById('form-question').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('請先登入');
+                return;
+            }
+
+            try {
+                const docRef = await addDoc(collection(db, 'community_posts'), {
+                    type: 'question',
+                    title: document.getElementById('question-title').value,
+                    content: document.getElementById('question-content').value,
+                    tags: document.getElementById('question-tags').value.split(',').map(t => t.trim()),
+                    author: currentUser.displayName || '匿名使用者',
+                    authorEmail: currentUser.email,
+                    authorPhoto: currentUser.photoURL || '',
+                    createdAt: new Date(),
+                    replies: 0,
+                    views: 0,
+                    likes: 0
+                });
+
+                alert('問題發布成功！');
+                document.getElementById('question-form').classList.add('hidden');
+                document.getElementById('form-question').reset();
+                loadPosts();
+            } catch (error) {
+                console.error('發布問題失敗:', error);
+                alert('發布失敗，請重試');
+            }
+        });
+
+        // 程式碼表單提交
+        document.getElementById('form-code').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('請先登入');
+                return;
+            }
+
+            try {
+                const docRef = await addDoc(collection(db, 'community_posts'), {
+                    type: 'code',
+                    title: document.getElementById('code-title').value,
+                    description: document.getElementById('code-description').value,
+                    codeSnippet: document.getElementById('code-snippet').value,
+                    language: document.getElementById('code-language').value,
+                    tags: document.getElementById('code-tags').value.split(',').map(t => t.trim()),
+                    author: currentUser.displayName || '匿名使用者',
+                    authorEmail: currentUser.email,
+                    authorPhoto: currentUser.photoURL || '',
+                    createdAt: new Date(),
+                    likes: 0,
+                    views: 0
+                });
+
+                alert('程式碼分享成功！');
+                document.getElementById('code-form').classList.add('hidden');
+                document.getElementById('form-code').reset();
+                loadPosts();
+            } catch (error) {
+                console.error('分享失敗:', error);
+                alert('分享失敗，請重試');
+            }
+        });
+
+        // 載入貼文
+        async function loadPosts() {
+            try {
+                const q = query(collection(db, 'community_posts'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                allPosts = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderPosts();
+            } catch (error) {
+                console.error('載入貼文失敗:', error);
+            }
+        }
+
+        // 渲染貼文
+        function renderPosts() {
+            const container = document.getElementById('posts-container');
+            const emptyState = document.getElementById('empty-state');
+
+            let filteredPosts = allPosts;
+            if (currentFilter === 'questions') {
+                filteredPosts = allPosts.filter(p => p.type === 'question');
+            } else if (currentFilter === 'code') {
+                filteredPosts = allPosts.filter(p => p.type === 'code');
+            }
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = filteredPosts.map(post => {
+                const date = post.createdAt?.toDate?.() || new Date();
+                const timeAgo = getTimeAgo(date);
+                const badgeType = post.type === 'question' ? 'question' : 'code';
+                const badgeText = post.type === 'question' ? '❓ 問題' : '💻 程式碼';
+
+                let contentHTML = '';
+                if (post.type === 'question') {
+                    contentHTML = `<p class="post-content">${escapeHtml(post.content)}</p>`;
+                } else {
+                    contentHTML = `
+                        <p class="post-content">${escapeHtml(post.description)}</p>
+                        <div class="post-code-block"><code>${escapeHtml(post.codeSnippet)}</code></div>
+                    `;
+                }
+
+                return `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="post-user-info">
+                                <div class="post-avatar">${post.author.charAt(0).toUpperCase()}</div>
+                                <div class="post-user-details">
+                                    <h4>${escapeHtml(post.author)}</h4>
+                                    <span class="timestamp">${timeAgo}</span>
+                                </div>
+                            </div>
+                            <div class="post-type-badge ${badgeType}">${badgeText}</div>
+                        </div>
+
+                        <h3 class="post-title">${escapeHtml(post.title)}</h3>
+                        ${contentHTML}
+
+                        ${post.tags?.length > 0 ? `
+                            <div style="margin: 12px 0; display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${post.tags.map(tag => `<span style="background: rgba(52, 152, 219, 0.2); color: var(--accent-blue); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem;">#${escapeHtml(tag)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+
+                        <div class="post-footer">
+                            <div class="post-stats">
+                                <span>👁️ ${post.views || 0}</span>
+                                <span>💬 ${post.replies || 0}</span>
+                                <span>❤️ ${post.likes || 0}</span>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-action">回應</button>
+                                <button class="btn-action">分享</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 篩選器事件
+        document.getElementById('filter-all').addEventListener('click', () => {
+            currentFilter = 'all';
+            updateFilterButtons();
+            renderPosts();
+        });
+
+        document.getElementById('filter-questions').addEventListener('click', () => {
+            currentFilter = 'questions';
+            updateFilterButtons();
+            renderPosts();
+        });
+
+        document.getElementById('filter-code').addEventListener('click', () => {
+            currentFilter = 'code';
+            updateFilterButtons();
+            renderPosts();
+        });
+
+        function updateFilterButtons() {
+            document.getElementById('filter-all').style.background = currentFilter === 'all' ? 'var(--accent-blue)' : 'transparent';
+            document.getElementById('filter-all').style.color = currentFilter === 'all' ? '#fff' : 'var(--accent-blue)';
+
+            document.getElementById('filter-questions').style.background = currentFilter === 'questions' ? 'var(--accent-blue)' : 'transparent';
+            document.getElementById('filter-questions').style.color = currentFilter === 'questions' ? '#fff' : 'var(--accent-blue)';
+
+            document.getElementById('filter-code').style.background = currentFilter === 'code' ? 'var(--accent-blue)' : 'transparent';
+            document.getElementById('filter-code').style.color = currentFilter === 'code' ? '#fff' : 'var(--accent-blue)';
+        }
+
+        // 輔助函數
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return '剛剛';
+            if (minutes < 60) return `${minutes} 分鐘前`;
+            if (hours < 24) return `${hours} 小時前`;
+            if (days < 7) return `${days} 天前`;
+            return date.toLocaleDateString('zh-TW');
+        }
+    </script>
+
+    <!-- 引入 navbar.js -->
+    <script src="navbar.js" type="module"></script>
+</body>
+</html>
