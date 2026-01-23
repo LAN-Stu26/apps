@@ -60,10 +60,6 @@
             font-family: 'Noto Sans TC', sans-serif;
         }
 
-        .search-input::placeholder {
-            color: #7f8c8d;
-        }
-
         .search-input:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.1);
@@ -81,16 +77,11 @@
             font-size: 1rem;
             font-weight: bold;
             transition: all 0.3s ease;
-            font-family: 'Noto Sans TC', sans-serif;
         }
 
         .search-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(255, 217, 102, 0.3);
-        }
-
-        .search-btn:active {
-            transform: translateY(0);
         }
 
         /* --- 結果統計 --- */
@@ -134,6 +125,9 @@
             font-size: 1.3rem;
             color: var(--primary-dark);
             margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .result-description {
@@ -147,6 +141,9 @@
             color: #7f8c8d;
             font-size: 0.85rem;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .result-category {
@@ -168,32 +165,19 @@
             color: #7f8c8d;
         }
 
-        .no-results-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
+        .no-results-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
 
-        .no-results-text {
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        /* RWD 佈局 */
         @media (max-width: 600px) {
             .page-title { font-size: 2rem; }
             .search-container { flex-direction: column; }
             .search-btn { width: 100%; }
-            .result-item { padding: 20px; }
-            .result-title { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">搜尋網站 (測試中)</h1>
+        <h1 class="page-title">搜尋網站</h1>
         
-        <!-- 搜尋框 -->
         <div class="search-container">
             <input 
                 type="text" 
@@ -205,117 +189,37 @@
             <button class="search-btn" id="searchBtn">搜尋</button>
         </div>
 
-        <!-- 結果統計 -->
         <div class="result-stats">
             <span>找到 <span class="count" id="resultCount">0</span> 個結果</span>
         </div>
 
-        <!-- 搜尋結果 -->
         <div class="search-results" id="searchResults"></div>
     </div>
 
-    <script type="module" src="navbar.js" defer></script>
     <script>
         // 網站內容資料庫
         const siteData = [
-            {
-                title: '首頁',
-                description: '資訊總攬，探索 LAN Studio 提供的各種實用工具與最新消息。',
-                path: 'home.html',
-                category: '首頁',
-                keywords: ['工具', '推薦', '公告標題', '數位工具', '數位', 'ALL']
-            },
-            {
-                title: '現在時間',
-                description: '沉浸式全螢幕時鐘。支援多國時區切換、自定義色彩與全螢幕顯示，讓螢幕成為專業的數位時鐘。',
-                path: 'time.html',
-                category: '時間工具',
-                keywords: ['現在', '時間', '時鐘', '時區', '數位', 'ALL']
-            },
-            {
-                title: '全螢幕顏色',
-                description: '使用整個螢幕顯示您選擇的顏色，適合用於情境照明或背景板。',
-                path: 'fullscreen.html',
-                category: '螢幕工具',
-                keywords: ['全螢幕', '顏色', '色彩', '螢幕', '照明', 'ALL']
-            },
-            {
-                title: '抽號器',
-                description: '班級沒有抽籤筒嗎？快來使用 LAN Studio 製作的抽號器！',
-                path: 'classroom.html',
-                category: '生產力',
-                keywords: ['抽號', '抽籤', '班級', '教室', '選擇', 'ALL']
-            },
-            {
-                title: '加密雲端筆記',
-                description: '會員限定！雲端筆記！使用 AES-256 加密，請放心使用。',
-                path: 'note.html',
-                category: '會員專屬',
-                keywords: ['筆記', '雲端', '加密', '會員', 'AES', 'ALL']
-            },
-            {
-                title: 'HTML Editor',
-                description: '雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。',
-                path: 'editor.html',
-                category: '會員專屬',
-                keywords: ['編輯', 'HTML', 'CSS', '編程', '程式', 'ALL']
-            },
-            {
-                title: '跑馬燈',
-                description: '專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。',
-                path: 'marquee.html',
-                category: '創意工具',
-                keywords: ['跑馬燈', '播放', '色彩', 'HTML', '控制台', 'ALL']
-            },
-            {
-                title: '番茄鐘',
-                description: '簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。',
-                path: 'pomodoro_technique.html',
-                category: '生產力',
-                keywords: ['番茄', '鐘', '時間', '專注', '工作', 'ALL']
-            },
-            {
-                title: '魔方計時器',
-                description: '專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。',
-                path: 'r_c-timer.html',
-                category: '時間工具',
-                keywords: ['魔方', '計時', '計時器', '方塊', '紀錄', 'ALL']
-            },
-            {
-                title: '字數計算器',
-                description: '即時統計文字內容與字元數。',
-                path: 'word_counter.html',
-                category: '生產力',
-                keywords: ['字數', '計算', '文字', '字元', '統計', 'ALL']
-            },
-            {
-                title: '所有工具',
-                description: 'LAN Studio 提供的所有實用工具合集。',
-                path: 'apps.html',
-                category: '工具集',
-                keywords: ['工具', '合集', '應用', '所有', 'ALL']
-            },
-            {
-                title: '最新公告',
-                description: 'LAN Studio 的最新動態與重要公告。',
-                path: 'news.html',
-                category: '公告',
-                keywords: ['公告', '新聞', '動態', '最新', 'ALL']
-            },
-            {
-                title: '合作表單',
-                description: '立即成為 LAN Studio 的合作夥伴，一起打造更棒的數位工具！',
-                path: 'from/partner-with-us.html',
-                category: '合作',
-                keywords: ['合作', '商家', '表單', '成為', 'ALL']
-            },
-            {
-                title: '改善表單',
-                description: '讓我們知道您對 LAN Studio 網站的建議與想法，幫助我們持續改進！',
-                path: 'from/improve-website.html',
-                category: '改善網站',
-                keywords: ['改善', '建議', '想法', '想', '表單', 'ALL']
-            }
+            // --- 原有工具頁面 ---
+            { title: '首頁', description: '資訊總攬，探索 LAN Studio 提供的各種實用工具與最新消息。', path: 'home.html', category: '首頁', keywords: ['工具', '推薦', '公告標題', '數位工具', '數位', 'ALL'] },
+            { title: '現在時間', description: '沉浸式全螢幕時鐘。支援多國時區切換、自定義色彩與全螢幕顯示。', path: 'time.html', category: '時間工具', keywords: ['現在', '時間', '時鐘', '時區', '數位', 'ALL'] },
+            { title: '全螢幕顏色', description: '使用整個螢幕顯示您選擇的顏色，適合用於情境照明或背景板。', path: 'fullscreen.html', category: '螢幕工具', keywords: ['全螢幕', '顏色', '色彩', '螢幕', '照明', 'ALL'] },
+            { title: '抽號器', description: '班級沒有抽籤筒嗎？快來使用 LAN Studio 製作的抽號器！', path: 'classroom.html', category: '生產力', keywords: ['抽號', '抽籤', '班級', '教室', '選擇', 'ALL'] },
+            { title: '加密雲端筆記', description: '會員限定！雲端筆記！使用 AES-256 加密，請放心使用。', path: 'note.html', category: '會員專屬', keywords: ['筆記', '雲端', '加密', '會員', 'AES', 'ALL'] },
+            { title: 'HTML Editor', description: '雲端即時編程工具。支援 HTML/CSS 即時預覽，提供會員專屬開發空間。', path: 'editor.html', category: '會員專屬', keywords: ['編輯', 'HTML', 'CSS', '編程', '程式', 'ALL'] },
+            { title: '跑馬燈', description: '專業控制台，支援多種色彩、HTML 標籤插入與全螢幕播放模式。', path: 'marquee.html', category: '創意工具', keywords: ['跑馬燈', '播放', '色彩', 'HTML', '控制台', 'ALL'] },
+            { title: '番茄鐘', description: '簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。', path: 'pomodoro_technique.html', category: '生產力', keywords: ['番茄', '鐘', '時間', '專注', '工作', 'ALL'] },
+            { title: '魔方計時器', description: '專為魔術方塊玩家設計，提供精準計時與歷史紀錄統計系統。', path: 'r_c-timer.html', category: '時間工具', keywords: ['魔方', '計時', '計時器', '方塊', '紀錄', 'ALL'] },
+            { title: '字數計算器', description: '即時統計文字內容與字元數。', path: 'word_counter.html', category: '生產力', keywords: ['字數', '計算', '文字', '字元', '統計', 'ALL'] },
+            { title: '所有工具', description: 'LAN Studio 提供的所有實用工具合集。', path: 'apps.html', category: '工具集', keywords: ['工具', '合集', '應用', '所有', 'ALL'] },
+            { title: '最新公告', description: 'LAN Studio 的最新動態與重要公告。', path: 'news.html', category: '公告', keywords: ['公告', '新聞', '動態', '最新', 'ALL'] },
+            { title: '合作表單', description: '立即成為 LAN Studio 的合作夥伴，一起打造更棒的數位工具！', path: 'from/partner-with-us.html', category: '合作', keywords: ['合作', '商家', '表單', '成為', 'ALL'] },
+            { title: '改善表單', description: '讓我們知道您對 LAN Studio 網站的建議與想法，幫助我們持續改進！', path: 'from/improve-website.html', category: '改善網站', keywords: ['改善', '建議', '想法', '想', '表單', 'ALL'] },
+
+            // --- 圖片檔案資料庫 ---
+            { title: '幾何遊戲icon - 圖檔', description: '幾何遊戲專屬圖示。來源：freegeometricgames.com/icon.png。', path: '圖片/幾何遊戲icon.png', category: '圖片檔案', keywords: ['圖片', '幾何', '遊戲', 'icon', '圖標', 'ALL'] },
+            { title: '標籤頭像 - 圖檔', description: '標籤頭像.png，使用時請標示作者：LAN Studio。', path: '圖片/標籤頭像.png', category: '圖片檔案', keywords: ['圖片', '標籤', '頭像', '個人資料', 'ALL'] },
+            { title: '韓家icon - 圖檔', description: '韓家專屬識別圖示。來源：LAN Studio 素材庫。', path: '圖片/韓家icon.png', category: '圖片檔案', keywords: ['圖片', '韓家', 'icon', '圖標', '品牌', 'ALL'] },
+            { title: 'Rainy Day Bokeh 背景圖', description: '高品質背景圖 Rainy_day_bokeh_background.png，適用於網頁設計情境。', path: '圖片/Rainy_day_bokeh_background.png', category: '圖片檔案', keywords: ['圖片', '背景', '下雨', '光斑', 'Bokeh', 'Rainy', 'ALL'] }
         ];
 
         const searchInput = document.getElementById('searchInput');
@@ -323,7 +227,7 @@
         const searchResults = document.getElementById('searchResults');
         const resultCount = document.getElementById('resultCount');
 
-        // 執行搜尋
+        // 核心搜尋邏輯
         function performSearch() {
             const searchTerm = searchInput.value.toLowerCase().trim();
 
@@ -333,22 +237,16 @@
                 return;
             }
 
-            // 搜尋匹配的結果
             const results = siteData.filter(item => {
                 const titleMatch = item.title.toLowerCase().includes(searchTerm);
-                const descriptionMatch = item.description.toLowerCase().includes(searchTerm);
-                const keywordsMatch = item.keywords.some(keyword => 
-                    keyword.toLowerCase().includes(searchTerm)
-                );
-                const categoryMatch = item.category.toLowerCase().includes(searchTerm);
-
-                return titleMatch || descriptionMatch || keywordsMatch || categoryMatch;
+                const descMatch = item.description.toLowerCase().includes(searchTerm);
+                const keyMatch = item.keywords.some(k => k.toLowerCase().includes(searchTerm));
+                const catMatch = item.category.toLowerCase().includes(searchTerm);
+                return titleMatch || descMatch || keyMatch || catMatch;
             });
 
-            // 更新結果統計
             resultCount.textContent = results.length;
 
-            // 渲染結果
             if (results.length === 0) {
                 searchResults.innerHTML = `
                     <div class="no-results">
@@ -357,37 +255,43 @@
                     </div>
                 `;
             } else {
-                searchResults.innerHTML = results.map(item => `
-                    <a href="${item.path}" class="result-item">
-                        <h3 class="result-title">${item.title}</h3>
-                        <p class="result-description">${item.description}</p>
-                        <p class="result-path">📄 ${item.path}</p>
-                        <span class="result-category">${item.category}</span>
-                    </a>
-                `).join('');
+                searchResults.innerHTML = results.map(item => {
+                    // 根據副檔名判斷圖標
+                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.path);
+                    const icon = isImage ? '🖼️' : '📄';
+
+                    return `
+                        <a href="${encodeURI(item.path)}" class="result-item">
+                            <h3 class="result-title"><span>${icon}</span> ${item.title}</h3>
+                            <p class="result-description">${item.description}</p>
+                            <p class="result-path"><span>${icon}</span> ${item.path}</p>
+                            <span class="result-category">${item.category}</span>
+                        </a>
+                    `;
+                }).join('');
             }
         }
 
-        // 搜尋按鈕點擊
+        // 防抖函數 (Debounce)：避免頻繁觸發搜尋提高效能
+        function debounce(func, delay) {
+            let timeout;
+            return function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, arguments), delay);
+            };
+        }
+
+        const debouncedSearch = debounce(performSearch, 250);
+
+        // 事件監聽
         searchBtn.addEventListener('click', performSearch);
-
-        // Enter 鍵搜尋
+        searchInput.addEventListener('input', debouncedSearch);
         searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
+            if (e.key === 'Enter') performSearch();
         });
 
-        // 輸入時即時搜尋
-        searchInput.addEventListener('input', () => {
-            performSearch();
-        });
-
-        // 頁面載入時聚焦搜尋框
-        window.addEventListener('load', () => {
-            searchInput.focus();
-        });
+        window.addEventListener('load', () => searchInput.focus());
     </script>
+        <script type="module" src="navbar.js" defer></script>
 </body>
 </html>
-
