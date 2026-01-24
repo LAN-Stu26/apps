@@ -159,33 +159,33 @@ const navbarHTML = `
 <nav id="custom-navbar">
     <div class="logo">LAN Studio</div>
     <ul id="nav-list">
-        <li><a href="/home.html"><b>首頁</b></a></li>
+        <li><a href="home.html"><b>首頁</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
-                <a href="/apps.html"><b>所有網頁程式</b></a>
+                <a href="apps.html"><b>所有網頁程式</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
-                <a href="/time.html"><b>現在時間</b></a>
-                <a href="/fullscreen.html"><b>全螢幕顏色</b></a>
-                <a href="/classroom.html"><b>抽號器</b></a>
+                <a href="time.html"><b>現在時間</b></a>
+                <a href="fullscreen.html"><b>全螢幕顏色</b></a>
+                <a href="classroom.html"><b>抽號器</b></a>
             </div>
         </li>
-        <li><a href="/news.html"><b>最新消息</b></a></li>
+        <li><a href="news.html"><b>最新消息</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="#"  class="ai-notice-navbar">會員專屬▾▾▾</a>
-                <a href="/note.html"><b>加密雲端筆記</b></a>
+                <a href="note.html"><b>加密雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">體驗升級!!!▾▾▾</a>
-                <a href="/editor.html"><b>Html Editor</b></a>
+                <a href="editor.html"><b>Html Editor</b></a>
             </div>
         </li>
         <li class="dropdown">
             <span class="dropbtn"><b>關於本站 ▾</b></span>
             <div class="dropdown-content">
                 <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
-                <a href="/cooperate.html"><b>合作商家</b></a>
-                <a href="/from/improve-website.html"><b>改善表單</b></a>
+                <a href="cooperate.html"><b>合作商家</b></a>
+                <a href="from/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
         <li id="auth-area" class="dropdown">
@@ -202,7 +202,7 @@ const navbarHTML = `
                 <div class="lang-sphere"></div>
             </span>
             <div class="dropdown-content">
-                <a href="/home.html"><b>繁體中文</b></a>
+                <a href="home.html"><b>繁體中文</b></a>
                 <a href="/en/home.html"><b>English</b></a>
             </div>
         </li>
@@ -293,9 +293,10 @@ if (searchNavBtn) {
     });
 }
 
-// --- 優化後的收藏功能 ---
-const getPagePath = () => window.location.pathname.split('/').pop() || 'home.html';
-const getFavId = () => getPagePath().replace(/\./g, '_');
+// --- 修正後的收藏路徑邏輯 ---
+// 使用完整的 pathname 並將 / 替換為 _ 以作為安全 ID
+const getFullPagePath = () => window.location.pathname;
+const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
 async function updateFavList(user) {
     const listContainer = document.getElementById('fav-list-container');
@@ -308,26 +309,27 @@ async function updateFavList(user) {
     } else {
         snap.forEach(doc => {
             const data = doc.data();
-            html += `<a href="${data.url}"><b>⭐ ${data.name}</b></a>`;
+            // 注意：這裡使用 data.path 以確保導向正確的目錄
+            html += `<a href="${data.path}"><b>⭐ ${data.name}</b></a>`;
         });
     }
     listContainer.innerHTML = html;
 }
 
 async function toggleFavorite(user) {
-    const path = getPagePath();
-    const id = getFavId();
-    const favRef = doc(db, "users", user.uid, "favorites", id);
+    const fullPath = getFullPagePath();
+    const safeId = getSafeFavId();
+    const favRef = doc(db, "users", user.uid, "favorites", safeId);
     
     if (favBtn.classList.contains('active')) {
         await deleteDoc(favRef);
         favBtn.classList.remove('active');
-        localStorage.removeItem(`fav_${user.uid}_${id}`);
+        localStorage.removeItem(`fav_${user.uid}_${safeId}`);
     } else {
-        const data = { url: path, name: pageTitle, time: new Date() };
+        const data = { path: fullPath, name: pageTitle, time: new Date() };
         await setDoc(favRef, data);
         favBtn.classList.add('active');
-        localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+        localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
     }
     updateFavList(user);
 }
@@ -336,8 +338,10 @@ onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
         favBtn.style.display = 'flex';
-        // 快取優先加載
-        if (localStorage.getItem(`fav_${user.uid}_${getFavId()}`)) {
+        const safeId = getSafeFavId();
+        
+        // 快速預判快取
+        if (localStorage.getItem(`fav_${user.uid}_${safeId}`)) {
             favBtn.classList.add('active');
         }
 
@@ -359,16 +363,15 @@ onAuthStateChanged(auth, (user) => {
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
         
-        // 背景檢查最愛狀態 (校正快取)
-        const id = getFavId();
-        const favRef = doc(db, "users", user.uid, "favorites", id);
+        // 校正快取
+        const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
             if (snap.exists()) {
                 favBtn.classList.add('active');
-                localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+                localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
             } else {
                 favBtn.classList.remove('active');
-                localStorage.removeItem(`fav_${user.uid}_${id}`);
+                localStorage.removeItem(`fav_${user.uid}_${safeId}`);
             }
         });
 
@@ -380,7 +383,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 (function() {
-    const link = document.createElement('link'); link.rel = 'icon'; link.href = '/圖片/標籤頭像.png';
+    const link = document.createElement('link'); link.rel = 'icon'; link.href = '圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
 
