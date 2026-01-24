@@ -1,6 +1,7 @@
-// 1. 引入 Firebase SDK (保持不變)
+// 1. 引入 Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCjG4P9ZNX2OYOdXw69oFboPoilvAZLG_Q",
@@ -14,9 +15,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// 2. CSS 樣式 (重點修正：order 屬性與對齊)
+// 2. CSS 樣式
 const style = `
 <style>
     html { scroll-behavior: smooth; }
@@ -46,7 +48,7 @@ const style = `
 
     #custom-navbar .logo { 
         color: #ffd966; font-weight: bold; font-size: 1.4rem; 
-        white-space: nowrap; margin-right: auto; /* 讓 Logo 靠左，其餘推向右邊 */
+        white-space: nowrap; margin-right: auto;
     }
 
     #nav-list { 
@@ -105,58 +107,35 @@ const style = `
     #auth-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ffd966; cursor: pointer; vertical-align: middle; }
     #login-btn { border: 1px solid #ffd966; padding: 5px 15px !important; border-radius: 20px; color: #ffd966 !important; cursor: pointer; }
 
-/* 搜尋按鈕 - 修正版 */
     .search-nav-btn {
-        width: 35px; /* 增加點擊範圍 */
-        height: 35px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.3s;
-        margin: 0 5px;
+        width: 35px; height: 35px; border: none; background: none; cursor: pointer;
+        position: relative; display: flex; align-items: center; justify-content: center;
+        transition: 0.3s; margin: 0 5px;
     }
-
-    /* 放大鏡圓形 */
     .search-nav-btn::before {
-        content: "";
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        width: 14px;
-        height: 14px;
-        border: 2px solid #ffd966;
-        border-radius: 50%;
-        box-sizing: border-box;
+        content: ""; position: absolute; top: 8px; left: 8px; width: 14px; height: 14px;
+        border: 2px solid #ffd966; border-radius: 50%; box-sizing: border-box;
     }
-
-    /* 放大鏡握把 */
     .search-nav-btn::after {
-        content: "";
-        position: absolute;
-        top: 22px;
-        left: 22px;
-        width: 7px;
-        height: 2px;
-        background: #ffd966;
-        transform: rotate(45deg);
-        border-radius: 2px;
+        content: ""; position: absolute; top: 22px; left: 22px; width: 7px; height: 2px;
+        background: #ffd966; transform: rotate(45deg); border-radius: 2px;
     }
+    .search-nav-btn:hover { background: rgba(255, 217, 102, 0.1); border-radius: 50%; transform: scale(1.1); }
 
-    .search-nav-btn:hover {
-        background: rgba(255, 217, 102, 0.1);
-        border-radius: 50%;
-        transform: scale(1.1);
+    /* 愛心按鈕樣式 */
+    .fav-nav-btn {
+        width: 35px; height: 35px; border: none; background: none; cursor: pointer;
+        display: none; align-items: center; justify-content: center;
+        transition: 0.3s; font-size: 18px; color: #555;
     }
+    .fav-nav-btn.active { color: #ff4d4d; }
+    .fav-nav-btn:hover { transform: scale(1.2); }
 
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 850px) {
         #custom-navbar { padding: 0 20px; }
-        .menu-toggle { display: flex; order: 10; /* 確保漢堡在最右邊 */ }
+        .menu-toggle { display: flex; order: 10; }
         #nav-list { 
             position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; 
             background: #0a0a0a !important; flex-direction: column !important; 
@@ -209,7 +188,12 @@ const navbarHTML = `
                 <a href="/from/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
-        <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
+        <li id="auth-area" class="dropdown">
+            <a id="login-btn">載入中...</a>
+        </li>
+        <li>
+            <button class="fav-nav-btn" id="fav-btn" title="收藏此頁">❤</button>
+        </li>
         <li>
             <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
         </li>
@@ -218,7 +202,7 @@ const navbarHTML = `
                 <div class="lang-sphere"></div>
             </span>
             <div class="dropdown-content">
-                <a href="home.html"><b>繁體中文</b></a>
+                <a href="/home.html"><b>繁體中文</b></a>
                 <a href="/en/home.html"><b>English</b></a>
             </div>
         </li>
@@ -229,15 +213,14 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">疑難排解???</div>
+    <div class="bar-content">📢 全新工具"現在時間"工具已經上線啦!</div>
     <div class="bar-actions">
-        <a href="mailto:lanstudio.ser25@gmail.com" class="btn-bar-go">點我開啟聯絡信箱</a>
+        <a href="time.html" class="btn-bar-go">立即打開!</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
 `;
 
-// (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
 const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
 const breadcrumbContent = isHomePage ? `首頁` : `<a href="/home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> >> 表單服務 > ${pageTitle}`;
@@ -264,6 +247,7 @@ const menuBtn = document.getElementById('mobile-menu-btn');
 const navList = document.getElementById('nav-list');
 const annBar = document.getElementById('announcement-bar');
 const closeBarBtn = document.getElementById('close-bar');
+const favBtn = document.getElementById('fav-btn');
 
 if (sessionStorage.getItem('ann-closed') === 'true') {
     annBar.style.display = 'none';
@@ -302,28 +286,94 @@ document.querySelectorAll('.dropdown').forEach(dd => {
     });
 });
 
-// 搜尋按鈕功能
 const searchNavBtn = document.getElementById('search-nav-btn');
 if (searchNavBtn) {
     searchNavBtn.addEventListener('click', () => {
-        window.location.href = '/search.html';
+        window.location.href = 'search.html';
     });
+}
+
+// --- 優化後的收藏功能 ---
+const getPagePath = () => window.location.pathname.split('/').pop() || 'home.html';
+const getFavId = () => getPagePath().replace(/\./g, '_');
+
+async function updateFavList(user) {
+    const listContainer = document.getElementById('fav-list-container');
+    if (!listContainer) return;
+    const q = query(collection(db, "users", user.uid, "favorites"));
+    const snap = await getDocs(q);
+    let html = '';
+    if (snap.empty) {
+        html = '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>';
+    } else {
+        snap.forEach(doc => {
+            const data = doc.data();
+            html += `<a href="${data.url}"><b>⭐ ${data.name}</b></a>`;
+        });
+    }
+    listContainer.innerHTML = html;
+}
+
+async function toggleFavorite(user) {
+    const path = getPagePath();
+    const id = getFavId();
+    const favRef = doc(db, "users", user.uid, "favorites", id);
+    
+    if (favBtn.classList.contains('active')) {
+        await deleteDoc(favRef);
+        favBtn.classList.remove('active');
+        localStorage.removeItem(`fav_${user.uid}_${id}`);
+    } else {
+        const data = { url: path, name: pageTitle, time: new Date() };
+        await setDoc(favRef, data);
+        favBtn.classList.add('active');
+        localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+    }
+    updateFavList(user);
 }
 
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
+        favBtn.style.display = 'flex';
+        // 快取優先加載
+        if (localStorage.getItem(`fav_${user.uid}_${getFavId()}`)) {
+            favBtn.classList.add('active');
+        }
+
         area.innerHTML = `
             <div class="dropbtn" style="padding:0;">
                 <img src="${user.photoURL}" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966;">
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <a id="logout-btn" style="cursor:pointer;"><b>登出</b></a>
+                <div style="background:#111; padding:5px 15px; font-size:0.75rem; color:#888;">我的收藏</div>
+                <div id="fav-list-container">
+                    <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
+                </div>
+                <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
         `;
+        
+        updateFavList(user);
+        favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        
+        // 背景檢查最愛狀態 (校正快取)
+        const id = getFavId();
+        const favRef = doc(db, "users", user.uid, "favorites", id);
+        getDoc(favRef).then(snap => {
+            if (snap.exists()) {
+                favBtn.classList.add('active');
+                localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+            } else {
+                favBtn.classList.remove('active');
+                localStorage.removeItem(`fav_${user.uid}_${id}`);
+            }
+        });
+
     } else {
+        favBtn.style.display = 'none';
         area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
     }
@@ -334,4 +384,4 @@ onAuthStateChanged(auth, (user) => {
     document.head.appendChild(link);
 })();
 
-export { auth };
+export { auth, app };
