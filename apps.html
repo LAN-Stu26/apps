@@ -169,7 +169,6 @@
             }
         }
 
-        /* RWD 佈局 */
         @media (max-width: 850px) {
             .app-grid { grid-template-columns: repeat(2, 1fr); }
             .filter-container { gap: 8px; flex-direction: column; }
@@ -190,7 +189,6 @@
     <div class="container">
         <h1 class="section-title">所有工具</h1>
         
-        <!-- 分類篩選器 -->
         <div class="filter-container">
             <button class="filter-btn active" data-filter="all">全部</button>
             <button class="filter-btn" data-filter="time">時間工具</button>
@@ -257,7 +255,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="pomodoro_technique.html" class="app-card" data-category="productivity">
+            <a href="pomodoro_technique.html" class="app-card" data-category="productivity time">
                 <div class="app-icon">⏱️</div>
                 <h3>番茄鐘</h3>
                 <p>簡單直觀的專注力工具，幫助您管理工作時間與休息節奏。</p>
@@ -287,25 +285,26 @@
     
     <script type="module" src="navbar.js" defer></script>
     <script>
-        // 分類篩選功能 & 搜尋功能
         const filterBtns = document.querySelectorAll('.filter-btn');
         const appCards = document.querySelectorAll('.app-card');
         const searchInput = document.getElementById('searchInput');
         let currentFilter = 'all';
 
         function filterAndSearch() {
-            appCards.forEach(card => {
-                const categories = card.getAttribute('data-category').split(' ');
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const searchTerm = searchInput.value.toLowerCase();
+            const searchTerm = searchInput.value.toLowerCase().trim();
 
-                // 檢查分類篩選
+            appCards.forEach(card => {
+                // 修正重點：將 data-category 字串轉換為陣列，並去除可能的多餘空白
+                const categories = card.getAttribute('data-category').split(/\s+/);
+                const title = card.querySelector('h3').textContent.toLowerCase();
+
+                // 檢查分類篩選：如果是 'all' 或 陣列中包含目前的標籤
                 const categoryMatch = currentFilter === 'all' || categories.includes(currentFilter);
                 
                 // 檢查搜尋條件
                 const searchMatch = searchTerm === '' || title.includes(searchTerm);
 
-                // 兩個條件都符合才顯示
+                // 兩者皆符合則顯示
                 if (categoryMatch && searchMatch) {
                     card.classList.remove('hidden');
                 } else {
@@ -314,20 +313,15 @@
             });
         }
 
-        // 分類按鈕點擊事件
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 currentFilter = btn.getAttribute('data-filter');
-
-                // 更新按鈕狀態
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-
                 filterAndSearch();
             });
         });
 
-        // 搜尋輸入框事件
         searchInput.addEventListener('input', () => {
             filterAndSearch();
         });
