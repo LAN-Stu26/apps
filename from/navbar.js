@@ -213,9 +213,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 全新工具"現在時間"工具已經上線啦!</div>
+    <div class="bar-content">📢 網站過度更新，造成您的不便請見諒!</div>
     <div class="bar-actions">
-        <a href="time.html" class="btn-bar-go">立即打開!</a>
+        <a href="/news.html" class="btn-bar-go">詳見 12:50 news.html 重要新聞</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -293,9 +293,10 @@ if (searchNavBtn) {
     });
 }
 
-// --- 優化後的收藏功能 ---
-const getPagePath = () => window.location.pathname.split('/').pop() || 'home.html';
-const getFavId = () => getPagePath().replace(/\./g, '_');
+// --- 修正後的收藏路徑邏輯 ---
+// 使用完整的 pathname 並將 / 替換為 _ 以作為安全 ID
+const getFullPagePath = () => window.location.pathname;
+const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
 async function updateFavList(user) {
     const listContainer = document.getElementById('fav-list-container');
@@ -308,26 +309,27 @@ async function updateFavList(user) {
     } else {
         snap.forEach(doc => {
             const data = doc.data();
-            html += `<a href="${data.url}"><b>⭐ ${data.name}</b></a>`;
+            // 注意：這裡使用 data.path 以確保導向正確的目錄
+            html += `<a href="${data.path}"><b>⭐ ${data.name}</b></a>`;
         });
     }
     listContainer.innerHTML = html;
 }
 
 async function toggleFavorite(user) {
-    const path = getPagePath();
-    const id = getFavId();
-    const favRef = doc(db, "users", user.uid, "favorites", id);
+    const fullPath = getFullPagePath();
+    const safeId = getSafeFavId();
+    const favRef = doc(db, "users", user.uid, "favorites", safeId);
     
     if (favBtn.classList.contains('active')) {
         await deleteDoc(favRef);
         favBtn.classList.remove('active');
-        localStorage.removeItem(`fav_${user.uid}_${id}`);
+        localStorage.removeItem(`fav_${user.uid}_${safeId}`);
     } else {
-        const data = { url: path, name: pageTitle, time: new Date() };
+        const data = { path: fullPath, name: pageTitle, time: new Date() };
         await setDoc(favRef, data);
         favBtn.classList.add('active');
-        localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+        localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
     }
     updateFavList(user);
 }
@@ -336,8 +338,10 @@ onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
         favBtn.style.display = 'flex';
-        // 快取優先加載
-        if (localStorage.getItem(`fav_${user.uid}_${getFavId()}`)) {
+        const safeId = getSafeFavId();
+        
+        // 快速預判快取
+        if (localStorage.getItem(`fav_${user.uid}_${safeId}`)) {
             favBtn.classList.add('active');
         }
 
@@ -359,16 +363,15 @@ onAuthStateChanged(auth, (user) => {
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
         
-        // 背景檢查最愛狀態 (校正快取)
-        const id = getFavId();
-        const favRef = doc(db, "users", user.uid, "favorites", id);
+        // 校正快取
+        const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
             if (snap.exists()) {
                 favBtn.classList.add('active');
-                localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+                localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
             } else {
                 favBtn.classList.remove('active');
-                localStorage.removeItem(`fav_${user.uid}_${id}`);
+                localStorage.removeItem(`fav_${user.uid}_${safeId}`);
             }
         });
 
