@@ -213,9 +213,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 網站過度更新，造成您的不便請見諒!</div>
+    <div class="bar-content">📢 全新會員服務!</div>
     <div class="bar-actions">
-        <a href="/news.html" class="btn-bar-go">詳見 12:50 news.html 重要新聞</a>
+        <a href="/news.html" class="btn-bar-go">查看公告</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -383,7 +383,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 (function() {
-    const link = document.createElement('link'); link.rel = 'icon'; link.href = '圖片/標籤頭像.png';
+    const link = document.createElement('link'); link.rel = 'icon'; link.href = '/圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
 
