@@ -1,6 +1,7 @@
-// 1. 引入 Firebase SDK (保持不變)
+// 1. 引入 Firebase SDK (新增 getFirestore, doc, setDoc, getDoc, deleteDoc)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCjG4P9ZNX2OYOdXw69oFboPoilvAZLG_Q",
@@ -14,9 +15,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app); // 初始化 Firestore
 const provider = new GoogleAuthProvider();
 
-// 2. CSS 樣式 (重點修正：order 屬性與對齊)
+// 2. CSS 樣式 (新增愛心按鈕樣式)
 const style = `
 <style>
     html { scroll-behavior: smooth; }
@@ -105,58 +107,35 @@ const style = `
     #auth-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ffd966; cursor: pointer; vertical-align: middle; }
     #login-btn { border: 1px solid #ffd966; padding: 5px 15px !important; border-radius: 20px; color: #ffd966 !important; cursor: pointer; }
 
-/* 搜尋按鈕 - 修正版 */
+    /* 搜尋按鈕 - 修正版 */
     .search-nav-btn {
-        width: 35px; /* 增加點擊範圍 */
-        height: 35px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.3s;
-        margin: 0 5px;
+        width: 35px; height: 35px; border: none; background: none; cursor: pointer;
+        position: relative; display: flex; align-items: center; justify-content: center;
+        transition: 0.3s; margin: 0 5px;
     }
-
-    /* 放大鏡圓形 */
     .search-nav-btn::before {
-        content: "";
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        width: 14px;
-        height: 14px;
-        border: 2px solid #ffd966;
-        border-radius: 50%;
-        box-sizing: border-box;
+        content: ""; position: absolute; top: 8px; left: 8px; width: 14px; height: 14px;
+        border: 2px solid #ffd966; border-radius: 50%; box-sizing: border-box;
     }
-
-    /* 放大鏡握把 */
     .search-nav-btn::after {
-        content: "";
-        position: absolute;
-        top: 22px;
-        left: 22px;
-        width: 7px;
-        height: 2px;
-        background: #ffd966;
-        transform: rotate(45deg);
-        border-radius: 2px;
+        content: ""; position: absolute; top: 22px; left: 22px; width: 7px; height: 2px;
+        background: #ffd966; transform: rotate(45deg); border-radius: 2px;
     }
+    .search-nav-btn:hover { background: rgba(255, 217, 102, 0.1); border-radius: 50%; transform: scale(1.1); }
 
-    .search-nav-btn:hover {
-        background: rgba(255, 217, 102, 0.1);
-        border-radius: 50%;
-        transform: scale(1.1);
+    /* 愛心按鈕樣式 */
+    .fav-btn {
+        background: none; border: none; cursor: pointer; padding: 5px;
+        font-size: 20px; color: #555; transition: 0.3s; display: none;
     }
+    .fav-btn.active { color: #ff4d4d; }
+    .fav-btn:hover { transform: scale(1.2); }
 
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 850px) {
         #custom-navbar { padding: 0 20px; }
-        .menu-toggle { display: flex; order: 10; /* 確保漢堡在最右邊 */ }
+        .menu-toggle { display: flex; order: 10; }
         #nav-list { 
             position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; 
             background: #0a0a0a !important; flex-direction: column !important; 
@@ -209,7 +188,12 @@ const navbarHTML = `
                 <a href="from/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
-        <li id="auth-area" class="dropdown"><a id="login-btn">載入中...</a></li>
+        <li id="auth-area" class="dropdown" style="display:flex; align-items:center;">
+            <a id="login-btn">載入中...</a>
+        </li>
+        <li>
+            <button class="fav-btn" id="fav-current-page" title="加入最愛">❤</button>
+        </li>
         <li>
             <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
         </li>
@@ -237,7 +221,6 @@ const navbarHTML = `
 </div>
 `;
 
-// (其餘變數與 Footer 部分保持不變)
 let pageTitle = document.title.split('-')[0].trim();
 const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
 const breadcrumbContent = isHomePage ? `首頁` : `<a href="home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
@@ -264,6 +247,7 @@ const menuBtn = document.getElementById('mobile-menu-btn');
 const navList = document.getElementById('nav-list');
 const annBar = document.getElementById('announcement-bar');
 const closeBarBtn = document.getElementById('close-bar');
+const favBtn = document.getElementById('fav-current-page');
 
 if (sessionStorage.getItem('ann-closed') === 'true') {
     annBar.style.display = 'none';
@@ -302,7 +286,6 @@ document.querySelectorAll('.dropdown').forEach(dd => {
     });
 });
 
-// 搜尋按鈕功能
 const searchNavBtn = document.getElementById('search-nav-btn');
 if (searchNavBtn) {
     searchNavBtn.addEventListener('click', () => {
@@ -310,20 +293,61 @@ if (searchNavBtn) {
     });
 }
 
-onAuthStateChanged(auth, (user) => {
+// --- 我的最愛功能 ---
+async function toggleFavorite(user) {
+    if (!user) return;
+    const pageUrl = window.location.pathname.split('/').pop() || 'home.html';
+    const pageName = document.title.split('-')[0].trim();
+    const favRef = doc(db, "favorites", user.uid);
+
+    if (favBtn.classList.contains('active')) {
+        await deleteDoc(favRef);
+        favBtn.classList.remove('active');
+    } else {
+        await setDoc(favRef, { url: pageUrl, name: pageName, timestamp: new Date() });
+        favBtn.classList.add('active');
+    }
+}
+
+async function checkFavorite(user) {
+    if (!user) return;
+    const favRef = doc(db, "favorites", user.uid);
+    const snap = await getDoc(favRef);
+    const pageUrl = window.location.pathname.split('/').pop() || 'home.html';
+    if (snap.exists() && snap.data().url === pageUrl) {
+        favBtn.classList.add('active');
+    }
+}
+
+onAuthStateChanged(auth, async (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
+        favBtn.style.display = 'block';
+        checkFavorite(user);
+        
+        // 獲取最愛網頁資訊
+        const favRef = doc(db, "favorites", user.uid);
+        const favSnap = await getDoc(favRef);
+        let favHtml = `<a style="color:#888 !important; font-size:0.8rem !important; pointer-events:none;">尚無最愛</a>`;
+        if (favSnap.exists()) {
+            favHtml = `<a href="${favSnap.data().url}"><b>⭐ ${favSnap.data().name}</b></a>`;
+        }
+
         area.innerHTML = `
             <div class="dropbtn" style="padding:0;">
                 <img src="${user.photoURL}" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966;">
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <a id="logout-btn" style="cursor:pointer;"><b>登出</b></a>
+                <a style="background:#222 !important; font-size:0.75rem !important; color:#aaa !important; pointer-events:none;">我的最愛網頁</a>
+                ${favHtml}
+                <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
         `;
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        favBtn.onclick = () => toggleFavorite(user);
     } else {
+        favBtn.style.display = 'none';
         area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
     }
