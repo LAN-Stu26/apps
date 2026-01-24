@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>成為合作商家 - LAN Studio</title>
-    <!-- 引入同資料夾下的 navbar.js -->
     <script type="module" src="navbar.js"></script>
     <style>
-        /* 表單容器樣式，配合 navbar.js 的全域深色背景 */
+        /* 基本頁面補償，避免被固定導航列遮住 (配合 navbar.js) */
+        body {
+            padding-top: 100px;
+            background-color: #1d1d1d;
+            color: #fff;
+            margin: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
         .form-container {
-            max-width: 700px;
-            margin: 0 auto;
+            max-width: 600px;
+            margin: 40px auto;
             background-color: #2a2a2a;
-            padding: 40px 50px;
+            padding: 40px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid #333;
@@ -23,20 +30,19 @@
             color: #ffd966;
             text-align: center;
             margin-top: 0;
-            margin-bottom: 10px;
             font-size: 2rem;
         }
 
         p.subtitle {
             color: #ccc;
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 1rem;
-            line-height: 1.5;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         label {
@@ -44,20 +50,19 @@
             color: #ffd966;
             margin-bottom: 8px;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         input, textarea {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background-color: #1a1a1a;
             border: 1px solid #444;
             border-radius: 6px;
             color: #fff;
             font-size: 1rem;
             box-sizing: border-box;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            font-family: inherit;
+            transition: all 0.3s;
         }
 
         input:focus, textarea:focus {
@@ -68,7 +73,7 @@
 
         textarea {
             resize: vertical;
-            min-height: 150px;
+            min-height: 120px;
         }
 
         .submit-btn {
@@ -86,65 +91,82 @@
             box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
         }
 
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             background-color: #ffeb3b;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .submit-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        @media (max-width: 600px) {
+            .form-container { margin: 20px; padding: 25px; }
+        }
     </style>
 </head>
 <body>
+
     <div class="form-container">
         <h1>成為合作商家</h1>
-        <p class="subtitle">歡迎加入 LAN Studio 合作夥伴計畫！<br>請填寫以下資訊，我們將盡快與您聯繫。</p>
+        <p class="subtitle">歡迎加入 LAN Studio 合作夥伴計畫！<br>請填寫以下資訊，我們將儘速與您聯繫。</p>
         
         <form id="partner-form">
             <div class="form-group">
                 <label for="store-name">商家名稱 / Store Name</label>
-                <input type="text" id="store-name" name="store-name" required placeholder="請輸入您的商家名稱">
+                <input type="text" id="store-name" required placeholder="請輸入您的商家名稱">
             </div>
             
             <div class="form-group">
                 <label for="contact-person">聯絡人 / Contact Person</label>
-                <input type="text" id="contact-person" name="contact-person" required placeholder="請輸入聯絡人姓名">
+                <input type="text" id="contact-person" required placeholder="請輸入聯絡人姓名">
             </div>
             
             <div class="form-group">
                 <label for="email">電子郵件 / Email</label>
-                <input type="email" id="email" name="email" required placeholder="example@email.com">
+                <input type="email" id="email" required placeholder="example@email.com">
             </div>
             
             <div class="form-group">
-                <label for="website">合作網站 / Website (Optional)</label>
-                <input type="url" id="website" name="website" placeholder="https://your-website.com">
+                <label for="website">合作網站 / Website (選填)</label>
+                <input type="url" id="website" placeholder="https://your-website.com">
             </div>
             
             <div class="form-group">
                 <label for="message">合作內容簡介 / Message</label>
-                <textarea id="message" name="message" required placeholder="請簡述您的合作提案、商家介紹或任何想告訴我們的事..."></textarea>
+                <textarea id="message" required placeholder="請簡述您的合作提案或商家介紹..."></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">送出申請</button>
+            <button type="submit" id="submit-btn" class="submit-btn">送出申請</button>
         </form>
     </div>
 
     <script type="module">
-        import { app, auth } from './navbar.js';
+        // 1. 確保 navbar.js 有寫 export { app, auth };
+        import { app, auth } from '/navbar.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // 2. 初始化 Firestore
         const db = getFirestore(app);
         const emailInput = document.getElementById('email');
+        const partnerForm = document.getElementById('partner-form');
+        const submitBtn = document.getElementById('submit-btn');
 
-        // 監聽登入狀態，自動填入會員 Email
+        // 3. 監聽登入狀態：自動填入 Email
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 emailInput.value = user.email;
-                emailInput.readOnly = true; // 鎖定不讓修改，確保是會員本人
+                emailInput.readOnly = true; 
                 emailInput.style.opacity = '0.7';
-                emailInput.title = "已帶入會員信箱";
+                emailInput.title = "已自動帶入會員信箱";
             } else {
                 emailInput.value = '';
                 emailInput.readOnly = false;
@@ -153,15 +175,17 @@
             }
         });
 
-        document.getElementById('partner-form').addEventListener('submit', async function(e) {
+        // 4. 處理表單提交
+        partnerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const submitBtn = this.querySelector('.submit-btn');
+            // 防止重複點擊
             const originalBtnText = submitBtn.innerText;
             submitBtn.disabled = true;
-            submitBtn.innerText = '傳送中...';
+            submitBtn.innerText = '處理中...';
 
             try {
+                // 將資料寫入 Firestore "partner_requests" 集合
                 await addDoc(collection(db, "partner_requests"), {
                     storeName: document.getElementById('store-name').value,
                     contactPerson: document.getElementById('contact-person').value,
@@ -169,17 +193,18 @@
                     website: document.getElementById('website').value,
                     message: document.getElementById('message').value,
                     submittedAt: serverTimestamp(),
-                    uid: auth.currentUser ? auth.currentUser.uid : null
+                    uid: auth.currentUser ? auth.currentUser.uid : "anonymous"
                 });
 
-                alert('感謝您的申請！我們已收到您的資料，將盡快與您聯繫。');
-                this.reset();
-                // 重置後如果還是登入狀態，要把 Email 填回去
+                alert('感謝您的申請！我們已收到您的資料，將儘速與您聯繫。');
+                partnerForm.reset();
+                
+                // 如果是登入狀態，重置後要把 Email 填回去
                 if (auth.currentUser) emailInput.value = auth.currentUser.email;
 
             } catch (error) {
-                console.error("Error adding document: ", error);
-                alert('傳送失敗，請稍後再試。');
+                console.error("提交失敗：", error);
+                alert('傳送失敗，請稍後再試。錯誤訊息：' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalBtnText;
