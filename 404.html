@@ -7,23 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1d1d1d; /* 與首頁一致的深色 */
+            --bg-color: #1d1d1d;
             --accent-red: #e74c3c;
-            --accent-blue: #3498db;
+            --accent-blue: #ffd966;
+            --text-secondary: #bdc3c7;
         }
 
         body {
             margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* 確保 body 至少跟螢幕一樣高 */
+            min-height: 100vh;
             background-color: var(--bg-color);
             color: #ffffff;
             font-family: 'Noto Sans TC', sans-serif;
             text-align: center;
         }
 
-        /* 讓錯誤訊息撐開空間，把頁尾推到底部 */
         .error-wrapper {
             flex: 1; 
             display: flex;
@@ -44,15 +44,29 @@
 
         .error-message {
             font-size: 1.5rem;
-            margin: 20px 0;
-            color: #bdc3c7;
+            margin: 20px 0 10px 0;
+            color: var(--text-secondary);
+        }
+
+        /* 倒數計時樣式 */
+        .countdown-text {
+            font-size: 1.1rem;
+            color: #95a5a6;
+            margin-bottom: 30px;
+        }
+
+        #timer {
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 5px;
         }
 
         .back-home {
             display: inline-block;
             padding: 12px 35px;
             background-color: var(--accent-blue);
-            color: white;
+            color: #1d1d1d;
             text-decoration: none;
             border-radius: 30px;
             font-weight: bold;
@@ -61,12 +75,11 @@
         }
 
         .back-home:hover {
-            background-color: #2980b9;
+            background-color: #ffeb3b;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
         }
 
-        /* 針對行動裝置微調 */
         @media (max-width: 600px) {
             .error-code { font-size: 6rem; }
             .error-message { font-size: 1.2rem; }
@@ -78,18 +91,30 @@
     <div class="error-wrapper">
         <p class="error-code">404</p>
         <p class="error-message">糟糕！找不到您要尋找的頁面。</p>
-        <a href="/home.html" class="back-home">返回首頁</a>
+        
+        <p class="countdown-text">
+            系統將在 <span id="timer">5</span> 秒後自動帶您返回首頁
+        </p>
+
+        <a href="/home.html" class="back-home">立即返回首頁</a>
     </div>
 
-    <script type="module" src="navbar.js"></script>
+    <script type="module" src="/navbar.js"></script>
+
     <script>
+        // 設定倒數秒數
         let seconds = 5;
-        const countdownElement = document.getElementById('timer'); // 假設你的 HTML 有個 id="timer" 的元素
+        const countdownElement = document.getElementById('timer');
 
         const interval = setInterval(() => {
             seconds--;
-            if (countdownElement) countdownElement.innerText = seconds;
+            
+            // 更新畫面上的數字
+            if (countdownElement) {
+                countdownElement.innerText = seconds;
+            }
 
+            // 當秒數歸零
             if (seconds <= 0) {
                 clearInterval(interval);
                 window.location.href = '/home.html';
