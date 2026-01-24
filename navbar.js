@@ -1,7 +1,7 @@
-// 1. 引入 Firebase SDK (新增 getFirestore, doc, setDoc, getDoc, deleteDoc)
+// 1. 引入 Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCjG4P9ZNX2OYOdXw69oFboPoilvAZLG_Q",
@@ -15,10 +15,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // 初始化 Firestore
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// 2. CSS 樣式 (新增愛心按鈕樣式)
+// 2. CSS 樣式
 const style = `
 <style>
     html { scroll-behavior: smooth; }
@@ -48,7 +48,7 @@ const style = `
 
     #custom-navbar .logo { 
         color: #ffd966; font-weight: bold; font-size: 1.4rem; 
-        white-space: nowrap; margin-right: auto; /* 讓 Logo 靠左，其餘推向右邊 */
+        white-space: nowrap; margin-right: auto;
     }
 
     #nav-list { 
@@ -107,7 +107,6 @@ const style = `
     #auth-area img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ffd966; cursor: pointer; vertical-align: middle; }
     #login-btn { border: 1px solid #ffd966; padding: 5px 15px !important; border-radius: 20px; color: #ffd966 !important; cursor: pointer; }
 
-    /* 搜尋按鈕 - 修正版 */
     .search-nav-btn {
         width: 35px; height: 35px; border: none; background: none; cursor: pointer;
         position: relative; display: flex; align-items: center; justify-content: center;
@@ -124,12 +123,13 @@ const style = `
     .search-nav-btn:hover { background: rgba(255, 217, 102, 0.1); border-radius: 50%; transform: scale(1.1); }
 
     /* 愛心按鈕樣式 */
-    .fav-btn {
-        background: none; border: none; cursor: pointer; padding: 5px;
-        font-size: 20px; color: #555; transition: 0.3s; display: none;
+    .fav-nav-btn {
+        width: 35px; height: 35px; border: none; background: none; cursor: pointer;
+        display: none; align-items: center; justify-content: center;
+        transition: 0.3s; font-size: 18px; color: #555;
     }
-    .fav-btn.active { color: #ff4d4d; }
-    .fav-btn:hover { transform: scale(1.2); }
+    .fav-nav-btn.active { color: #ff4d4d; }
+    .fav-nav-btn:hover { transform: scale(1.2); }
 
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -188,11 +188,11 @@ const navbarHTML = `
                 <a href="from/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
-        <li id="auth-area" class="dropdown" style="display:flex; align-items:center;">
+        <li id="auth-area" class="dropdown">
             <a id="login-btn">載入中...</a>
         </li>
         <li>
-            <button class="fav-btn" id="fav-current-page" title="加入最愛">❤</button>
+            <button class="fav-nav-btn" id="fav-btn" title="收藏此頁">❤</button>
         </li>
         <li>
             <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
@@ -247,7 +247,7 @@ const menuBtn = document.getElementById('mobile-menu-btn');
 const navList = document.getElementById('nav-list');
 const annBar = document.getElementById('announcement-bar');
 const closeBarBtn = document.getElementById('close-bar');
-const favBtn = document.getElementById('fav-current-page');
+const favBtn = document.getElementById('fav-btn');
 
 if (sessionStorage.getItem('ann-closed') === 'true') {
     annBar.style.display = 'none';
@@ -293,44 +293,52 @@ if (searchNavBtn) {
     });
 }
 
-// --- 我的最愛功能 ---
-async function toggleFavorite(user) {
-    if (!user) return;
-    const pageUrl = window.location.pathname.split('/').pop() || 'home.html';
-    const pageName = document.title.split('-')[0].trim();
-    const favRef = doc(db, "favorites", user.uid);
+// --- 優化後的收藏功能 ---
+const getPagePath = () => window.location.pathname.split('/').pop() || 'home.html';
+const getFavId = () => getPagePath().replace(/\./g, '_');
 
+async function updateFavList(user) {
+    const listContainer = document.getElementById('fav-list-container');
+    if (!listContainer) return;
+    const q = query(collection(db, "users", user.uid, "favorites"));
+    const snap = await getDocs(q);
+    let html = '';
+    if (snap.empty) {
+        html = '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>';
+    } else {
+        snap.forEach(doc => {
+            const data = doc.data();
+            html += `<a href="${data.url}"><b>⭐ ${data.name}</b></a>`;
+        });
+    }
+    listContainer.innerHTML = html;
+}
+
+async function toggleFavorite(user) {
+    const path = getPagePath();
+    const id = getFavId();
+    const favRef = doc(db, "users", user.uid, "favorites", id);
+    
     if (favBtn.classList.contains('active')) {
         await deleteDoc(favRef);
         favBtn.classList.remove('active');
+        localStorage.removeItem(`fav_${user.uid}_${id}`);
     } else {
-        await setDoc(favRef, { url: pageUrl, name: pageName, timestamp: new Date() });
+        const data = { url: path, name: pageTitle, time: new Date() };
+        await setDoc(favRef, data);
         favBtn.classList.add('active');
+        localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
     }
+    updateFavList(user);
 }
 
-async function checkFavorite(user) {
-    if (!user) return;
-    const favRef = doc(db, "favorites", user.uid);
-    const snap = await getDoc(favRef);
-    const pageUrl = window.location.pathname.split('/').pop() || 'home.html';
-    if (snap.exists() && snap.data().url === pageUrl) {
-        favBtn.classList.add('active');
-    }
-}
-
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
-        favBtn.style.display = 'block';
-        checkFavorite(user);
-        
-        // 獲取最愛網頁資訊
-        const favRef = doc(db, "favorites", user.uid);
-        const favSnap = await getDoc(favRef);
-        let favHtml = `<a style="color:#888 !important; font-size:0.8rem !important; pointer-events:none;">尚無最愛</a>`;
-        if (favSnap.exists()) {
-            favHtml = `<a href="${favSnap.data().url}"><b>⭐ ${favSnap.data().name}</b></a>`;
+        favBtn.style.display = 'flex';
+        // 快取優先加載
+        if (localStorage.getItem(`fav_${user.uid}_${getFavId()}`)) {
+            favBtn.classList.add('active');
         }
 
         area.innerHTML = `
@@ -339,13 +347,31 @@ onAuthStateChanged(auth, async (user) => {
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <a style="background:#222 !important; font-size:0.75rem !important; color:#aaa !important; pointer-events:none;">我的最愛網頁</a>
-                ${favHtml}
+                <div style="background:#111; padding:5px 15px; font-size:0.75rem; color:#888;">我的收藏</div>
+                <div id="fav-list-container">
+                    <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
+                </div>
                 <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
         `;
-        document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        
+        updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
+        document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        
+        // 背景檢查最愛狀態 (校正快取)
+        const id = getFavId();
+        const favRef = doc(db, "users", user.uid, "favorites", id);
+        getDoc(favRef).then(snap => {
+            if (snap.exists()) {
+                favBtn.classList.add('active');
+                localStorage.setItem(`fav_${user.uid}_${id}`, 'true');
+            } else {
+                favBtn.classList.remove('active');
+                localStorage.removeItem(`fav_${user.uid}_${id}`);
+            }
+        });
+
     } else {
         favBtn.style.display = 'none';
         area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
@@ -358,4 +384,4 @@ onAuthStateChanged(auth, async (user) => {
     document.head.appendChild(link);
 })();
 
-export { auth };
+export { auth, app };
