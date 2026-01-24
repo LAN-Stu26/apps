@@ -4,13 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>改善網站建議 - LAN Studio</title>
-    <!-- 引入同資料夾下的 navbar.js -->
     <script type="module" src="navbar.js"></script>
     <style>
-        /* 樣式與 partner-with-us.html 保持一致 */
+        /* 頁面補償，確保不被導航列遮住 */
+        body {
+            padding-top: 100px;
+            background-color: #1d1d1d;
+            color: #fff;
+            margin: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
         .form-container {
             max-width: 700px;
-            margin: 0 auto;
+            margin: 20px auto;
             background-color: #2a2a2a;
             padding: 40px 50px;
             border-radius: 12px;
@@ -86,13 +93,23 @@
             box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
         }
 
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             background-color: #ffeb3b;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
         }
 
+        .submit-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .form-container { padding: 30px 20px; margin: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -113,7 +130,7 @@
             </div>
 
             <div class="form-group">
-                <label for="email">電子郵件 / Email (Optional)</label>
+                <label for="email">電子郵件 / Email (選填)</label>
                 <input type="email" id="email" name="email" placeholder="example@email.com">
             </div>
             
@@ -122,32 +139,38 @@
                 <textarea id="message" name="message" required placeholder="請描述您遇到的問題、想要的工具或建議..."></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">送出建議</button>
+            <button type="submit" id="submit-btn" class="submit-btn">送出建議</button>
         </form>
     </div>
 
     <script type="module">
-        import { app, auth } from './navbar.js';
+        // 核心修正點：根據檔案結構圖，Navbar.js 在同一層資料夾
+        import { app, auth } from './navbar.js'; 
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const db = getFirestore(app);
         const emailInput = document.getElementById('email');
+        const feedbackForm = document.getElementById('feedback-form');
+        const submitBtn = document.getElementById('submit-btn');
 
-        // 監聽登入狀態，自動填入會員 Email
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 emailInput.value = user.email;
                 emailInput.readOnly = true;
                 emailInput.style.opacity = '0.7';
                 emailInput.title = "已帶入會員信箱";
+            } else {
+                emailInput.value = '';
+                emailInput.readOnly = false;
+                emailInput.style.opacity = '1';
+                emailInput.title = "";
             }
         });
 
-        document.getElementById('feedback-form').addEventListener('submit', async function(e) {
+        feedbackForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const submitBtn = this.querySelector('.submit-btn');
             const originalBtnText = submitBtn.innerText;
             submitBtn.disabled = true;
             submitBtn.innerText = '傳送中...';
@@ -158,17 +181,17 @@
                     email: emailInput.value || 'Anonymous',
                     message: document.getElementById('message').value,
                     submittedAt: serverTimestamp(),
-                    uid: auth.currentUser ? auth.currentUser.uid : null,
-                    userAgent: navigator.userAgent // 收集瀏覽器資訊有助於 Debug
+                    uid: auth.currentUser ? auth.currentUser.uid : "anonymous",
+                    userAgent: navigator.userAgent
                 });
 
                 alert('感謝您的回饋！我們會認真參考您的建議。');
-                this.reset();
+                feedbackForm.reset();
                 if (auth.currentUser) emailInput.value = auth.currentUser.email;
 
             } catch (error) {
-                console.error("Error adding document: ", error);
-                alert('傳送失敗，請稍後再試。');
+                console.error("Firestore Error: ", error);
+                alert('傳送失敗，請稍後再試。錯誤資訊：' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalBtnText;
