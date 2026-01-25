@@ -212,10 +212,10 @@
     </div>
 </nav>
 
-<div id="announcement-bar">
-    <div class="bar-content">📢 全新會員服務!</div>
+<div id="announcement-bar" style="display: none;">
+    <div class="bar-content">No message</div>
     <div class="bar-actions">
-        <a href="/news.html" class="btn-bar-go">查看公告</a>
+        <a href="No message" class="btn-bar-go">No message</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
