@@ -298,22 +298,61 @@ if (searchNavBtn) {
 const getFullPagePath = () => window.location.pathname;
 const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
-async function updateFavList(user) {
+async function updateFavList(user, sortBy = 'time') {
     const listContainer = document.getElementById('fav-list-container');
     if (!listContainer) return;
+
     const q = query(collection(db, "users", user.uid, "favorites"));
     const snap = await getDocs(q);
+    let favorites = [];
+    snap.forEach(doc => {
+        favorites.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Sorting logic
+    if (sortBy === 'name_asc') {
+        favorites.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'name_desc') {
+        favorites.sort((a, b) => b.name.localeCompare(a.name));
+    } else { // 'time' or default
+        favorites.sort((a, b) => b.time.toDate() - a.time.toDate());
+    }
+
     let html = '';
-    if (snap.empty) {
+    if (favorites.length === 0) {
         html = '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>';
     } else {
-        snap.forEach(doc => {
-            const data = doc.data();
-            // 注意：這裡使用 data.path 以確保導向正確的目錄
-            html += `<a href="${data.path}"><b>⭐ ${data.name}</b></a>`;
+        favorites.forEach(fav => {
+            html += `
+                <div class="fav-item" style="display:flex; justify-content:space-between; align-items:center;">
+                    <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
+                    <span class="delete-fav" data-id="${fav.id}" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
+                </div>
+            `;
         });
     }
     listContainer.innerHTML = html;
+
+    // Add event listeners for delete buttons
+    listContainer.querySelectorAll('.delete-fav').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const favId = e.target.getAttribute('data-id');
+            if (confirm(`確定要從收藏中移除 "${e.target.previousElementSibling.textContent.trim().substring(2)}" 嗎？`)) {
+                deleteFavorite(user, favId);
+            }
+        });
+    });
+}
+
+async function deleteFavorite(user, favId) {
+    await deleteDoc(doc(db, "users", user.uid, "favorites", favId));
+    // Check if the deleted favorite is the current page
+    if (favId === getSafeFavId()) {
+        favBtn.classList.remove('active');
+        localStorage.removeItem(`fav_${user.uid}_${favId}`);
+    }
+    updateFavList(user, currentSort); // Re-render the list
 }
 
 async function toggleFavorite(user) {
@@ -331,8 +370,10 @@ async function toggleFavorite(user) {
         favBtn.classList.add('active');
         localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
     }
-    updateFavList(user);
+    updateFavList(user, currentSort);
 }
+
+let currentSort = 'time'; // Default sort
 
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
@@ -351,7 +392,14 @@ onAuthStateChanged(auth, (user) => {
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <div style="background:#111; padding:5px 15px; font-size:0.75rem; color:#888;">我的收藏</div>
+                <div style="background:#111; padding: 5px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center;">
+                    我的收藏
+                    <div id="fav-sort-controls" style="font-size:0.7rem;">
+                        <button class="sort-btn" data-sort="time">日期</button>
+                        <button class="sort-btn" data-sort="name_asc">A-Z</button>
+                        <button class="sort-btn" data-sort="name_desc">Z-A</button>
+                    </div>
+                </div>
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
                 </div>
@@ -359,10 +407,17 @@ onAuthStateChanged(auth, (user) => {
             </div>
         `;
         
-        updateFavList(user);
+        updateFavList(user, currentSort);
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
         
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                currentSort = e.target.getAttribute('data-sort');
+                updateFavList(user, currentSort);
+            };
+        });
+
         // 校正快取
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
