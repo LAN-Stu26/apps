@@ -298,7 +298,9 @@ if (searchNavBtn) {
 const getFullPagePath = () => window.location.pathname;
 const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
-async function updateFavList(user, sortBy = 'time') {
+let draggedItem = null;
+
+async function updateFavList(user) {
     const listContainer = document.getElementById('fav-list-container');
     if (!listContainer) return;
 
@@ -309,50 +311,91 @@ async function updateFavList(user, sortBy = 'time') {
         favorites.push({ id: doc.id, ...doc.data() });
     });
 
-    // Sorting logic
-    if (sortBy === 'name_asc') {
-        favorites.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === 'name_desc') {
-        favorites.sort((a, b) => b.name.localeCompare(a.name));
-    } else { // 'time' or default
-        favorites.sort((a, b) => b.time.toDate() - a.time.toDate());
-    }
+    // Sort by 'order' field, fallback to 'time'
+    favorites.sort((a, b) => {
+        const orderA = a.order !== undefined ? a.order : Infinity;
+        const orderB = b.order !== undefined ? b.order : Infinity;
+        if (orderA === orderB) {
+            return b.time.toDate() - a.time.toDate();
+        }
+        return orderA - orderB;
+    });
 
-    let html = '';
-    if (favorites.length === 0) {
-        html = '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>';
-    } else {
-        favorites.forEach(fav => {
-            html += `
-                <div class="fav-item" style="display:flex; justify-content:space-between; align-items:center;">
-                    <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
-                    <span class="delete-fav" data-id="${fav.id}" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
-                </div>
-            `;
-        });
-    }
-    listContainer.innerHTML = html;
+    listContainer.innerHTML = favorites.length === 0
+        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>'
+        : favorites.map(fav => `
+            <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab;">
+                <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
+                <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
+            </div>
+        `).join('');
 
-    // Add event listeners for delete buttons
+    // --- Drag and Drop Logic ---
+    listContainer.addEventListener('dragstart', (e) => {
+        draggedItem = e.target;
+        e.target.style.opacity = 0.5;
+        e.target.style.background = '#333';
+    });
+
+    listContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(listContainer, e.clientY);
+        const currentDragged = draggedItem;
+        if (afterElement == null) {
+            listContainer.appendChild(currentDragged);
+        } else {
+            listContainer.insertBefore(currentDragged, afterElement);
+        }
+    });
+    
+    listContainer.addEventListener('dragend', (e) => {
+        e.target.style.opacity = 1;
+        e.target.style.background = 'none';
+        updateOrderInFirestore(user, listContainer);
+        draggedItem = null;
+    });
+
     listContainer.querySelectorAll('.delete-fav').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const favId = e.target.getAttribute('data-id');
-            if (confirm(`確定要從收藏中移除 "${e.target.previousElementSibling.textContent.trim().substring(2)}" 嗎？`)) {
+            const favName = e.target.previousElementSibling.textContent.trim().substring(2);
+            if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
                 deleteFavorite(user, favId);
             }
         });
     });
 }
 
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.fav-item:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+async function updateOrderInFirestore(user, container) {
+    const favItems = container.querySelectorAll('.fav-item');
+    favItems.forEach(async (item, index) => {
+        const favId = item.getAttribute('data-id');
+        const favRef = doc(db, "users", user.uid, "favorites", favId);
+        await setDoc(favRef, { order: index }, { merge: true });
+    });
+}
+
 async function deleteFavorite(user, favId) {
     await deleteDoc(doc(db, "users", user.uid, "favorites", favId));
-    // Check if the deleted favorite is the current page
     if (favId === getSafeFavId()) {
         favBtn.classList.remove('active');
         localStorage.removeItem(`fav_${user.uid}_${favId}`);
     }
-    updateFavList(user, currentSort); // Re-render the list
+    updateFavList(user); // Re-render the list
 }
 
 async function toggleFavorite(user) {
@@ -365,15 +408,16 @@ async function toggleFavorite(user) {
         favBtn.classList.remove('active');
         localStorage.removeItem(`fav_${user.uid}_${safeId}`);
     } else {
-        const data = { path: fullPath, name: pageTitle, time: new Date() };
+        const favCollection = collection(db, "users", user.uid, "favorites");
+        const snapshot = await getDocs(favCollection);
+        const newOrder = snapshot.size;
+        const data = { path: fullPath, name: pageTitle, time: new Date(), order: newOrder };
         await setDoc(favRef, data);
         favBtn.classList.add('active');
         localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
     }
-    updateFavList(user, currentSort);
+    updateFavList(user);
 }
-
-let currentSort = 'time'; // Default sort
 
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
@@ -403,16 +447,9 @@ onAuthStateChanged(auth, (user) => {
             </div>
         `;
         
-        updateFavList(user, currentSort);
+        updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
-        
-        document.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                currentSort = e.target.getAttribute('data-sort');
-                updateFavList(user, currentSort);
-            };
-        });
 
         // 校正快取
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
