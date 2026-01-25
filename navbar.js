@@ -165,9 +165,9 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
-                <a href="/time.html"><b>現在時間</b></a>
-                <a href="/fullscreen.html"><b>全螢幕顏色</b></a>
-                <a href="/classroom.html"><b>抽號器</b></a>
+                <a href="/tool/time.html"><b>現在時間</b></a>
+                <a href="/tool/fullscreen.html"><b>全螢幕顏色</b></a>
+                <a href="/tool/classroom.html"><b>抽號器</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -175,9 +175,9 @@ const navbarHTML = `
             <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="#"  class="ai-notice-navbar">會員專屬▾▾▾</a>
-                <a href="/note.html"><b>加密雲端筆記</b></a>
+                <a href="/app/note.html"><b>加密雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">體驗升級!!!▾▾▾</a>
-                <a href="/editor.html"><b>Html Editor</b></a>
+                <a href="/app/editor.html"><b>Html Editor</b></a>
             </div>
         </li>
         <li class="dropdown">
@@ -289,7 +289,7 @@ document.querySelectorAll('.dropdown').forEach(dd => {
 const searchNavBtn = document.getElementById('search-nav-btn');
 if (searchNavBtn) {
     searchNavBtn.addEventListener('click', () => {
-        window.location.href = 'search.html';
+        window.location.href = '/search.html';
     });
 }
 
