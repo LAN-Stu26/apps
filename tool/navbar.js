@@ -212,7 +212,7 @@ const navbarHTML = `
     </div>
 </nav>
 
-<div id="announcement-bar" style="display: none;">
+<div id="announcement-bar"  style="display: none;">
     <div class="bar-content">No message</div>
     <div class="bar-actions">
         <a href="No message" class="btn-bar-go">No message</a>
@@ -298,22 +298,104 @@ if (searchNavBtn) {
 const getFullPagePath = () => window.location.pathname;
 const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
+let draggedItem = null;
+
 async function updateFavList(user) {
     const listContainer = document.getElementById('fav-list-container');
     if (!listContainer) return;
+
     const q = query(collection(db, "users", user.uid, "favorites"));
     const snap = await getDocs(q);
-    let html = '';
-    if (snap.empty) {
-        html = '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>';
-    } else {
-        snap.forEach(doc => {
-            const data = doc.data();
-            // 注意：這裡使用 data.path 以確保導向正確的目錄
-            html += `<a href="${data.path}"><b>⭐ ${data.name}</b></a>`;
+    let favorites = [];
+    snap.forEach(doc => {
+        favorites.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Sort by 'order' field, fallback to 'time'
+    favorites.sort((a, b) => {
+        const orderA = a.order !== undefined ? a.order : Infinity;
+        const orderB = b.order !== undefined ? b.order : Infinity;
+        if (orderA === orderB) {
+            return b.time.toDate() - a.time.toDate();
+        }
+        return orderA - orderB;
+    });
+
+    listContainer.innerHTML = favorites.length === 0
+        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>'
+        : favorites.map(fav => `
+            <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab;">
+                <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
+                <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
+            </div>
+        `).join('');
+
+    // --- Drag and Drop Logic ---
+    listContainer.addEventListener('dragstart', (e) => {
+        draggedItem = e.target;
+        e.target.style.opacity = 0.5;
+        e.target.style.background = '#333';
+    });
+
+    listContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(listContainer, e.clientY);
+        const currentDragged = draggedItem;
+        if (afterElement == null) {
+            listContainer.appendChild(currentDragged);
+        } else {
+            listContainer.insertBefore(currentDragged, afterElement);
+        }
+    });
+    
+    listContainer.addEventListener('dragend', (e) => {
+        e.target.style.opacity = 1;
+        e.target.style.background = 'none';
+        updateOrderInFirestore(user, listContainer);
+        draggedItem = null;
+    });
+
+    listContainer.querySelectorAll('.delete-fav').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const favId = e.target.getAttribute('data-id');
+            const favName = e.target.previousElementSibling.textContent.trim().substring(2);
+            if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
+                deleteFavorite(user, favId);
+            }
         });
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.fav-item:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+async function updateOrderInFirestore(user, container) {
+    const favItems = container.querySelectorAll('.fav-item');
+    favItems.forEach(async (item, index) => {
+        const favId = item.getAttribute('data-id');
+        const favRef = doc(db, "users", user.uid, "favorites", favId);
+        await setDoc(favRef, { order: index }, { merge: true });
+    });
+}
+
+async function deleteFavorite(user, favId) {
+    await deleteDoc(doc(db, "users", user.uid, "favorites", favId));
+    if (favId === getSafeFavId()) {
+        favBtn.classList.remove('active');
+        localStorage.removeItem(`fav_${user.uid}_${favId}`);
     }
-    listContainer.innerHTML = html;
+    updateFavList(user); // Re-render the list
 }
 
 async function toggleFavorite(user) {
@@ -326,7 +408,10 @@ async function toggleFavorite(user) {
         favBtn.classList.remove('active');
         localStorage.removeItem(`fav_${user.uid}_${safeId}`);
     } else {
-        const data = { path: fullPath, name: pageTitle, time: new Date() };
+        const favCollection = collection(db, "users", user.uid, "favorites");
+        const snapshot = await getDocs(favCollection);
+        const newOrder = snapshot.size;
+        const data = { path: fullPath, name: pageTitle, time: new Date(), order: newOrder };
         await setDoc(favRef, data);
         favBtn.classList.add('active');
         localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
@@ -351,7 +436,10 @@ onAuthStateChanged(auth, (user) => {
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <div style="background:#111; padding:5px 15px; font-size:0.75rem; color:#888;">我的收藏</div>
+                <div style="background:#111; padding: 5px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center;">
+                    我的收藏
+                    <span style="font-size:0.7rem;">可拖曳排序</span>
+                </div>
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
                 </div>
@@ -362,7 +450,7 @@ onAuthStateChanged(auth, (user) => {
         updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
-        
+
         // 校正快取
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
