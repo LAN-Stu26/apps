@@ -293,11 +293,6 @@ if (searchNavBtn) {
     });
 }
 
-// --- 修正後的收藏路徑邏輯 ---
-// 使用完整的 pathname 並將 / 替換為 _ 以作為安全 ID
-const getFullPagePath = () => window.location.pathname;
-const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
-
 let draggedItem = null;
 
 async function updateFavList(user) {
@@ -311,12 +306,12 @@ async function updateFavList(user) {
         favorites.push({ id: doc.id, ...doc.data() });
     });
 
-    // Sort by 'order' field, fallback to 'time'
+    // Sort by 'order' field, fallback to 'time' if order is not defined
     favorites.sort((a, b) => {
         const orderA = a.order !== undefined ? a.order : Infinity;
         const orderB = b.order !== undefined ? b.order : Infinity;
         if (orderA === orderB) {
-            return b.time.toDate() - a.time.toDate();
+            return (b.time?.toDate() || 0) - (a.time?.toDate() || 0);
         }
         return orderA - orderB;
     });
@@ -324,47 +319,11 @@ async function updateFavList(user) {
     listContainer.innerHTML = favorites.length === 0
         ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>'
         : favorites.map(fav => `
-            <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab;">
+            <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab; transition: background 0.2s;">
                 <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
                 <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
             </div>
         `).join('');
-
-    // --- Drag and Drop Logic ---
-    listContainer.addEventListener('dragstart', (e) => {
-        draggedItem = e.target;
-        e.target.style.opacity = 0.5;
-        e.target.style.background = '#333';
-    });
-
-    listContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(listContainer, e.clientY);
-        const currentDragged = draggedItem;
-        if (afterElement == null) {
-            listContainer.appendChild(currentDragged);
-        } else {
-            listContainer.insertBefore(currentDragged, afterElement);
-        }
-    });
-    
-    listContainer.addEventListener('dragend', (e) => {
-        e.target.style.opacity = 1;
-        e.target.style.background = 'none';
-        updateOrderInFirestore(user, listContainer);
-        draggedItem = null;
-    });
-
-    listContainer.querySelectorAll('.delete-fav').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const favId = e.target.getAttribute('data-id');
-            const favName = e.target.previousElementSibling.textContent.trim().substring(2);
-            if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
-                deleteFavorite(user, favId);
-            }
-        });
-    });
 }
 
 function getDragAfterElement(container, y) {
@@ -382,11 +341,14 @@ function getDragAfterElement(container, y) {
 
 async function updateOrderInFirestore(user, container) {
     const favItems = container.querySelectorAll('.fav-item');
-    favItems.forEach(async (item, index) => {
+    const promises = Array.from(favItems).map((item, index) => {
         const favId = item.getAttribute('data-id');
         const favRef = doc(db, "users", user.uid, "favorites", favId);
-        await setDoc(favRef, { order: index }, { merge: true });
+        return setDoc(favRef, { order: index }, { merge: true });
     });
+    if (promises.length > 0) {
+        await Promise.all(promises);
+    }
 }
 
 async function deleteFavorite(user, favId) {
@@ -395,7 +357,14 @@ async function deleteFavorite(user, favId) {
         favBtn.classList.remove('active');
         localStorage.removeItem(`fav_${user.uid}_${favId}`);
     }
-    updateFavList(user); // Re-render the list
+    // After deleting, re-render the list, then update the order of the remaining items in Firestore.
+    await updateFavList(user);
+    const listContainer = document.getElementById('fav-list-container');
+    if (listContainer) {
+        await updateOrderInFirestore(user, listContainer);
+        // Re-render one last time to be perfectly in sync with the new order.
+        await updateFavList(user);
+    }
 }
 
 async function toggleFavorite(user) {
@@ -403,11 +372,14 @@ async function toggleFavorite(user) {
     const safeId = getSafeFavId();
     const favRef = doc(db, "users", user.uid, "favorites", safeId);
     
-    if (favBtn.classList.contains('active')) {
-        await deleteDoc(favRef);
-        favBtn.classList.remove('active');
-        localStorage.removeItem(`fav_${user.uid}_${safeId}`);
+    // Check if the favorite already exists
+    const docSnap = await getDoc(favRef);
+
+    if (docSnap.exists()) {
+        // It exists, so we delete it. Use the robust deleteFavorite function.
+        await deleteFavorite(user, safeId);
     } else {
+        // It does not exist, so we add it.
         const favCollection = collection(db, "users", user.uid, "favorites");
         const snapshot = await getDocs(favCollection);
         const newOrder = snapshot.size;
@@ -415,8 +387,8 @@ async function toggleFavorite(user) {
         await setDoc(favRef, data);
         favBtn.classList.add('active');
         localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
+        await updateFavList(user);
     }
-    updateFavList(user);
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -425,7 +397,6 @@ onAuthStateChanged(auth, (user) => {
         favBtn.style.display = 'flex';
         const safeId = getSafeFavId();
         
-        // 快速預判快取
         if (localStorage.getItem(`fav_${user.uid}_${safeId}`)) {
             favBtn.classList.add('active');
         }
@@ -447,14 +418,61 @@ onAuthStateChanged(auth, (user) => {
             </div>
         `;
         
+        const listContainer = document.getElementById('fav-list-container');
+
+        // --- Event Delegation and Listeners (Attached ONCE) ---
+        listContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-fav')) {
+                e.stopPropagation();
+                const favId = e.target.getAttribute('data-id');
+                const favName = e.target.previousElementSibling.textContent.trim().substring(2);
+                if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
+                    deleteFavorite(user, favId);
+                }
+            }
+        });
+
+        listContainer.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('fav-item')) {
+                draggedItem = e.target;
+                setTimeout(() => { // Use timeout to avoid browser drag-and-drop screenshot issues
+                    e.target.style.opacity = '0.5';
+                    e.target.style.background = '#333';
+                }, 0);
+            }
+        });
+
+        listContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedItem) {
+                const afterElement = getDragAfterElement(listContainer, e.clientY);
+                if (afterElement == null) {
+                    listContainer.appendChild(draggedItem);
+                } else {
+                    listContainer.insertBefore(draggedItem, afterElement);
+                }
+            }
+        });
+        
+        listContainer.addEventListener('dragend', async (e) => {
+            if (draggedItem) {
+                draggedItem.style.opacity = '1';
+                draggedItem.style.background = 'none';
+                await updateOrderInFirestore(user, listContainer);
+                draggedItem = null;
+                await updateFavList(user); // Re-render from DB to ensure perfect sync
+            }
+        });
+
+        // Initial load and other setups
         updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
 
-        // 校正快取
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
-            if (snap.exists()) {
+            const isFav = snap.exists();
+            if (isFav) {
                 favBtn.classList.add('active');
                 localStorage.setItem(`fav_${user.uid}_${safeId}`, 'true');
             } else {
