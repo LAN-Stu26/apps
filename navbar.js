@@ -394,11 +394,7 @@ onAuthStateChanged(auth, (user) => {
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
                 <div style="background:#111; padding: 5px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center;">
                     我的收藏
-                    <div id="fav-sort-controls" style="font-size:0.7rem;">
-                        <button class="sort-btn" data-sort="time">日期</button>
-                        <button class="sort-btn" data-sort="name_asc">A-Z</button>
-                        <button class="sort-btn" data-sort="name_desc">Z-A</button>
-                    </div>
+                    <span style="font-size:0.7rem;">可拖曳排序</span>
                 </div>
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
