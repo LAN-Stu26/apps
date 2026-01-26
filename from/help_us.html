@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>徵求網頁翻譯人員 - LAN Studio</title>
+    <script type="module" src="navbar.js"></script>
+    <style>
+        /* 頁面補償，確保不被導航列遮住 */
+        body {
+            padding-top: 100px;
+            background-color: #1d1d1d;
+            color: #fff;
+            margin: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: #2a2a2a;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h1 {
+            color: #ffd966;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p.subtitle {
+            color: #ccc;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #ffd966;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #ffd966;
+            box-shadow: 0 0 8px rgba(255, 217, 102, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #ffd966;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background-color: #ffeb3b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 217, 102, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .form-container { padding: 30px 20px; margin: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>徵求網頁翻譯人員</h1>
+        <p class="subtitle">我們正在尋找熱心的夥伴幫助網站多國語言化！<br>如果你願意協助翻譯，請填寫下方資訊。</p>
+        
+        <form id="translation-form">
+            <div class="form-group">
+                <label for="nickname">稱呼或匿名 / Nickname</label>
+                <input type="text" id="nickname" name="nickname" placeholder="如何稱呼您？" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">電子郵件 / Email</label>
+                <input type="email" id="email" name="email" placeholder="example@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="language">翻譯語言 / Language</label>
+                <select id="language" name="language" required>
+                    <option value="" disabled selected>請選擇您擅長的語言</option>
+                    <option value="English">英文 (English)</option>
+                    <option value="Japanese">日本語 (Japanese)</option>
+                    <option value="Spanish">西班牙語 (Spanish)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="reason">為什麼願意幫助我們？ (選填)</label>
+                <textarea id="reason" name="reason" placeholder="簡單聊聊您的動機或相關經驗..."></textarea>
+            </div>
+            
+            <button type="submit" id="submit-btn" class="submit-btn">送出申請</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { app, auth } from './navbar.js'; 
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore(app);
+        const emailInput = document.getElementById('email');
+        const translationForm = document.getElementById('translation-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                emailInput.value = user.email;
+                emailInput.readOnly = true;
+                emailInput.style.opacity = '0.7';
+                emailInput.title = "已自動帶入帳號信箱";
+            } else {
+                emailInput.value = '';
+                emailInput.readOnly = false;
+                emailInput.style.opacity = '1';
+                emailInput.title = "";
+            }
+        });
+
+        translationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = '傳送中...';
+
+            try {
+                await addDoc(collection(db, "translation_applications"), {
+                    nickname: document.getElementById('nickname').value,
+                    email: emailInput.value,
+                    language: document.getElementById('language').value,
+                    reason: document.getElementById('reason').value,
+                    submittedAt: serverTimestamp(),
+                    uid: auth.currentUser ? auth.currentUser.uid : "anonymous",
+                    userAgent: navigator.userAgent
+                });
+
+                alert('感謝您的應徵！如果有進一步需求，我們會透過 Email 與您聯繫。');
+                translationForm.reset();
+                if (auth.currentUser) emailInput.value = auth.currentUser.email;
+
+            } catch (error) {
+                console.error("Firestore Error: ", error);
+                alert('傳送失敗，請稍後再試。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+            }
+        });
+    </script>
+</body>
+</html>
