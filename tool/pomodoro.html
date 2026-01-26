@@ -32,7 +32,9 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            overflow: hidden;
+            /* 移除 overflow: hidden，改為只隱藏水平溢出 */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .container {
@@ -46,6 +48,8 @@
             justify-content: center;
             align-items: center;
             width: 100%;
+            /* 確保在小螢幕時內容有足夠空間，不被壓扁 */
+            min-height: 100vh;
         }
 
         #main-title {
@@ -123,13 +127,15 @@
             position: fixed;
             z-index: 9999;
             left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.9);
+            background-color: rgba(0,0,0,0.85);
             backdrop-filter: blur(10px);
+            /* 讓彈窗內容過多時也可以捲動 */
+            overflow-y: auto;
         }
 
         .modal-content {
             background-color: var(--secondary-dark);
-            margin: 5% auto;
+            margin: 50px auto;
             padding: 30px;
             width: 90%;
             max-width: 450px;
@@ -175,6 +181,7 @@
 
         @media (max-width: 768px) {
             #time-container { font-size: 6rem; }
+            .container { padding: 20px; }
         }
     </style>
 </head>
@@ -297,11 +304,9 @@
             const pauseBtn = document.getElementById('pause-btn');
 
             if (isRunning) {
-                // 運行中：開始按鈕黃色，暫停按鈕灰色
                 startBtn.className = 'btn-active';
                 pauseBtn.className = 'btn-inactive';
             } else {
-                // 暫停中：暫停按鈕黃色，開始按鈕灰色
                 startBtn.className = 'btn-inactive';
                 pauseBtn.className = 'btn-active';
             }
@@ -348,7 +353,6 @@
             state.currentMode = mode;
             timeLeft = (mode === 'focus') ? state.focusTime : state.breakTime;
             updateTimerDisplay();
-            // 重設時，預設讓「開始按鈕」變亮
             document.getElementById('start-btn').className = 'btn-active';
             document.getElementById('pause-btn').className = 'btn-inactive';
         }
@@ -364,7 +368,6 @@
             closeModal('settingsModal');
         };
 
-        // --- 事件綁定 ---
         document.getElementById('start-btn').onclick = startTimer;
         document.getElementById('pause-btn').onclick = pauseTimer;
         document.getElementById('reset-timer-btn').onclick = () => resetToMode('focus');
@@ -373,7 +376,6 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         window.onclick = (event) => { if (event.target.classList.contains('modal')) closeModal(event.target.id); };
 
-        // 初始化
         loadState();
     </script>
     
