@@ -14,28 +14,36 @@
             color: white; 
             margin: 0; 
             font-family: 'Noto Sans TC', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* 導覽列預留空間 */
+        /* 佈局容器 */
         .main-layout { 
             display: flex; 
+            flex: 1;
             max-width: 1200px; 
-            margin: 100px auto 40px; 
+            margin: 80px auto 20px; /* 留出 navbar 空間 */
             gap: 20px; 
             padding: 0 20px; 
-            height: calc(100vh - 150px); 
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         
         /* 左側筆記清單 */
         .sidebar { 
-            width: 280px; 
+            width: 300px; 
             background: var(--card); 
             border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
-            overflow: hidden; 
             border: 1px solid #333;
+            transition: all 0.3s ease;
         }
+
         .sidebar-header { 
             padding: 15px; 
             background: #333; 
@@ -43,26 +51,35 @@
             justify-content: space-between; 
             align-items: center; 
             border-bottom: 1px solid var(--gold);
+            border-radius: 12px 12px 0 0;
         }
+
         .add-btn { 
             cursor: pointer; 
             color: var(--gold); 
             font-size: 1.5rem; 
             background: none; 
             border: none; 
-            transition: 0.3s;
+            line-height: 1;
         }
-        .add-btn:hover { transform: scale(1.2); }
 
-        #note-list { flex: 1; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
+        #note-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            list-style: none; 
+            margin: 0; 
+            padding: 0; 
+        }
+
         #note-list li { 
             padding: 15px; 
             border-bottom: 1px solid #3d3d3d; 
             cursor: pointer; 
-            transition: 0.3s;
-            font-size: 0.95rem;
+            transition: 0.2s;
             color: #bbb;
+            word-break: break-all;
         }
+
         #note-list li:hover { background: #3d3d3d; color: white; }
         #note-list li.active { 
             border-left: 4px solid var(--gold); 
@@ -78,18 +95,22 @@
             border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
-            padding: 25px; 
+            padding: 20px; 
             position: relative; 
             border: 1px solid #333;
+            overflow: hidden;
         }
+
         .toolbar { 
             display: flex; 
-            gap: 10px; 
+            gap: 8px; 
             margin-bottom: 15px; 
             border-bottom: 1px solid #444; 
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
+
         .toolbar button { 
             background: #444; 
             border: none; 
@@ -98,22 +119,22 @@
             border-radius: 4px; 
             cursor: pointer; 
             font-size: 0.9rem;
-            transition: 0.2s;
         }
+
         .toolbar button:hover { background: var(--gold); color: black; }
-        .btn-delete { margin-left: auto; background: var(--danger) !important; }
-        .btn-delete:hover { background: #c0392b !important; color: white !important; }
+        .mobile-back { display: none; background: #555 !important; }
 
         #editor-title { 
             background: transparent; 
             border: none; 
             color: var(--gold); 
-            font-size: 1.8rem; 
+            font-size: 1.5rem; 
             font-weight: bold; 
             outline: none; 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
             width: 100%;
         }
+
         #editor-body { 
             flex: 1; 
             background: transparent; 
@@ -121,20 +142,20 @@
             color: #ddd; 
             outline: none; 
             overflow-y: auto; 
-            line-height: 1.8; 
-            font-size: 1.1rem;
+            line-height: 1.6; 
+            font-size: 1.05rem;
         }
+
         #editor-body[contenteditable]:empty:before { 
             content: "在這裡輸入內容..."; 
             color: #666; 
         }
 
         #save-indicator { 
-            position: absolute; 
-            bottom: 15px; 
-            right: 25px; 
+            text-align: right;
             font-size: 0.75rem; 
-            color: #555; 
+            color: #666; 
+            margin-top: 5px;
         }
         
         #login-overlay { 
@@ -143,7 +164,22 @@
             color: var(--gold); 
         }
 
-        /* 捲軸美化 */
+        /* 手機模式適配 */
+        @media (max-width: 768px) {
+            .main-layout { margin-top: 70px; gap: 0; padding: 0 10px; }
+            
+            /* 手機版切換邏輯 */
+            .sidebar { width: 100%; display: flex; }
+            .editor-area { display: none; }
+            
+            /* 當啟動編輯模式時 */
+            body.editing .sidebar { display: none; }
+            body.editing .editor-area { display: flex; width: 100%; }
+            body.editing .mobile-back { display: block; }
+
+            .toolbar button { padding: 8px 10px; }
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1d1d1d; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
@@ -152,26 +188,30 @@
 <body>
 
     <div class="main-layout" id="main-ui" style="display: none;">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <span>我的筆記 (加密中 🔐)</span>
-                <button class="add-btn" id="add-note-btn">+</button>
+                <span>我的筆記 🔐</span>
+                <button class="add-btn" id="add-note-btn" title="新增筆記">+</button>
             </div>
             <ul id="note-list"></ul>
         </div>
 
         <div class="editor-area" id="editor-container" style="visibility: hidden;">
             <div class="toolbar">
+                <button class="mobile-back" onclick="closeEditor()">← 返回</button>
                 <button onclick="execCmd('bold')"><b>B</b></button>
                 <button onclick="execCmd('italic')"><i>I</i></button>
-                <button onclick="execCmd('createLink', prompt('網址:'))">🔗 連結</button>
+                <button onclick="execCmd('createLink', prompt('網址:'))">🔗</button>
                 <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ 刪除</button>
             </div>
             <input type="text" id="editor-title" placeholder="無標題筆記">
             <div id="editor-body" contenteditable="true"></div>
             <div id="save-indicator">已加密儲存</div>
         </div>
-        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;"><h3>請選擇或新增筆記</h3></div>
+
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555; text-align:center;">
+            <h3>請選擇或新增筆記</h3>
+        </div>
     </div>
 
     <div id="login-overlay" style="display: none;"><h2>🔐 請先登入以開啟加密空間</h2></div>
@@ -185,18 +225,22 @@
         let currentNoteId = null;
         let saveTimeout = null;
 
-        // --- 🔒 AES 加解密核心功能 ---
         const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
         const decrypt = (ciphertext, key) => {
+            if (!ciphertext) return "";
             try {
                 const bytes = CryptoJS.AES.decrypt(ciphertext, key);
-                return bytes.toString(CryptoJS.enc.Utf8) || "(解密失敗)";
-            } catch (e) { return "(資料損毀)"; }
+                return bytes.toString(CryptoJS.enc.Utf8) || "";
+            } catch (e) { return " (解密失敗) "; }
         };
 
         window.execCmd = (cmd, val = null) => {
             document.execCommand(cmd, false, val);
             saveData();
+        };
+
+        window.closeEditor = () => {
+            document.body.classList.remove('editing');
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -215,14 +259,25 @@
             onSnapshot(q, (snapshot) => {
                 const listEl = document.getElementById('note-list');
                 listEl.innerHTML = "";
+                
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    // 解密標題以顯示在列表
-                    const decTitle = decrypt(data.title, auth.currentUser.uid);
+                    const decTitle = decrypt(data.title, uid) || "無標題筆記";
+                    
                     const li = document.createElement('li');
-                    li.innerText = decTitle || "無標題筆記";
-                    if (doc.id === currentNoteId) li.className = "active";
-                    li.onclick = () => selectNote(doc.id, data);
+                    li.innerText = decTitle;
+                    li.dataset.id = doc.id;
+                    
+                    if (doc.id === currentNoteId) {
+                        li.className = "active";
+                    }
+                    
+                    li.onclick = () => {
+                        // 更新 UI 選取狀態
+                        document.querySelectorAll('#note-list li').forEach(el => el.classList.remove('active'));
+                        li.classList.add('active');
+                        selectNote(doc.id, data);
+                    };
                     listEl.appendChild(li);
                 });
             });
@@ -231,20 +286,25 @@
         function selectNote(id, data) {
             currentNoteId = id;
             const key = auth.currentUser.uid;
+            
             document.getElementById('no-note-selected').style.display = 'none';
             document.getElementById('editor-container').style.visibility = 'visible';
             
-            // 解密標題與內容
+            // 手機模式切換
+            document.body.classList.add('editing');
+            
             document.getElementById('editor-title').value = decrypt(data.title, key);
             document.getElementById('editor-body').innerHTML = decrypt(data.content, key);
         }
 
         document.getElementById('add-note-btn').onclick = async () => {
+            if (!auth.currentUser) return;
             const key = auth.currentUser.uid;
             const newNoteRef = doc(collection(db, "notes"));
+            const initialTitle = "新筆記";
             const newData = {
                 uid: key,
-                title: encrypt("新筆記", key),
+                title: encrypt(initialTitle, key),
                 content: encrypt("", key),
                 updatedAt: serverTimestamp()
             };
@@ -255,28 +315,34 @@
         function saveData() {
             if (!currentNoteId || !auth.currentUser) return;
             const key = auth.currentUser.uid;
-            document.getElementById('save-indicator').innerText = "🔐 正在進行強加密同步...";
+            const indicator = document.getElementById('save-indicator');
+            indicator.innerText = "🔐 同步中...";
             
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
                 const titleVal = document.getElementById('editor-title').value;
                 const bodyVal = document.getElementById('editor-body').innerHTML;
                 
-                await setDoc(doc(db, "notes", currentNoteId), {
-                    title: encrypt(titleVal, key),
-                    content: encrypt(bodyVal, key),
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-                document.getElementById('save-indicator').innerText = "✅ 已完成端到端加密儲存";
+                try {
+                    await setDoc(doc(db, "notes", currentNoteId), {
+                        title: encrypt(titleVal || "無標題筆記", key),
+                        content: encrypt(bodyVal, key),
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    indicator.innerText = "✅ 已加密儲存";
+                } catch (e) {
+                    indicator.innerText = "❌ 儲存失敗";
+                }
             }, 1000);
         }
 
         window.deleteCurrentNote = async () => {
-            if (currentNoteId && confirm("刪除筆記？")) {
+            if (currentNoteId && confirm("確定要永久刪除此筆記嗎？")) {
                 await deleteDoc(doc(db, "notes", currentNoteId));
                 document.getElementById('editor-container').style.visibility = 'hidden';
                 document.getElementById('no-note-selected').style.display = 'flex';
                 currentNoteId = null;
+                closeEditor();
             }
         };
 
@@ -285,5 +351,4 @@
     </script>
     <script type="module" src="./navbar.js"></script>
 </body>
-
 </html>
