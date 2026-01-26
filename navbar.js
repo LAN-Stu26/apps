@@ -452,7 +452,7 @@ onAuthStateChanged(auth, (user) => {
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
                 <div style="background:#000; padding: 8px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222;">
                     我的收藏
-                    <span style="font-size:0.7rem; opacity:0.6;">可拖曳排序</span>
+                    <span style="font-size:0.7rem; opacity:0.6;">可拖曳"X"以排序或刪除</span>
                 </div>
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
