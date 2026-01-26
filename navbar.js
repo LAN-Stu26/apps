@@ -18,7 +18,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// 2. CSS 樣式
+// 2. CSS 樣式 (已修復選單錯位問題)
 const style = `
 <style>
     html { scroll-behavior: smooth; }
@@ -85,13 +85,28 @@ const style = `
     /* 下拉選單樣式 */
     #nav-list li { position: relative; }
     #nav-list li a, .dropbtn { color: #ffffff; text-decoration: none; font-size: 1.05rem; padding: 10px 15px; display: block; transition: 0.3s; cursor: pointer; }
+    
     .dropdown-content { 
         display: none; position: absolute; background-color: #1a1a1a; 
-        min-width: 160px; box-shadow: 0px 8px 16px rgba(0,0,0,0.6); 
+        min-width: 200px; box-shadow: 0px 8px 16px rgba(0,0,0,0.6); 
         border-radius: 8px; top: 100%; right: 0; overflow: hidden; border: 1px solid #333; 
     }
     .dropdown-content a { color: #ccc !important; padding: 12px 16px !important; font-size: 0.95rem !important; border-bottom: 1px solid #222; text-decoration: none; display: block; }
     .dropdown-content a:hover { background-color: #ffd966 !important; color: #000 !important; }
+
+    /* 收藏選單修正：防止容器撐爆或錯位 */
+    #fav-list-container {
+        max-height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #111;
+    }
+    .fav-item {
+        border-bottom: 1px solid #222;
+        transition: background 0.2s;
+    }
+    .fav-item:hover { background: #222; }
+    .fav-item a { border-bottom: none !important; }
     
     @media (hover: hover) {
         .dropdown:hover .dropdown-content { display: block; animation: fadeInDown 0.3s ease; }
@@ -144,7 +159,7 @@ const style = `
         }
         #nav-list.active { left: 0 !important; }
         .dropdown-content { position: static; background: #111; border: none; width: 100%; display: block; max-height: 0; overflow: hidden; transition: 0.4s ease; }
-        .dropdown.mobile-open .dropdown-content { max-height: 500px; }
+        .dropdown.mobile-open .dropdown-content { max-height: 800px; } /* 增加移動端最大高度 */
     }
 
     #custom-footer { background-color: #000; color: #ecf0f1; padding: 40px 20px; border-top: 1px solid #222; }
@@ -293,8 +308,7 @@ if (searchNavBtn) {
     });
 }
 
-// --- 修正後的收藏路徑邏輯 ---
-// 使用完整的 pathname 並將 / 替換為 _ 以作為安全 ID
+// --- 收藏路徑邏輯 ---
 const getFullPagePath = () => window.location.pathname;
 const getSafeFavId = () => getFullPagePath().replace(/\//g, '_').replace(/\./g, '_');
 
@@ -311,27 +325,27 @@ async function updateFavList(user) {
         favorites.push({ id: doc.id, ...doc.data() });
     });
 
-    // Sort by 'order' field, fallback to 'time'
     favorites.sort((a, b) => {
         const orderA = a.order !== undefined ? a.order : Infinity;
         const orderB = b.order !== undefined ? b.order : Infinity;
         if (orderA === orderB) {
-            return b.time.toDate() - a.time.toDate();
+            return (b.time?.toDate() || 0) - (a.time?.toDate() || 0);
         }
         return orderA - orderB;
     });
 
     listContainer.innerHTML = favorites.length === 0
-        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none;">空空如也</a>'
+        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none; text-align:center;">空空如也</a>'
         : favorites.map(fav => `
             <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab;">
-                <a href="${fav.path}" style="flex-grow:1;"><b>⭐ ${fav.name}</b></a>
-                <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 5px 10px; font-size:1rem; color:#888;">×</span>
+                <a href="${fav.path}" style="flex-grow:1; padding: 12px 0 12px 16px !important; border-bottom:none;"><b>⭐ ${fav.name}</b></a>
+                <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 12px 16px; font-size:1.2rem; color:#888;">×</span>
             </div>
         `).join('');
 
     // --- Drag and Drop Logic ---
     listContainer.addEventListener('dragstart', (e) => {
+        if (!e.target.classList.contains('fav-item')) return;
         draggedItem = e.target;
         e.target.style.opacity = 0.5;
         e.target.style.background = '#333';
@@ -340,15 +354,15 @@ async function updateFavList(user) {
     listContainer.addEventListener('dragover', (e) => {
         e.preventDefault();
         const afterElement = getDragAfterElement(listContainer, e.clientY);
-        const currentDragged = draggedItem;
         if (afterElement == null) {
-            listContainer.appendChild(currentDragged);
+            listContainer.appendChild(draggedItem);
         } else {
-            listContainer.insertBefore(currentDragged, afterElement);
+            listContainer.insertBefore(draggedItem, afterElement);
         }
     });
     
     listContainer.addEventListener('dragend', (e) => {
+        if (!draggedItem) return;
         e.target.style.opacity = 1;
         e.target.style.background = 'none';
         updateOrderInFirestore(user, listContainer);
@@ -356,14 +370,14 @@ async function updateFavList(user) {
     });
 
     listContainer.querySelectorAll('.delete-fav').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.onclick = (e) => {
             e.stopPropagation();
-            const favId = e.target.getAttribute('data-id');
-            const favName = e.target.previousElementSibling.textContent.trim().substring(2);
+            const favId = btn.getAttribute('data-id');
+            const favName = btn.previousElementSibling.textContent.trim().substring(2);
             if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
                 deleteFavorite(user, favId);
             }
-        });
+        };
     });
 }
 
@@ -382,11 +396,12 @@ function getDragAfterElement(container, y) {
 
 async function updateOrderInFirestore(user, container) {
     const favItems = container.querySelectorAll('.fav-item');
-    favItems.forEach(async (item, index) => {
+    const promises = Array.from(favItems).map((item, index) => {
         const favId = item.getAttribute('data-id');
         const favRef = doc(db, "users", user.uid, "favorites", favId);
-        await setDoc(favRef, { order: index }, { merge: true });
+        return setDoc(favRef, { order: index }, { merge: true });
     });
+    await Promise.all(promises);
 }
 
 async function deleteFavorite(user, favId) {
@@ -395,7 +410,7 @@ async function deleteFavorite(user, favId) {
         favBtn.classList.remove('active');
         localStorage.removeItem(`fav_${user.uid}_${favId}`);
     }
-    updateFavList(user); // Re-render the list
+    updateFavList(user);
 }
 
 async function toggleFavorite(user) {
@@ -425,7 +440,6 @@ onAuthStateChanged(auth, (user) => {
         favBtn.style.display = 'flex';
         const safeId = getSafeFavId();
         
-        // 快速預判快取
         if (localStorage.getItem(`fav_${user.uid}_${safeId}`)) {
             favBtn.classList.add('active');
         }
@@ -436,12 +450,12 @@ onAuthStateChanged(auth, (user) => {
             </div>
             <div class="dropdown-content">
                 <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
-                <div style="background:#111; padding: 5px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center;">
+                <div style="background:#000; padding: 8px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222;">
                     我的收藏
-                    <span style="font-size:0.7rem;">可拖曳排序</span>
+                    <span style="font-size:0.7rem; opacity:0.6;">可拖曳排序</span>
                 </div>
                 <div id="fav-list-container">
-                    <a style="color:#666 !important; font-size:0.8rem !important;">讀取中...</a>
+                    <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
                 </div>
                 <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
@@ -451,7 +465,6 @@ onAuthStateChanged(auth, (user) => {
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
 
-        // 校正快取
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
             if (snap.exists()) {
