@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新版番茄鐘 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --default-yellow: #ffd966;
+            --primary-dark: #ffd966;
+            --bg-color: #1d1d1d;
+            --secondary-dark: #2a2a2a;
+            --inactive-bg: rgba(255, 255, 255, 0.1);
+            --inactive-text: #888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #main-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 700;
+        }
+
+        #mode-indicator {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        #time-container {
+            font-size: 10rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        /* 啟動狀態的按鈕樣式 */
+        .btn-active {
+            background-color: var(--primary-dark);
+            color: var(--bg-color);
+            box-shadow: 0 4px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        /* 未啟動狀態的按鈕樣式 */
+        .btn-inactive {
+            background-color: var(--inactive-bg);
+            color: var(--inactive-text);
+            border: 1px solid #444;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button.util-btn {
+            background: transparent;
+            color: #666;
+            border: 1px solid #333;
+            margin-top: 20px;
+        }
+
+        /* --- 彈窗樣式 --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background-color: var(--secondary-dark);
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            position: relative;
+        }
+
+        .close {
+            position: absolute; right: 20px; top: 15px;
+            font-size: 28px; cursor: pointer; color: #888;
+        }
+
+        .setting-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        .time-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #151515;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-unit { color: #666; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            #time-container { font-size: 6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="main-title">Focus Timer</h1>
+        <div id="mode-indicator">— 專注模式 —</div>
+        
+        <div id="time-container">
+            <div id="display-time">25:00</div>
+        </div>
+
+        <div class="controls timer-controls" style="margin-bottom: 10px;">
+            <button id="start-btn" class="btn-active">▶ 開始計時</button>
+            <button id="pause-btn" class="btn-inactive">|| 暫停</button>
+            <button id="reset-timer-btn" class="btn-inactive">↺ 重設</button>
+        </div>
+
+        <div class="controls">
+            <button id="settings-btn" class="util-btn">⚙️ 偏好設定</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 25px; text-align: center;">番茄鐘設定</h2>
+            
+            <div class="setting-group">
+                <label>顯示標題</label>
+                <input type="text" id="titleInput">
+            </div>
+
+            <div class="setting-group">
+                <label>專注時長 (分/秒)</label>
+                <div class="time-input-row">
+                    <input type="number" id="focusMin" min="0"> <span class="input-unit">分</span>
+                    <input type="number" id="focusSec" min="0" max="59"> <span class="input-unit">秒</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>休息時長 (分/秒)</label>
+                <div class="time-input-row">
+                    <input type="number" id="breakMin" min="0"> <span class="input-unit">分</span>
+                    <input type="number" id="breakSec" min="0" max="59"> <span class="input-unit">秒</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>主題顏色</label>
+                <input type="color" id="timeColorPicker" style="height: 45px; cursor: pointer; padding: 2px;">
+            </div>
+
+            <button id="save-settings-btn" style="width: 100%; margin-top: 10px; background-color: var(--primary-dark); color: var(--bg-color);">儲存設定</button>
+        </div>
+    </div>
+
+    <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+    <script>
+        const DEFAULT_COLOR = '#ffd966';
+        
+        let state = {
+            title: 'Focus Timer',
+            focusTime: 1500,
+            breakTime: 300,
+            color: DEFAULT_COLOR,
+            currentMode: 'focus'
+        };
+
+        let timerInterval;
+        let timeLeft; 
+        let isRunning = false;
+
+        function loadState() {
+            const saved = localStorage.getItem('lanPomodoroStateV2');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+            }
+            timeLeft = state.focusTime;
+            applyState();
+        }
+
+        function saveState() {
+            localStorage.setItem('lanPomodoroStateV2', JSON.stringify(state));
+        }
+
+        function applyState() {
+            document.documentElement.style.setProperty('--primary-dark', state.color);
+            document.getElementById('main-title').textContent = state.title;
+            document.getElementById('timeColorPicker').value = state.color;
+            
+            document.getElementById('titleInput').value = state.title;
+            document.getElementById('focusMin').value = Math.floor(state.focusTime / 60);
+            document.getElementById('focusSec').value = state.focusTime % 60;
+            document.getElementById('breakMin').value = Math.floor(state.breakTime / 60);
+            document.getElementById('breakSec').value = state.breakTime % 60;
+
+            if (!isRunning) {
+                resetToMode(state.currentMode);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            const display = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('display-time').textContent = display;
+            document.title = `${state.title} 番茄鐘 - ${display}`;
+            
+            const indicator = document.getElementById('mode-indicator');
+            indicator.textContent = state.currentMode === 'focus' ? '— 專注模式 —' : '— 休息時間 —';
+            indicator.style.color = state.currentMode === 'focus' ? '#888' : state.color;
+        }
+
+        function updateButtonStyles() {
+            const startBtn = document.getElementById('start-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+
+            if (isRunning) {
+                // 運行中：開始按鈕黃色，暫停按鈕灰色
+                startBtn.className = 'btn-active';
+                pauseBtn.className = 'btn-inactive';
+            } else {
+                // 暫停中：暫停按鈕黃色，開始按鈕灰色
+                startBtn.className = 'btn-inactive';
+                pauseBtn.className = 'btn-active';
+            }
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            updateButtonStyles();
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    handleTimerEnd();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            updateButtonStyles();
+        }
+
+        function handleTimerEnd() {
+            pauseTimer();
+            document.getElementById('alertSound').play();
+            
+            const nextMode = state.currentMode === 'focus' ? 'break' : 'focus';
+            const msg = state.currentMode === 'focus' ? '專注時間結束！要休息一下嗎？' : '休息結束！準備好專注了嗎？';
+            
+            if (confirm(msg)) {
+                resetToMode(nextMode);
+                startTimer();
+            } else {
+                resetToMode(nextMode);
+            }
+        }
+
+        function resetToMode(mode) {
+            pauseTimer();
+            state.currentMode = mode;
+            timeLeft = (mode === 'focus') ? state.focusTime : state.breakTime;
+            updateTimerDisplay();
+            // 重設時，預設讓「開始按鈕」變亮
+            document.getElementById('start-btn').className = 'btn-active';
+            document.getElementById('pause-btn').className = 'btn-inactive';
+        }
+
+        document.getElementById('save-settings-btn').onclick = () => {
+            state.title = document.getElementById('titleInput').value || 'Focus Timer';
+            state.focusTime = (parseInt(document.getElementById('focusMin').value) * 60) + (parseInt(document.getElementById('focusSec').value) || 0);
+            state.breakTime = (parseInt(document.getElementById('breakMin').value) * 60) + (parseInt(document.getElementById('breakSec').value) || 0);
+            state.color = document.getElementById('timeColorPicker').value;
+            
+            saveState();
+            applyState();
+            closeModal('settingsModal');
+        };
+
+        // --- 事件綁定 ---
+        document.getElementById('start-btn').onclick = startTimer;
+        document.getElementById('pause-btn').onclick = pauseTimer;
+        document.getElementById('reset-timer-btn').onclick = () => resetToMode('focus');
+        document.getElementById('settings-btn').onclick = () => document.getElementById('settingsModal').style.display='block';
+        
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        window.onclick = (event) => { if (event.target.classList.contains('modal')) closeModal(event.target.id); };
+
+        // 初始化
+        loadState();
+    </script>
+    
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
