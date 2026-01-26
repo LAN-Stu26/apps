@@ -491,5 +491,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
-
-
