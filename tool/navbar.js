@@ -179,11 +179,10 @@ const navbarHTML = `
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
-                <a href="#"  class="ai-notice-navbar">最近更新 ▾▾▾</a>
-                <a href="/app/note.html"><b>雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
-                <a href="/tool/pomodoro.html"><b>新版番茄鐘</b></a>
                 <a href="/tool/time.html"><b>現在時間</b></a>
+                <a href="/tool/fullscreen.html"><b>全螢幕顏色</b></a>
+                <a href="/tool/classroom.html"><b>抽號器</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -201,8 +200,8 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
                 <a href="/cooperate.html"><b>合作商家</b></a>
-                <a href="/from/help_us.html"><b>幫助我們</b></a>
-                <a href="/from/improve-website.html"><b>改善表單</b></a>
+                <a href="/form/help_us.html"><b>幫助我們</b></a>
+                <a href="/form/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
         <li id="auth-area" class="dropdown">
