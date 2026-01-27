@@ -9,6 +9,8 @@
     <style>
         :root { --gold: #ffd966; --bg: #1d1d1d; --card: #2d2d2d; --danger: #e74c3c; }
         
+        * { box-sizing: border-box; } /* 確保 padding 不會撐開寬高 */
+
         body { 
             background-color: var(--bg); 
             color: white; 
@@ -17,7 +19,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* 防止最外層出現滾動條 */
         }
 
         /* 佈局容器 */
@@ -25,12 +27,11 @@
             display: flex; 
             flex: 1;
             max-width: 1200px; 
-            margin: 80px auto 20px; /* 留出 navbar 空間 */
+            margin: 80px auto 0; /* 調整 margin，底部留給 padding */
             gap: 20px; 
-            padding: 0 20px; 
+            padding: 0 20px 20px; 
             width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
+            overflow: hidden; /* 核心：限制主區域超出視窗 */
         }
         
         /* 左側筆記清單 */
@@ -42,6 +43,7 @@
             flex-direction: column; 
             border: 1px solid #333;
             transition: all 0.3s ease;
+            height: 100%; /* 填滿主區域 */
         }
 
         .sidebar-header { 
@@ -52,6 +54,7 @@
             align-items: center; 
             border-bottom: 1px solid var(--gold);
             border-radius: 12px 12px 0 0;
+            flex-shrink: 0; /* 防止標題被壓縮 */
         }
 
         .add-btn { 
@@ -69,6 +72,7 @@
             list-style: none; 
             margin: 0; 
             padding: 0; 
+            -webkit-overflow-scrolling: touch;
         }
 
         #note-list li { 
@@ -99,6 +103,7 @@
             position: relative; 
             border: 1px solid #333;
             overflow: hidden;
+            height: 100%;
         }
 
         .toolbar { 
@@ -109,6 +114,7 @@
             padding-bottom: 10px;
             align-items: center;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
         .toolbar button { 
@@ -133,6 +139,7 @@
             outline: none; 
             margin-bottom: 10px; 
             width: 100%;
+            flex-shrink: 0;
         }
 
         #editor-body { 
@@ -144,6 +151,7 @@
             overflow-y: auto; 
             line-height: 1.6; 
             font-size: 1.05rem;
+            padding-bottom: 20px; /* 給底部留一點空間 */
         }
 
         #editor-body[contenteditable]:empty:before { 
@@ -156,6 +164,7 @@
             font-size: 0.75rem; 
             color: #666; 
             margin-top: 5px;
+            flex-shrink: 0;
         }
         
         #login-overlay { 
@@ -166,13 +175,16 @@
 
         /* 手機模式適配 */
         @media (max-width: 768px) {
-            .main-layout { margin-top: 70px; gap: 0; padding: 0 10px; }
+            .main-layout { 
+                margin-top: 70px; 
+                gap: 0; 
+                padding: 10px; 
+                height: calc(100vh - 70px); 
+            }
             
-            /* 手機版切換邏輯 */
             .sidebar { width: 100%; display: flex; }
             .editor-area { display: none; }
             
-            /* 當啟動編輯模式時 */
             body.editing .sidebar { display: none; }
             body.editing .editor-area { display: flex; width: 100%; }
             body.editing .mobile-back { display: block; }
@@ -273,7 +285,6 @@
                     }
                     
                     li.onclick = () => {
-                        // 更新 UI 選取狀態
                         document.querySelectorAll('#note-list li').forEach(el => el.classList.remove('active'));
                         li.classList.add('active');
                         selectNote(doc.id, data);
@@ -290,7 +301,6 @@
             document.getElementById('no-note-selected').style.display = 'none';
             document.getElementById('editor-container').style.visibility = 'visible';
             
-            // 手機模式切換
             document.body.classList.add('editing');
             
             document.getElementById('editor-title').value = decrypt(data.title, key);
@@ -352,4 +362,3 @@
     <script type="module" src="navbar.js"></script>
 </body>
 </html>
-
