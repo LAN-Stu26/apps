@@ -201,8 +201,8 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
                 <a href="/cooperate.html"><b>合作商家</b></a>
-                <a href="/from/help_us.html"><b>幫助我們</b></a>
-                <a href="/from/improve-website.html"><b>改善表單</b></a>
+                <a href="/form/help_us.html"><b>幫助我們</b></a>
+                <a href="/form/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
         <li id="auth-area" class="dropdown">
@@ -232,7 +232,7 @@ const navbarHTML = `
 <div id="announcement-bar">
     <div class="bar-content">📢 立刻幫助我們!<br><span style='color: #7e7e7e'>你會翻譯嗎? 立刻幫助 LAN Studio 走向國際化!</span></div>
     <div class="bar-actions">
-        <a href="/from/help_us.html" class="btn-bar-go">填寫表單!</a>
+        <a href="/form/help_us.html" class="btn-bar-go">填寫表單!</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -491,5 +491,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
-
-
