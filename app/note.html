@@ -17,23 +17,26 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 防止最外層 body 捲動，由內部容器處理 */
+            overflow: hidden;
+            padding-top: 80px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
         }
 
-        /* 佈局容器 - 修正高度與滾動限制 */
+        /* 佈局容器 */
         .main-layout { 
             display: flex; 
             flex: 1;
             max-width: 1200px; 
-            margin: 80px auto 0; /* 留出 navbar 空間 */
+            margin: 0 auto; /* 留出 navbar 空間 */
             gap: 20px; 
-            padding: 0 20px 20px; /* 增加底部 padding 確保內容不貼地 */
+            padding: 0 20px; 
             width: 100%;
             box-sizing: border-box;
-            min-height: 0; /* 關鍵：允許 flex 項目縮小以適應內容 */
+            overflow: hidden;
         }
         
-        /* 左側筆記清單 - 修正為可獨立滾動 */
+        /* 左側筆記清單 */
         .sidebar { 
             width: 300px; 
             background: var(--card); 
@@ -42,7 +45,6 @@
             flex-direction: column; 
             border: 1px solid #333;
             transition: all 0.3s ease;
-            max-height: 100%; /* 限制最大高度 */
         }
 
         .sidebar-header { 
@@ -53,7 +55,6 @@
             align-items: center; 
             border-bottom: 1px solid var(--gold);
             border-radius: 12px 12px 0 0;
-            flex-shrink: 0; /* 防止標題被壓縮 */
         }
 
         .add-btn { 
@@ -71,7 +72,6 @@
             list-style: none; 
             margin: 0; 
             padding: 0; 
-            min-height: 0; /* 關鍵：讓 ul 在 flex 容器中正常捲動 */
         }
 
         #note-list li { 
@@ -102,7 +102,6 @@
             position: relative; 
             border: 1px solid #333;
             overflow: hidden;
-            max-height: 100%;
         }
 
         .toolbar { 
@@ -113,7 +112,6 @@
             padding-bottom: 10px;
             align-items: center;
             flex-wrap: wrap;
-            flex-shrink: 0;
         }
 
         .toolbar button { 
@@ -138,7 +136,6 @@
             outline: none; 
             margin-bottom: 10px; 
             width: 100%;
-            flex-shrink: 0;
         }
 
         #editor-body { 
@@ -150,7 +147,6 @@
             overflow-y: auto; 
             line-height: 1.6; 
             font-size: 1.05rem;
-            min-height: 0;
         }
 
         #editor-body[contenteditable]:empty:before { 
@@ -163,7 +159,6 @@
             font-size: 0.75rem; 
             color: #666; 
             margin-top: 5px;
-            flex-shrink: 0;
         }
         
         #login-overlay { 
@@ -174,11 +169,13 @@
 
         /* 手機模式適配 */
         @media (max-width: 768px) {
-            .main-layout { margin-top: 70px; gap: 0; padding: 0 10px 10px; }
+            .main-layout { margin-top: 70px; gap: 0; padding: 0 10px; }
             
+            /* 手機版切換邏輯 */
             .sidebar { width: 100%; display: flex; }
             .editor-area { display: none; }
             
+            /* 當啟動編輯模式時 */
             body.editing .sidebar { display: none; }
             body.editing .editor-area { display: flex; width: 100%; }
             body.editing .mobile-back { display: block; }
@@ -279,6 +276,7 @@
                     }
                     
                     li.onclick = () => {
+                        // 更新 UI 選取狀態
                         document.querySelectorAll('#note-list li').forEach(el => el.classList.remove('active'));
                         li.classList.add('active');
                         selectNote(doc.id, data);
@@ -294,6 +292,8 @@
             
             document.getElementById('no-note-selected').style.display = 'none';
             document.getElementById('editor-container').style.visibility = 'visible';
+            
+            // 手機模式切換
             document.body.classList.add('editing');
             
             document.getElementById('editor-title').value = decrypt(data.title, key);
