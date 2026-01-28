@@ -179,10 +179,11 @@ const navbarHTML = `
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
+                <a href="#"  class="ai-notice-navbar">最近更新 ▾▾▾</a>
+                <a href="/app/note.html"><b>雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/tool/pomodoro.html"><b>新版番茄鐘</b></a>
                 <a href="/tool/time.html"><b>現在時間</b></a>
-                <a href="/tool/fullscreen.html"><b>全螢幕顏色</b></a>
-                <a href="/tool/classroom.html"><b>抽號器</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -491,4 +492,5 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
+
 
