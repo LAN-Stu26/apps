@@ -161,6 +161,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
         }
 
         .file-version {
@@ -212,6 +214,15 @@
             .hero-header { height: 250px; }
             .container { margin: 30px auto; }
         }
+        .badge-latest {
+            background-color: var(--accent-green);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -242,9 +253,16 @@
     <script>
         // 定義應用程式資料
         const appsData = {
+            "猜數字": {
+                "name": "猜數字",
+                "version": "1.0",
+                "filename": "猜數字.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/猜數字.py",
+                "isNew": true
+            },
             "學期成績計算": {
                 "name": "學期成績計算",
-                "version": "2.0",
+                "version": "1.0",
                 "filename": "學期成績計算.py",
                 "url": "https://github.com/LAN-Stu26/apps/blob/main/python/學期成績計算.py"
             }
@@ -294,7 +312,7 @@
                         statusInfo = `已安裝: v${installedVersion}`;
                     } else if (compareVersions(app.version, installedVersion) > 0) {
                         // 伺服器版本較新
-                        btnText = "可更新";
+                        btnText = "有新版本";
                         btnClass = "btn-update";
                         statusInfo = `目前: v${installedVersion} ➜ 新版: v${app.version}`;
                     }
@@ -303,11 +321,17 @@
                 // 建立 HTML 元素
                 const item = document.createElement('div');
                 item.className = 'file-item';
+                
+                let latestBadge = '';
+                if (app.isNew) {
+                    latestBadge = `<span class="badge-latest">最新</span>`;
+                }
+
                 item.innerHTML = `
                     <div class="file-info">
                         <span class="file-icon">🐍</span>
                         <div class="file-details">
-                            <span class="file-name">${app.name}</span>
+                            <span class="file-name">${app.name}${latestBadge}</span>
                             <span class="file-version">${statusInfo}</span>
                         </div>
                     </div>
