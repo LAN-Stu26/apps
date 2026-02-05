@@ -97,6 +97,36 @@
             margin-bottom: 60px;
         }
 
+        /* 需求提示公告樣式 */
+        .requirement-notice {
+            background: rgba(255, 217, 102, 0.1);
+            border: 1px dashed var(--primary-dark);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .requirement-text {
+            color: #eee;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .requirement-notice a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .requirement-notice a:hover {
+            opacity: 0.8;
+        }
+
         /* --- 網格排版 --- */
         .file-grid {
             display: grid;
@@ -240,6 +270,20 @@
     <div class="container">
         
         <section class="download-group">
+            <div class="requirement-notice">
+                <p class="requirement-text">⚠️ 提示：所有 Python 檔案皆需要 <b>Python 3.14.3</b> 環境執行。</p>
+                <a href="https://www.python.org/downloads/" target="_blank">
+                    <b style="display:flex; align-items:center; gap:6px;">
+                        <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg> 
+                        前往下載
+                    </b>
+                </a>
+            </div>
+
             <h2 class="section-title">🐍 Python 工具與腳本</h2>
             <div id="app-list" class="file-grid">
                 <div style="color: gray; padding: 20px;">載入中...</div>
@@ -352,7 +396,6 @@
         // 處理下載邏輯
         async function handleDownload(app, currentStatus) {
             // 如果已安裝，詢問是否重新下載 (避免誤觸)
-            // 但如果是「可更新」，則不詢問直接下載 (符合您的需求：直接幫使用者更新)
             if (currentStatus === "已安裝") {
                 if(!confirm(`您已擁有最新版本的 ${app.name}，確定要重新下載嗎？`)) return;
             }
@@ -370,7 +413,6 @@
                 const blob = await response.blob();
 
                 // 3. 建立新的檔名 (加上版本號)
-                // 這樣做的好處：系統不會問「是否取代舊檔」，而是直接下載新版，使用者不需要做「取代」的動作
                 const originalName = app.filename.replace('.py', '');
                 const newFileName = `${originalName}-v${app.version}.py`;
 
@@ -387,7 +429,7 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
 
-                // 5. 更新本地紀錄 (這會讓按鈕立刻變回「已安裝」)
+                // 5. 更新本地紀錄
                 saveInstalledApp(app.name, app.version);
 
             } catch (error) {
