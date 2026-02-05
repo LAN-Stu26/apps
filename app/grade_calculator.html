@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="LAN Studio - 學期成績計算">
+    <meta property="og:title" content="LAN Studio | 學期成績計算">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學期成績計算 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --accent-green: #28a745;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --input-bg: #3d3d3d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding-top: 40px; /* 取代 Header 的頂部空間 */
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .calculator-card {
+            background: var(--card-bg);
+            padding: 40px; 
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        #ranking-inputs {
+            display: none;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-calc { background-color: var(--accent-blue); color: white; }
+        .btn-calc:hover { background-color: #2980b9; transform: translateY(-2px); }
+
+        .btn-save { background-color: var(--accent-green); color: white; }
+        .btn-save:hover { background-color: #218838; transform: translateY(-2px); }
+
+        /* --- 應用商店橫幅 --- */
+        .app-store-banner {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            border-radius: 12px;
+            border: 1px solid var(--accent-blue);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .banner-text {
+            font-size: 0.95rem;
+            color: #bdc3c7;
+            line-height: 1.5;
+        }
+
+        .banner-text span {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .btn-store {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-store:hover {
+            background-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px dashed #555;
+            display: none;
+        }
+
+        #results h3 { margin-top: 0; color: var(--primary-dark); border-bottom: 1px solid #444; padding-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .button-group { flex-direction: column; }
+            .section-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="section-title">學期成績計算</h2>
+        
+        <div class="calculator-card">
+            <div class="input-group">
+                <label for="ch">國文領域成績</label>
+                <input type="number" id="ch" placeholder="請輸入成績">
+            </div>
+            <div class="input-group">
+                <label for="en">英文領域成績</label>
+                <input type="number" id="en" placeholder="請輸入成績">
+            </div>
+            <div class="input-group">
+                <label for="ma">數學領域成績</label>
+                <input type="number" id="ma" placeholder="請輸入成績">
+            </div>
+            <div class="input-group">
+                <label for="ss">社會領域成績</label>
+                <input type="number" id="ss" placeholder="請輸入成績">
+            </div>
+            <div class="input-group">
+                <label for="fs">自然領域成績</label>
+                <input type="number" id="fs" placeholder="請輸入成績">
+            </div>
+
+            <div class="checkbox-container">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-avg"> 平均成績
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-total"> 總成績
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-rank"> 排名計算
+                </label>
+            </div>
+
+            <div id="ranking-inputs">
+                <div class="input-group">
+                    <label for="pr">PR 值</label>
+                    <input type="number" id="pr" placeholder="輸入 PR">
+                </div>
+                <div class="input-group">
+                    <label for="can">考試人數</label>
+                    <input type="number" id="can" placeholder="輸入總人數">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-calc" onclick="calculate()">執行計算</button>
+                <button class="btn-save" onclick="saveToFile()">儲存成績 (.txt)</button>
+            </div>
+
+            <div class="app-store-banner">
+                <div class="banner-text">
+                    想在桌面隨時使用此工具嗎？<br>
+                    前往 <span>LAN App Store</span> 下冊離線版本或更多專業工具。
+                </div>
+                <a href="/lan.appstore.html" class="btn-store">前往應用商店</a>
+            </div>
+
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // 排名輸入框切換
+        document.getElementById('calc-rank').addEventListener('change', function() {
+            document.getElementById('ranking-inputs').style.display = this.checked ? 'block' : 'none';
+        });
+
+        function calculate() {
+            const ch = parseFloat(document.getElementById('ch').value) || 0;
+            const en = parseFloat(document.getElementById('en').value) || 0;
+            const ma = parseFloat(document.getElementById('ma').value) || 0;
+            const ss = parseFloat(document.getElementById('ss').value) || 0;
+            const fs = parseFloat(document.getElementById('fs').value) || 0;
+
+            const calcAvg = document.getElementById('calc-avg').checked;
+            const calcTotal = document.getElementById('calc-total').checked;
+            const calcRank = document.getElementById('calc-rank').checked;
+
+            const pr = parseFloat(document.getElementById('pr').value) || 0;
+            const can = parseFloat(document.getElementById('can').value) || 0;
+
+            const totalScore = ch + en + ma + ss + fs;
+            const resDiv = document.getElementById('results');
+            
+            let resultsHTML = '<h3>計算結果</h3>';
+            resultsHTML += `<p>📝 各科概覽：${ch}, ${en}, ${ma}, ${ss}, ${fs}</p>`;
+
+            if (calcAvg) {
+                resultsHTML += `<p>💡 平均分數：<span style="color:var(--primary-dark)">${(totalScore / 5).toFixed(2)}</span></p>`;
+            }
+            if (calcTotal) {
+                resultsHTML += `<p>📊 總成績：<span style="color:var(--primary-dark)">${totalScore}</span></p>`;
+            }
+            if (calcRank && can > 0 && pr > 0) {
+                const rank = Math.floor(can * (1 - (pr / 100)));
+                resultsHTML += `<p>🚩 預估排名：<span style="color:var(--accent-blue)">約第 ${rank} 名</span></p>`;
+            }
+
+            resDiv.innerHTML = resultsHTML;
+            resDiv.style.display = 'block';
+        }
+
+        function saveToFile() {
+            const ch = parseFloat(document.getElementById('ch').value) || 0;
+            const en = parseFloat(document.getElementById('en').value) || 0;
+            const ma = parseFloat(document.getElementById('ma').value) || 0;
+            const ss = parseFloat(document.getElementById('ss').value) || 0;
+            const fs = parseFloat(document.getElementById('fs').value) || 0;
+            const calcAvg = document.getElementById('calc-avg').checked;
+            const calcTotal = document.getElementById('calc-total').checked;
+            const calcRank = document.getElementById('calc-rank').checked;
+            const pr = parseFloat(document.getElementById('pr').value) || 0;
+            const can = parseFloat(document.getElementById('can').value) || 0;
+            const totalScore = ch + en + ma + ss + fs;
+
+            const title = prompt("請輸入此次紀錄標題:", "學期成績單");
+            if (!title) return;
+
+            let content = `===== ${title} =====\n\n`;
+            content += `紀錄時間：${new Date().toLocaleString()}\n`;
+            content += `--------------------------\n`;
+            content += `國文: ${ch}\n英文: ${en}\n數學: ${ma}\n社會: ${ss}\n自然: ${fs}\n`;
+            content += `--------------------------\n`;
+
+            if (calcAvg) content += `平均分數: ${(totalScore / 5).toFixed(2)}\n`;
+            if (calcTotal) content += `總成績: ${totalScore}\n`;
+            if (calcRank && can > 0 && pr > 0) {
+                const rank = Math.floor(can * (1 - (pr / 100)));
+                content += `預估排名: ${rank}\n`;
+            }
+            content += `\n產自 LAN Studio 數位工具箱\n`;
+            content += "=========================";
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.txt`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+    </script>
+    <script type="module" src="/navbar.js" defer></script>
+</body>
+</html>
