@@ -180,9 +180,8 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
-                <a href="#"  class="ai-notice-navbar">最近更新 ▾▾▾</a>
-                <a href="/app/note.html"><b>雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/app/grade_calculator.html"><b>學期成績計算</b></a>
                 <a href="/tool/pomodoro.html"><b>新版番茄鐘</b></a>
                 <a href="/tool/time.html"><b>現在時間</b></a>
             </div>
