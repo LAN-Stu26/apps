@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計時與碼表 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --default-yellow: #ffd966;
+            --primary-dark: #ffd966;
+            --bg-color: #1d1d1d;
+            --secondary-dark: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 5px;
+            border-radius: 50px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: #888;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-dark);
+            color: var(--bg-color);
+        }
+
+        #time-container {
+            font-size: 8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .times-up {
+            animation: blink 1s infinite;
+            color: #ff5e5e !important;
+        }
+
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        #status-display {
+            font-size: 1.4rem;
+            color: #888;
+            margin-bottom: 40px;
+            min-height: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .controls button, .modal button {
+            background-color: var(--primary-dark);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        .controls button:hover, .modal button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .controls button.secondary, .modal button.secondary {
+            background-color: #444;
+            color: white;
+        }
+
+        /* 彈窗樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background-color: var(--secondary-dark);
+            margin: 10% auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 15px;
+            border: 1px solid #444;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .input-group {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            background: #1d1d1d;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            width: 90px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            #time-container { font-size: 4.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="mode-selector">
+            <button class="mode-btn active" id="mode-countdown">倒數計時</button>
+            <button class="mode-btn" id="mode-stopwatch">碼表功能</button>
+        </div>
+
+        <div id="time-container">00:00</div>
+        <div id="status-display">準備就緒</div>
+
+        <div class="controls">
+            <button id="main-action-btn">▶ 開始</button>
+            <button id="reset-btn" class="secondary">↺ 重設</button>
+            <button id="set-time-btn">⏱ 設定時間</button>
+            <button id="settings-btn" class="secondary">⚙️</button>
+        </div>
+    </div>
+
+    <div id="timeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('timeModal')">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 10px;">設定倒數時間</h2>
+            <div class="input-group">
+                <input type="number" id="input-hour" value="0" min="0">
+                <span>時</span>
+                <input type="number" id="input-min" value="25" min="0">
+                <span>分</span>
+                <input type="number" id="input-sec" value="00" min="0" max="59">
+                <span>秒</span>
+            </div>
+            <button onclick="applyCustomTime()" style="width: 100%;">確認</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 20px;">偏好設定</h2>
+            <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;">
+                顯示小時
+                <input type="checkbox" id="show-hours-checkbox">
+            </label>
+            <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;">
+                顯示秒數
+                <input type="checkbox" id="show-seconds-checkbox" checked>
+            </label>
+            <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                主題顏色
+                <input type="color" id="timeColorPicker" value="#ffd966" style="border:none; width:40px; height:40px; background:none;">
+            </label>
+            <button id="reset-all-btn" style="width: 100%; margin-top: 30px; background-color: #e74c3c; color: white;">恢復預設</button>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_COLOR = '#ffd966';
+        let timerState = {
+            mode: 'countdown', // 'countdown' or 'stopwatch'
+            remaining: 1500,   // 倒數剩餘秒數
+            initial: 1500,     // 倒數初始秒數
+            elapsed: 0,        // 碼表經過秒數
+            isRunning: false,
+            color: DEFAULT_COLOR,
+            showHours: false,
+            showSeconds: true
+        };
+
+        let interval = null;
+
+        function updateDisplay() {
+            let totalSeconds = timerState.mode === 'countdown' ? timerState.remaining : timerState.elapsed;
+            
+            const hours = Math.floor(totalSeconds / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            
+            let displayStr = '';
+
+            if (timerState.showHours) {
+                displayStr += `${hours.toString().padStart(2, '0')}:`;
+            }
+            
+            displayStr += `${mins.toString().padStart(2, '0')}`;
+
+            if (timerState.showSeconds) {
+                displayStr += `:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            const container = document.getElementById('time-container');
+            container.textContent = displayStr;
+            
+            // 按鈕文字切換
+            const mainBtn = document.getElementById('main-action-btn');
+            mainBtn.textContent = timerState.isRunning ? "|| 暫停" : "▶ 開始";
+            
+            // 倒數結束效果
+            if (timerState.mode === 'countdown' && timerState.remaining === 0) {
+                container.classList.add('times-up');
+                document.getElementById('status-display').textContent = "時間到！";
+            } else {
+                container.classList.remove('times-up');
+                document.getElementById('status-display').textContent = timerState.isRunning ? "運行中..." : "暫停中";
+            }
+        }
+
+        function toggleTimer() {
+            if (timerState.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timerState.mode === 'countdown' && timerState.remaining <= 0) return;
+            
+            timerState.isRunning = true;
+            interval = setInterval(() => {
+                if (timerState.mode === 'countdown') {
+                    if (timerState.remaining > 0) {
+                        timerState.remaining--;
+                    } else {
+                        pauseTimer();
+                    }
+                } else {
+                    timerState.elapsed++;
+                }
+                updateDisplay();
+            }, 1000);
+            updateDisplay();
+        }
+
+        function pauseTimer() {
+            timerState.isRunning = false;
+            clearInterval(interval);
+            updateDisplay();
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            if (timerState.mode === 'countdown') {
+                timerState.remaining = timerState.initial;
+            } else {
+                timerState.elapsed = 0;
+            }
+            updateDisplay();
+        }
+
+        function switchMode(newMode) {
+            pauseTimer();
+            timerState.mode = newMode;
+            
+            document.getElementById('mode-countdown').classList.toggle('active', newMode === 'countdown');
+            document.getElementById('mode-stopwatch').classList.toggle('active', newMode === 'stopwatch');
+            
+            // 碼表模式隱藏設定時間按鈕
+            document.getElementById('set-time-btn').style.display = newMode === 'countdown' ? 'inline-block' : 'none';
+            
+            resetTimer();
+        }
+
+        function applyCustomTime() {
+            const h = parseInt(document.getElementById('input-hour').value) || 0;
+            const m = parseInt(document.getElementById('input-min').value) || 0;
+            const s = parseInt(document.getElementById('input-sec').value) || 0;
+            timerState.initial = (h * 3600) + (m * 60) + s;
+            timerState.remaining = timerState.initial;
+            closeModal('timeModal');
+            resetTimer();
+        }
+
+        // 彈窗與設定
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        document.getElementById('main-action-btn').onclick = toggleTimer;
+        document.getElementById('reset-btn').onclick = resetTimer;
+        document.getElementById('mode-countdown').onclick = () => switchMode('countdown');
+        document.getElementById('mode-stopwatch').onclick = () => switchMode('stopwatch');
+        document.getElementById('set-time-btn').onclick = () => document.getElementById('timeModal').style.display = 'block';
+        document.getElementById('settings-btn').onclick = () => document.getElementById('settingsModal').style.display = 'block';
+
+        document.getElementById('timeColorPicker').oninput = (e) => {
+            timerState.color = e.target.value;
+            document.documentElement.style.setProperty('--primary-dark', timerState.color);
+        };
+
+        document.getElementById('reset-all-btn').onclick = () => {
+            if(confirm('重設所有設定？')) location.reload();
+        };
+
+        document.getElementById('show-hours-checkbox').onchange = (e) => {
+            timerState.showHours = e.target.checked;
+            updateDisplay();
+        };
+
+        document.getElementById('show-seconds-checkbox').onchange = (e) => {
+            timerState.showSeconds = e.target.checked;
+            updateDisplay();
+        };
+
+        // 初始化
+        updateDisplay();
+    </script>
+    
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
