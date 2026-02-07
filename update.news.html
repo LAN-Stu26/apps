@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新日誌 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gemini-gradient: linear-gradient(90deg, #4285f4 0%, #9b72cb 30%, #d96570 70%, #f3af5f 100%);
+            --dark-bg: #000000; /* 全黑背景 */
+            --card-bg: #1a1a1a; /* 深灰色卡片 */
+            --tag-python: #3776ab; /* Python 官方藍 */
+            --tag-web: #e44d26;    /* HTML5 官方橘 */
+            --tag-plan: #9b59b6;   /* 規劃中紫色 */
+            --tag-all: #7f8c8d;
+            --progress-line: #2c3e50;
+            --progress-active: #3498db;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #ffffff;
+            line-height: 1.6;
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding-top: 60px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: var(--gemini-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        /* --- 分類選擇器 --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .filter-btn.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: bold;
+            border-color: #ffffff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+
+        /* --- 卡片樣式 --- */
+        .log-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .log-card:hover {
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .log-tag {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        /* 分類顏色 */
+        .tag-python { background: rgba(55, 118, 171, 0.2); color: #4b8bbe; border: 1px solid var(--tag-python); }
+        .tag-web { background: rgba(228, 77, 38, 0.2); color: #ff6d49; border: 1px solid var(--tag-web); }
+        .tag-plan { background: rgba(155, 89, 182, 0.2); color: #c39bd3; border: 1px solid var(--tag-plan); }
+
+        .log-date {
+            float: right;
+            color: #555;
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        .log-title {
+            font-size: 1.3rem;
+            margin: 0 0 15px 0;
+            color: #eee;
+        }
+
+        /* --- 進度條 (Progress Bar) --- */
+        .progress-stepper {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0 10px 0;
+            position: relative;
+        }
+
+        .progress-stepper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: var(--progress-line);
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            background: #222;
+            border: 2px solid var(--progress-line);
+            border-radius: 50%;
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.4s;
+        }
+
+        .step.completed .step-icon {
+            background: var(--progress-active);
+            border-color: var(--progress-active);
+            color: white;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .step.active .step-icon {
+            border-color: var(--progress-active);
+            animation: pulse 2s infinite;
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .step.completed .step-label, .step.active .step-label {
+            color: #fff;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 600px) {
+            .log-date { float: none; display: block; margin-bottom: 5px; }
+            .step-label { font-size: 0.6rem; transform: scale(0.9); }
+        }
+
+        /* 常用字元 [step completed ✓] [step active ⋯] [step ✘] */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>更新日誌</h1>
+            <p style="color: #666;">LAN Studio 開發足跡與進度追蹤</p>
+        </header>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterLogs('all')">全部</button>
+            <button class="filter-btn" onclick="filterLogs('python')">Python 程式檔案碼</button>
+            <button class="filter-btn" onclick="filterLogs('web')">網頁檔案</button>
+            <button class="filter-btn" onclick="filterLogs('plan')">規劃或執行當中</button>
+        </div>
+
+        <div id="log-list">
+            <div class="log-card" data-category="plan">
+                <span class="log-tag tag-plan">規劃或執行當中</span>
+                <span class="log-date">Python 規劃中</span>
+                <h2 class="log-title">新工具：時間工具套組</h2>
+<!-- 常用字元 [step completed ✓] [step active ⋯] [step] -->
+                <div class="progress-stepper">
+                    <div class="step active">
+                        <div class="step-icon">⋯</div>
+                        <div class="step-label">Python 規劃</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon"></div>
+                        <div class="step-label">上傳 Python 小品</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon"></div>
+                        <div class="step-label">AI 生成網頁</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon"></div>
+                        <div class="step-label">發布工具</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="log-card" data-category="python">
+                <span class="log-tag tag-python">學期成績計算</span>
+                <span class="log-date">2026-02-07</span>
+                <h2 class="log-title">已經在 lan.appstore.html 上架</h2>
+                <a href="/lan.appstore.html" style="color: #ffd966"><b>前往 LAN AppStore下載</b></a>
+            </div>
+
+            <div class="log-card" data-category="web">
+                <span class="log-tag tag-web">網頁檔案</span>
+                <span class="log-date">2026-02-07</span>
+                <h2 class="log-title">更新日至上線</h2>
+                <div style="color: #aaa; font-size: 0.9rem;">
+                    news.html 不在上傳更新資訊
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function filterLogs(category) {
+            // 按鈕切換
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+
+            // 卡片過濾
+            const cards = document.querySelectorAll('.log-card');
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (category === 'all' || cardCategory === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+    <script type="module" src="navbar.js"></script>
+</body>
+</html>
