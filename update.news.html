@@ -218,20 +218,19 @@
             <button class="filter-btn" onclick="filterLogs('web')">網頁檔案</button>
             <button class="filter-btn" onclick="filterLogs('plan')">規劃或執行當中</button>
         </div>
-
+        <!-- 常用字元 [step completed ✓] [step active ⋯] [step] -->
         <div id="log-list">
             <div class="log-card" data-category="plan">
                 <span class="log-tag tag-plan">規劃或執行當中</span>
                 <span class="log-date">發布與修正工具已完成! 2026-02-07</span>
                 <h2 class="log-title">新工具：時間工具套組</h2>
-<!-- 常用字元 [step completed ✓] [step active ⋯] [step] -->
                 <div class="progress-stepper">
                     <div class="step">
-                        <div class="step-icon">✘</div>
+                        <div class="step-icon">-</div>
                         <div class="step-label">Python 規劃(不執行)</div>
                     </div>
                     <div class="step">
-                        <div class="step-icon">✘</div>
+                        <div class="step-icon">-</div>
                         <div class="step-label">上傳 Python 小品(不執行)</div>
                     </div>
                     <div class="step completed">
@@ -243,6 +242,7 @@
                         <div class="step-label">發布與修正工具</div>
                     </div>
                 </div>
+                <a href="/tool/time.ing.html" style="color: #ffd966"><b>立即前往使用</b></a>
             </div>
 
             <div class="log-card" data-category="python">
