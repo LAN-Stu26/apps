@@ -207,6 +207,7 @@ const navbarHTML = `
                 <a href="/form/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
+        <li><a href="#" style="color: #ffd966" title="回到頂端"><b>▲</b></a></li>
         <li id="auth-area" class="dropdown">
             <a id="login-btn">載入中...</a>
         </li>
@@ -493,6 +494,7 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
+
 
 
 
