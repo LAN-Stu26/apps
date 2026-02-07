@@ -272,16 +272,28 @@
         <section class="download-group">
             <div class="requirement-notice">
                 <p class="requirement-text">⚠️ 提示：所有 Python 檔案皆需要 <b>Python 3.14.3</b> 環境執行。</p>
-                <a href="https://www.python.org/downloads/" target="_blank">
-                    <b style="display:flex; align-items:center; gap:6px;">
-                        <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg> 
-                        前往下載
-                    </b>
-                </a>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="https://www.python.org/downloads/" target="_blank">
+                        <b style="display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg> 
+                            前往官方網站下載
+                        </b>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=ru.iiec.pydroid3&pcampaignid=web_share" target="_blank">
+                        <b style="display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg> 
+                            Google Play 推薦執行程式
+                        </b>
+                    </a>
+                </div>
             </div>
 
             <h2 class="section-title">🐍 Python 工具與腳本</h2>
@@ -351,7 +363,7 @@
                 if (installedVersion) {
                     if (installedVersion === app.version) {
                         // 已安裝且是最新版
-                        btnText = "已安裝";
+                        btnText = "(曾經)安裝過";
                         btnClass = "btn-installed";
                         statusInfo = `已安裝: v${installedVersion}`;
                     } else if (compareVersions(app.version, installedVersion) > 0) {
