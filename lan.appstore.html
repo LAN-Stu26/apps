@@ -362,7 +362,7 @@
                 // 判斷狀態
                 if (installedVersion) {
                     if (installedVersion === app.version) {
-                        // 已安裝且是最新版
+                        // 已安裝且是最新版 註:幾何遊戲幫助改善
                         btnText = "(曾經)安裝過";
                         btnClass = "btn-installed";
                         statusInfo = `已安裝: v${installedVersion}`;
@@ -407,8 +407,8 @@
 
         // 處理下載邏輯
         async function handleDownload(app, currentStatus) {
-            // 如果已安裝，詢問是否重新下載 (避免誤觸)
-            if (currentStatus === "已安裝") {
+            // 如果(曾經)安裝過，詢問是否重新下載 (避免誤觸)
+            if (currentStatus === "(曾經)安裝過") {
                 if(!confirm(`您已擁有最新版本的 ${app.name}，確定要重新下載嗎？`)) return;
             }
 
