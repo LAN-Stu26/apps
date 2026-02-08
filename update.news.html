@@ -195,6 +195,38 @@
             100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
         }
 
+        .card-actions {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .share-btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 5px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .share-btn:hover {
+            background: #444;
+            color: #fff;
+            border-color: #777;
+        }
+
+        .share-btn:disabled {
+            background: #27ae60;
+            color: #fff;
+            cursor: default;
+            border-color: #27ae60;
+        }
+
         .hidden { display: none; }
 
         @media (max-width: 600px) {
@@ -221,17 +253,20 @@
         <!-- 常用字元 [step completed ✓] [step active ⋯] [step] -->
         <div id="log-list">
 
-            <div class="log-card" data-category="web">
+            <div id="20260208.2" class="log-card" data-category="web" style="scroll-margin-top: 150px;">
                 <span class="log-tag tag-web">網頁檔案</span>
                 <span class="log-date">2026-02-08</span>
                 <h2 class="log-title">time.html 新增防烙印功能</h2>
                 <div style="color: #aaa; font-size: 0.9rem;">
                     在全螢幕模式下，所有字樣將會有細微的隨機位移，防止螢幕烙印問題。
                 </div>
-                <a href="/tool/time.html" style="color: #ffd966"><b>立即前往使用</b></a>
+                <div class="card-actions">
+                    <a href="/tool/time.html" style="color: #ffd966"><b>立即前往使用</b></a>
+                    <button class="share-btn">分享</button>
+                </div>
             </div>
 
-            <div class="log-card" data-category="plan">
+            <div id="20260208.1" class="log-card" data-category="plan" style="scroll-margin-top: 150px;">
                 <span class="log-tag tag-plan">規劃或執行當中</span>
                 <span class="log-date">發布&修正工具已完成! 2026-02-08</span>
                 <h2 class="log-title">新工具：QRCode 工具</h2>
@@ -252,6 +287,10 @@
                         <div class="step-icon">✓</div>
                         <div class="step-label">發布&修正工具</div>
                     </div>
+                </div>
+                <div class="card-actions">
+                    <a href="/app/qreditor.html" style="color: #ffd966"><b>立即前往使用</b></a>
+                    <button class="share-btn">分享</button>
                 </div>
             </div>
 
@@ -322,6 +361,40 @@
                 }
             });
         }
+
+        document.querySelectorAll('.share-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const card = button.closest('.log-card[id]');
+                if (!card) return;
+
+                const cardId = card.id;
+                const url = `https://lan.ddns.net/update.news.html#${cardId}`;
+                const title = card.querySelector('.log-title')?.textContent || 'LAN Studio 更新日誌';
+                const text = `查看 LAN Studio 的更新：「${title}」`;
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({ title, text, url });
+                    } catch (err) {
+                        console.log('Share was cancelled or failed.', err);
+                    }
+                } else {
+                    try {
+                        await navigator.clipboard.writeText(url);
+                        const originalText = button.textContent;
+                        button.textContent = '已複製連結！';
+                        button.disabled = true;
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                            button.disabled = false;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy URL:', err);
+                        alert('複製連結失敗！您的瀏覽器可能不支援此功能。');
+                    }
+                }
+            });
+        });
     </script>
     <script type="module" src="navbar.js"></script>
 </body>
