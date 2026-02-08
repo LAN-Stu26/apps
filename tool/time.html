@@ -234,6 +234,9 @@
                 <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: pointer; font-size: 1.1rem;">
                     <input type="checkbox" id="showDateToggle" style="width: 18px; height: 18px;" checked> 顯示日期資訊
                 </label>
+                <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: pointer; font-size: 1.1rem;">
+                    <input type="checkbox" id="burnInProtectionToggle" style="width: 18px; height: 18px;" checked> 開啟全螢幕防烙印模式
+                </label>
                 <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1.1rem;">
                     時間文字顏色：
                     <input type="color" id="timeColorPicker" value="#ffd966" style="border: none; width: 40px; height: 40px; background: none; cursor: pointer;">
@@ -268,13 +271,16 @@
         let state = {
             timezone: 'Asia/Taipei',
             showDate: true,
-            color: DEFAULT_COLOR
+            color: DEFAULT_COLOR,
+            burnInProtection: true
         };
 
         function loadState() {
             const saved = localStorage.getItem('timeClockState');
             if (saved) {
-                state = { ...state, ...JSON.parse(saved) };
+                const savedState = JSON.parse(saved);
+                // Ensure new properties have default values if not in localStorage
+                state = { ...state, ...savedState };
             }
             applyState();
         }
@@ -287,6 +293,7 @@
             document.documentElement.style.setProperty('--primary-dark', state.color);
             document.getElementById('timeColorPicker').value = state.color;
             document.getElementById('showDateToggle').checked = state.showDate;
+            document.getElementById('burnInProtectionToggle').checked = state.burnInProtection;
             renderTimezoneButtons();
             updateTime();
         }
@@ -313,7 +320,7 @@
             }
 
             // 全螢幕防烙印
-            if (document.body.classList.contains('fullscreen')) {
+            if (document.body.classList.contains('fullscreen') && state.burnInProtection) {
                 const x = Math.floor(Math.random() * 5) - 2; // -2 to 2
                 const y = Math.floor(Math.random() * 5) - 2; // -2 to 2
                 timeContainer.style.transform = `translate(${x}px, ${y}px)`;
@@ -373,6 +380,11 @@
             updateTime();
         };
 
+        document.getElementById('burnInProtectionToggle').onchange = (e) => {
+            state.burnInProtection = e.target.checked;
+            saveState();
+        };
+
         document.getElementById('timeColorPicker').oninput = (e) => {
             state.color = e.target.value;
             document.documentElement.style.setProperty('--primary-dark', state.color);
@@ -385,7 +397,8 @@
                 state = {
                     timezone: 'Asia/Taipei',
                     showDate: true,
-                    color: DEFAULT_COLOR
+                    color: DEFAULT_COLOR,
+                    burnInProtection: true
                 };
                 applyState();
                 closeModal('settingsModal');
