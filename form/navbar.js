@@ -207,7 +207,6 @@ const navbarHTML = `
                 <a href="/form/improve-website.html"><b>改善表單</b></a>
             </div>
         </li>
-        <li><a href="#" style="color: #ffd966" title="回到頂端"><b>▲</b></a></li>
         <li id="auth-area" class="dropdown">
             <a id="login-btn">載入中...</a>
         </li>
@@ -250,7 +249,7 @@ const footerHTML = `
     <div class="footer-top">
         <div class="breadcrumb-box">
             <h4 style="margin:0; font-size:0.85rem; color:#aaa;">您現在位置...</h4>
-            <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
+            <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent} <a href="#" style="color: #858585; text-decoration: none;" title="回到頂端"><b>  ▲ TOP</b></a></p>
         </div>
         <div class="ai-notice">Studio JS v3.0 <br> 所有頁面皆由 AI 生成</div>
     </div>
