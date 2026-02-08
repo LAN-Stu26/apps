@@ -297,9 +297,11 @@
                 timeZone: state.timezone, 
                 hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
             });
-            document.getElementById('current-time').textContent = timeStr;
-
+            const timeContainer = document.getElementById('time-container');
             const dateDisplay = document.getElementById('date-display');
+
+            timeContainer.querySelector('#current-time').textContent = timeStr;
+
             if (state.showDate) {
                 dateDisplay.style.setProperty('display', 'block', 'important');
                 dateDisplay.textContent = now.toLocaleDateString('zh-Hant', {
@@ -308,6 +310,14 @@
                 });
             } else {
                 dateDisplay.style.setProperty('display', 'none', 'important');
+            }
+
+            // 全螢幕防烙印
+            if (document.body.classList.contains('fullscreen')) {
+                const x = Math.floor(Math.random() * 5) - 2; // -2 to 2
+                const y = Math.floor(Math.random() * 5) - 2; // -2 to 2
+                timeContainer.style.transform = `translate(${x}px, ${y}px)`;
+                dateDisplay.style.transform = `translate(${x}px, ${y}px)`;
             }
         }
 
@@ -325,6 +335,11 @@
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.body.classList.remove('fullscreen');
+                // 離開全螢幕時重設位置
+                const timeContainer = document.getElementById('time-container');
+                const dateDisplay = document.getElementById('date-display');
+                timeContainer.style.transform = 'translate(0, 0)';
+                dateDisplay.style.transform = 'translate(0, 0)';
             }
         });
 
