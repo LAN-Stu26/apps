@@ -47,8 +47,18 @@ const style = `
     }
 
     #custom-navbar .logo { 
-        color: #ffd966; font-weight: bold; font-size: 1.4rem; 
-        white-space: nowrap; margin-right: auto;
+        color: #ffd966; 
+        font-weight: bold; 
+        font-size: 1.4rem; 
+        white-space: nowrap; 
+        margin-right: auto;
+        text-decoration: none; /* 移除超連結底線 */
+        display: inline-block; /* 確保邊距和寬度正確計算 */
+    }
+
+    /* 選擇性：增加滑鼠懸停效果，讓使用者知道它是可以點擊的 */
+    #custom-navbar .logo:hover {
+        color: #ffebad; /* 稍微變亮的顏色 */
     }
 
     #nav-list { 
@@ -172,7 +182,7 @@ const style = `
 // 3. HTML 生成
 const navbarHTML = `
 <nav id="custom-navbar">
-    <div class="logo">LAN Studio</div>
+    <a href="/home.html" class="logo">LAN Studio</a>
     <ul id="nav-list">
         <li><a href="/home.html"><b>首頁</b></a></li>
         <li class="dropdown">
@@ -230,6 +240,14 @@ const navbarHTML = `
         <span></span><span></span><span></span>
     </div>
 </nav>
+
+<div id="announcement-bar"  style="display: none;">
+    <div class="bar-content">No message</div>
+    <div class="bar-actions">
+        <a href="#No message" class="btn-bar-go">No message</a>
+        <button class="btn-bar-close" id="close-bar">×</button>
+    </div>
+</div>
 `;
 
 let pageTitle = document.title.split('-')[0].trim();
@@ -241,9 +259,14 @@ const footerHTML = `
     <div class="footer-top">
         <div class="breadcrumb-box">
             <h4 style="margin:0; font-size:0.85rem; color:#aaa;">您現在位置...</h4>
-            <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent} <a href="#" style="color: #858585; text-decoration: none;" title="回到頂端"><b>  ▲ TOP</b></a></p>
+            <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
         <div class="ai-notice">Studio JS v3.0 <br> 所有頁面皆由 AI 生成</div>
+    </div>
+    <div style="text-align:center; color: #aaa; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
+        <a href="#" style="color: #aaa; text-decoration:none; margin: 0 10px;"><b>回到頂端</b></a> |
+        <a href="/form/improve-website.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">改善網站</a> |
+        <a href="/update.news.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">更新日誌</a>
     </div>
     <div style="text-align:center; font-size:0.85rem; color:#555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio 版權所有</div>
 </footer>
@@ -485,12 +508,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
-
-
-
-
-
-
-
-
-
