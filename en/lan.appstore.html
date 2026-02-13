@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="LAN Studio - Python App Store">
+    <meta property="og:title" content="LAN Studio | App Store">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python App Store - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --accent-green: #2ecc71;
+            --accent-gray: #95a5a6;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --text-gray: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* --- 頁首區 --- */
+        .hero-header {
+            position: relative;
+            width: 100%; 
+            height: 400px;
+            background-color: #000;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden;
+            margin-top: 0; 
+        }
+
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.6);
+        }
+
+        .hero-title-box {
+            position: relative;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            letter-spacing: 6px;
+        }
+
+        .hero-subtitle {
+            color: white;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* --- 主內容區 --- */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            margin-bottom: 30px; 
+            color: var(--primary-dark);
+            border-left: 4px solid var(--primary-dark);
+            padding-left: 15px;
+            display: block;
+        }
+
+        .download-group {
+            margin-bottom: 60px;
+        }
+
+        /* 需求提示公告樣式 */
+        .requirement-notice {
+            background: rgba(255, 217, 102, 0.1);
+            border: 1px dashed var(--primary-dark);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .requirement-text {
+            color: #eee;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .requirement-notice a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .requirement-notice a:hover {
+            opacity: 0.8;
+        }
+
+        /* --- 網格排版 --- */
+        .file-grid {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .file-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1023px) {
+            .file-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .file-item {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-item:hover {
+            background: #3d3d3d;
+            transform: translateY(-3px);
+            border-color: var(--accent-blue);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .file-icon {
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            flex-shrink: 0;
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .file-name {
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-version {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-left: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        /* 按鈕狀態樣式 */
+        .btn-download {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .btn-update {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        .btn-installed {
+            background: rgba(149, 165, 166, 0.1);
+            color: var(--accent-gray);
+            border: 1px solid var(--accent-gray);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+
+        @media (max-width: 600px) { 
+            .hero-title { font-size: 2.5rem; }
+            .hero-header { height: 250px; }
+            .container { margin: 30px auto; }
+        }
+        .badge-latest {
+            background-color: var(--accent-green);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <header class="hero-header">
+        <img src="/圖片/Rainy_day_bokeh_background.png" alt="Banner" class="hero-image">
+        <div class="hero-title-box">
+            <h1 class="hero-title">Python App Store</h1>
+            <div class="hero-subtitle">LAN Studio App Store</div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <section class="download-group">
+            <div class="requirement-notice">
+                <p class="requirement-text">⚠️ Notice: All Python files require <b>Python 3.14.3</b> environment to run.</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="https://www.python.org/downloads/" target="_blank">
+                        <b style="display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg> 
+                            Go to the official website to download
+                        </b>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=ru.iiec.pydroid3&pcampaignid=web_share" target="_blank">
+                        <b style="display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg> 
+                            Google Play Recommended Execution App
+                        </b>
+                    </a>
+                </div>
+            </div>
+
+            <h2 class="section-title">🐍 Python Tools & Scripts</h2>
+            <div id="app-list" class="file-grid">
+                <div style="color: gray; padding: 20px;">Loading...</div>
+            </div>
+        </section>
+
+    </div>
+
+    <script type="module" src="/en/navbar.js" defer></script>
+    
+    <script>
+        // 定義應用程式資料
+        const appsData = {
+            "Website crawler tools": {
+                "name": "Website crawler tools",
+                "version": "1.0",
+                "filename": "Website crawler tools.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Website crawler tools.py",
+                "isNew": true
+            },
+            "Guess the number": {
+                "name": "Guess the number",
+                "version": "1.0",
+                "filename": "Guess the number.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Guess the number.py",
+            },
+            "Semester grade calculation": {
+                "name": "Semester grade calculation",
+                "version": "1.0",
+                "filename": "Semester grade calculation.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Semester grade calculation.py"
+            }
+        };
+
+        const STORAGE_KEY = 'lan_installed_apps_v1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAppList();
+        });
+
+        // 取得使用者已安裝的列表
+        function getInstalledApps() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        // 儲存安裝紀錄
+        function saveInstalledApp(appName, version) {
+            const installed = getInstalledApps();
+            installed[appName] = version;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(installed));
+            renderAppList(); // 重新渲染介面
+        }
+
+        // 渲染列表
+        function renderAppList() {
+            const listContainer = document.getElementById('app-list');
+            const installedApps = getInstalledApps();
+            
+            listContainer.innerHTML = ''; // 清空列表
+
+            Object.keys(appsData).forEach(key => {
+                const app = appsData[key];
+                const installedVersion = installedApps[app.name];
+                
+                let btnText = "download";
+                let btnClass = "btn-download";
+                let statusInfo = `latest version: v${app.version}`;
+
+                // 判斷狀態
+                if (installedVersion) {
+                    if (installedVersion === app.version) {
+                        // 已安裝且是最新版 註:幾何遊戲幫助改善
+                        btnText = "(Previously) Installed";
+                        btnClass = "btn-installed";
+                        statusInfo = `Installed: v${installedVersion}`;
+                    } else if (compareVersions(app.version, installedVersion) > 0) {
+                        // 伺服器版本較新
+                        btnText = "New version available";
+                        btnClass = "btn-update";
+                        statusInfo = `at present: v${installedVersion} ➜ new version: v${app.version}`;
+                    }
+                }
+
+                // 建立 HTML 元素
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                
+                let latestBadge = '';
+                if (app.isNew) {
+                    latestBadge = `<span class="badge-latest">Latest</span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">🐍</span>
+                        <div class="file-details">
+                            <span class="file-name">${app.name}${latestBadge}</span>
+                            <span class="file-version">${statusInfo}</span>
+                        </div>
+                    </div>
+                    <span class="status-badge ${btnClass}">${btnText}</span>
+                `;
+
+                // 點擊事件
+                item.addEventListener('click', () => handleDownload(app, btnText));
+                listContainer.appendChild(item);
+            });
+        }
+
+        // 版本比較函數
+        function compareVersions(v1, v2) {
+            return v1.localeCompare(v2, undefined, { numeric: true, sensitivity: 'base' });
+        }
+
+        // 處理下載邏輯
+        async function handleDownload(app, currentStatus) {
+            // 如果(曾經)安裝過，詢問是否重新下載 (避免誤觸)
+            if (currentStatus === "(Previously) Installed") {
+                if(!confirm(`You already have the latest version of ${app.name}, are you sure you want to re-download it?`)) return;
+            }
+
+            try {
+                // 1. 轉換 URL 為 Raw 格式 (如果是 GitHub Blob)
+                let downloadUrl = app.url;
+                if (downloadUrl.includes('github.com') && downloadUrl.includes('/blob/')) {
+                    downloadUrl = downloadUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+                }
+
+                // 2. 抓取檔案內容
+                const response = await fetch(downloadUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const blob = await response.blob();
+
+                // 3. 建立新的檔名 (加上版本號)
+                const originalName = app.filename.replace('.py', '');
+                const newFileName = `${originalName}-v${app.version}.py`;
+
+                // 4. 觸發瀏覽器下載
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = newFileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                // 清理
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // 5. 更新本地紀錄
+                saveInstalledApp(app.name, app.version);
+
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert("Download failed, please check your network connection or try again later.");
+            }
+        }
+    </script>
+</body>
+</html>
