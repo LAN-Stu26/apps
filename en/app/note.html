@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note - LAN Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #ffd966; --bg: #1d1d1d; --card: #2d2d2d; --danger: #e74c3c; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Noto Sans TC', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: 80px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 佈局容器 */
+        .main-layout { 
+            display: flex; 
+            flex: 1;
+            max-width: 1200px; 
+            margin: 0 auto; /* 留出 navbar 空間 */
+            gap: 20px; 
+            padding: 0 20px; 
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        /* 左側筆記清單 */
+        .sidebar { 
+            width: 300px; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header { 
+            padding: 15px; 
+            background: #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--gold);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .add-btn { 
+            cursor: pointer; 
+            color: var(--gold); 
+            font-size: 1.5rem; 
+            background: none; 
+            border: none; 
+            line-height: 1;
+        }
+
+        #note-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            list-style: none; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        #note-list li { 
+            padding: 15px; 
+            border-bottom: 1px solid #3d3d3d; 
+            cursor: pointer; 
+            transition: 0.2s;
+            color: #bbb;
+            word-break: break-all;
+        }
+
+        #note-list li:hover { background: #3d3d3d; color: white; }
+        #note-list li.active { 
+            border-left: 4px solid var(--gold); 
+            background: #3d3d3d; 
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 右側編輯器 */
+        .editor-area { 
+            flex: 1; 
+            background: var(--card); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 20px; 
+            position: relative; 
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .toolbar { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 15px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button { 
+            background: #444; 
+            border: none; 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+        }
+
+        .toolbar button:hover { background: var(--gold); color: black; }
+        .mobile-back { display: none; background: #555 !important; }
+
+        #editor-title { 
+            background: transparent; 
+            border: none; 
+            color: var(--gold); 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            outline: none; 
+            margin-bottom: 10px; 
+            width: 100%;
+        }
+
+        #editor-body { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: #ddd; 
+            outline: none; 
+            overflow-y: auto; 
+            line-height: 1.6; 
+            font-size: 1.05rem;
+        }
+
+        #editor-body[contenteditable]:empty:before { 
+            content: "Enter content here..."; 
+            color: #666; 
+        }
+
+        #save-indicator { 
+            text-align: right;
+            font-size: 0.75rem; 
+            color: #666; 
+            margin-top: 5px;
+        }
+        
+        #login-overlay { 
+            text-align: center; 
+            margin-top: 150px; 
+            color: var(--gold); 
+        }
+
+        /* 手機模式適配 */
+        @media (max-width: 768px) {
+            .main-layout { margin-top: 70px; gap: 0; padding: 0 10px; }
+            
+            /* 手機版切換邏輯 */
+            .sidebar { width: 100%; display: flex; }
+            .editor-area { display: none; }
+            
+            /* 當啟動編輯模式時 */
+            body.editing .sidebar { display: none; }
+            body.editing .editor-area { display: flex; width: 100%; }
+            body.editing .mobile-back { display: block; }
+
+            .toolbar button { padding: 8px 10px; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1d1d1d; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout" id="main-ui" style="display: none;">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span>My Notes 🔐</span>
+                <button class="add-btn" id="add-note-btn" title="Add note">+</button>
+            </div>
+            <ul id="note-list"></ul>
+        </div>
+
+        <div class="editor-area" id="editor-container" style="visibility: hidden;">
+            <div class="toolbar">
+                <button class="mobile-back" onclick="closeEditor()">← Back</button>
+                <button onclick="execCmd('bold')"><b>B</b></button>
+                <button onclick="execCmd('italic')"><i>I</i></button>
+                <button onclick="execCmd('createLink', prompt('URL:'))">🔗</button>
+                <button onclick="deleteCurrentNote()" style="background:var(--danger); margin-left:auto;">🗑️ Delete</button>
+            </div>
+            <input type="text" id="editor-title" placeholder="Untitled Note">
+            <div id="editor-body" contenteditable="true"></div>
+            <div id="save-indicator">Stored encrypted</div>
+        </div>
+
+        <div id="no-note-selected" style="flex:1; display:flex; justify-content:center; align-items:center; color:#555; text-align:center;">
+            <h3>Please select or add a note</h3>
+        </div>
+    </div>
+
+    <div id="login-overlay" style="display: none;"><h2>🔐 Please log in first to open the encrypted space</h2></div>
+
+    <script type="module">
+        import { auth } from "./navbar.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore();
+        let currentNoteId = null;
+        let saveTimeout = null;
+
+        const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
+        const decrypt = (ciphertext, key) => {
+            if (!ciphertext) return "";
+            try {
+                const bytes = CryptoJS.AES.decrypt(ciphertext, key);
+                return bytes.toString(CryptoJS.enc.Utf8) || "";
+            } catch (e) { return " (Decryption failed) "; }
+        };
+
+        window.execCmd = (cmd, val = null) => {
+            document.execCommand(cmd, false, val);
+            saveData();
+        };
+
+        window.closeEditor = () => {
+            document.body.classList.remove('editing');
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('main-ui').style.display = 'flex';
+                document.getElementById('login-overlay').style.display = 'none';
+                loadNoteList(user.uid);
+            } else {
+                document.getElementById('main-ui').style.display = 'none';
+                document.getElementById('login-overlay').style.display = 'block';
+            }
+        });
+
+        function loadNoteList(uid) {
+            const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("updatedAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const listEl = document.getElementById('note-list');
+                listEl.innerHTML = "";
+                
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const decTitle = decrypt(data.title, uid) || "Untitled Note";
+                    
+                    const li = document.createElement('li');
+                    li.innerText = decTitle;
+                    li.dataset.id = doc.id;
+                    
+                    if (doc.id === currentNoteId) {
+                        li.className = "active";
+                    }
+                    
+                    li.onclick = () => {
+                        // 更新 UI 選取狀態
+                        document.querySelectorAll('#note-list li').forEach(el => el.classList.remove('active'));
+                        li.classList.add('active');
+                        selectNote(doc.id, data);
+                    };
+                    listEl.appendChild(li);
+                });
+            });
+        }
+
+        function selectNote(id, data) {
+            currentNoteId = id;
+            const key = auth.currentUser.uid;
+            
+            document.getElementById('no-note-selected').style.display = 'none';
+            document.getElementById('editor-container').style.visibility = 'visible';
+            
+            // 手機模式切換
+            document.body.classList.add('editing');
+            
+            document.getElementById('editor-title').value = decrypt(data.title, key);
+            document.getElementById('editor-body').innerHTML = decrypt(data.content, key);
+        }
+
+        document.getElementById('add-note-btn').onclick = async () => {
+            if (!auth.currentUser) return;
+            const key = auth.currentUser.uid;
+            const newNoteRef = doc(collection(db, "notes"));
+            const initialTitle = "新筆記";
+            const newData = {
+                uid: key,
+                title: encrypt(initialTitle, key),
+                content: encrypt("", key),
+                updatedAt: serverTimestamp()
+            };
+            await setDoc(newNoteRef, newData);
+            selectNote(newNoteRef.id, newData);
+        };
+
+        function saveData() {
+            if (!currentNoteId || !auth.currentUser) return;
+            const key = auth.currentUser.uid;
+            const indicator = document.getElementById('save-indicator');
+            indicator.innerText = "🔐 Synchronizing...";
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                const titleVal = document.getElementById('editor-title').value;
+                const bodyVal = document.getElementById('editor-body').innerHTML;
+                
+                try {
+                    await setDoc(doc(db, "notes", currentNoteId), {
+                        title: encrypt(titleVal || "Untitled Note", key),
+                        content: encrypt(bodyVal, key),
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    indicator.innerText = "✅ Encrypted storage";
+                } catch (e) {
+                    indicator.innerText = "❌Save failed";
+                }
+            }, 1000);
+        }
+
+        window.deleteCurrentNote = async () => {
+            if (currentNoteId && confirm("Are you sure you want to permanently delete this note?")) {
+                await deleteDoc(doc(db, "notes", currentNoteId));
+                document.getElementById('editor-container').style.visibility = 'hidden';
+                document.getElementById('no-note-selected').style.display = 'flex';
+                currentNoteId = null;
+                closeEditor();
+            }
+        };
+
+        document.getElementById('editor-title').oninput = saveData;
+        document.getElementById('editor-body').oninput = saveData;
+    </script>
+    <script type="module" src="navbar.js"></script>
+</body>
+</html>

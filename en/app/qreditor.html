@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN Studio - QR Code & Barcode making tool</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --input-bg: #3d3d3d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* --- 頁首設計 (延續原有風格) --- */
+        .hero-header {
+            position: relative;
+            width: 100%; 
+            height: 300px;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/圖片/Rainy_day_bokeh_background.png');
+            background-size: cover;
+            background-position: center;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            letter-spacing: 5px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        /* --- 主內容區 --- */
+        .container {
+            max-width: 1000px;
+            margin: -50px auto 50px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- 切換按鈕 --- */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 25px;
+            border: 2px solid var(--accent-blue);
+            background: transparent;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-blue);
+        }
+
+        /* --- 版面配置 --- */
+        .generator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 850px) {
+            .generator-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2rem; }
+        }
+
+        /* --- 輸入元件 --- */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--primary-dark); font-size: 0.9rem; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* --- 預覽區 --- */
+        .preview-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white; /* 為了讓 QRCode 清楚顯示 */
+            padding: 20px;
+            border-radius: 12px;
+            min-height: 300px;
+        }
+
+        #barcode-preview { max-width: 100%; }
+
+        .btn-download {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-dark);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3);
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="hero-header">
+        <div class="hero-title-box">
+            <h1 class="hero-title">QRCode & Barcode making tool</h1>
+            <div style="color: white; opacity: 0.8; margin-top: 10px;">Quickly generate your own QR Code and Barcode</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('qrcode')">QRCode 製作</button>
+                <button class="tab-btn" onclick="switchTab('barcode')">barcode production</button>
+            </div>
+
+            <div class="generator-grid">
+                <div class="controls">
+                    <div id="qrcode-controls">
+                        <div class="input-group">
+                            <label>Content (maximum 50 words)</label>
+                            <textarea id="qr-data" maxlength="50" rows="3" placeholder="Enter URL or text...">https://lan.ddns.net</textarea>
+                            <div class="char-count"><span id="char-num">0</span>/50</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Dots</label>
+                            <select id="qr-dots">
+                                <option value="square">square</option>
+                                <option value="dots">dots</option>
+                                <option value="rounded">rounded corners</option>
+                                <option value="extra-rounded">Extremely rounded corners</option>
+                                <option value="classy">Fashion</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Corners</label>
+                            <select id="qr-corners">
+                                <option value="square">square</option>
+                                <option value="dot">dot</option>
+                                <option value="extra-rounded">extra rounded</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Center Logo Upload</label>
+                            <input type="file" id="qr-logo" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div id="barcode-controls" class="hidden">
+                        <div class="input-group">
+                            <label>barcode content</label>
+                            <input type="text" id="bar-data" placeholder="Enter numbers or letters..." value="12345678">
+                        </div>
+                        <div class="input-group">
+                            <label>Barcode Format</label>
+                            <select id="bar-format">
+                                <option value="CODE128">CODE128</option>
+                                <option value="EAN13">EAN13</option>
+                                <option value="PHARMACODE">PHARMACODE</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-area">
+                    <div class="preview-box">
+                        <div id="qrcode-canvas"></div>
+                        <svg id="barcode-preview" class="hidden"></svg>
+                    </div>
+                    <button class="btn-download" onclick="downloadFile()">Download archive (.png)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'qrcode';
+        let qrCode;
+
+        // 初始化 QRCode
+        function initQRCode() {
+            qrCode = new QRCodeStyling({
+                width: 250,
+                height: 250,
+                type: "svg",
+                data: "https://lan.ddns.net",
+                image: "",
+                dotsOptions: { color: "#000", type: "square" },
+                backgroundOptions: { color: "#fff" },
+                imageOptions: { crossOrigin: "anonymous", margin: 5 }
+            });
+            qrCode.append(document.getElementById("qrcode-canvas"));
+        }
+
+        // 更新 QRCode
+        function updateQR() {
+            const data = document.getElementById('qr-data').value;
+            const dotType = document.getElementById('qr-dots').value;
+            const cornerType = document.getElementById('qr-corners').value;
+            
+            document.getElementById('char-num').innerText = data.length;
+
+            qrCode.update({
+                data: data,
+                dotsOptions: { type: dotType },
+                cornersSquareOptions: { type: cornerType }
+            });
+        }
+
+        // 更新 Barcode
+        function updateBarcode() {
+            const data = document.getElementById('bar-data').value;
+            const format = document.getElementById('bar-format').value;
+            try {
+                JsBarcode("#barcode-preview", data, {
+                    format: format,
+                    lineColor: "#000",
+                    width: 2,
+                    height: 100,
+                    displayValue: true
+                });
+            } catch(e) {
+                console.log("Barcode format not supported");
+            }
+        }
+
+        // 切換 Tab
+        function switchTab(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if(mode === 'qrcode') {
+                document.getElementById('qrcode-controls').classList.remove('hidden');
+                document.getElementById('qrcode-canvas').classList.remove('hidden');
+                document.getElementById('barcode-controls').classList.add('hidden');
+                document.getElementById('barcode-preview').classList.add('hidden');
+            } else {
+                document.getElementById('qrcode-controls').classList.add('hidden');
+                document.getElementById('qrcode-canvas').classList.add('hidden');
+                document.getElementById('barcode-controls').classList.remove('hidden');
+                document.getElementById('barcode-preview').classList.remove('hidden');
+                updateBarcode();
+            }
+        }
+
+        // 處理圖片上傳
+        document.getElementById('qr-logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    qrCode.update({ image: event.target.result });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 下載功能
+        function downloadFile() {
+            if(currentMode === 'qrcode') {
+                qrCode.download({ name: "LAN_Studio_QRCode", extension: "png" });
+            } else {
+                const svg = document.getElementById("barcode-preview");
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const img = new Image();
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    const pngFile = canvas.toDataURL("image/png");
+                    const downloadLink = document.createElement("a");
+                    downloadLink.download = "LAN_Studio_Barcode.png";
+                    downloadLink.href = pngFile;
+                    downloadLink.click();
+                };
+                img.src = "data:image/svg+xml;base64," + btoa(svgData);
+            }
+        }
+
+        // 監聽輸入即時更新
+        document.getElementById('qr-data').addEventListener('input', updateQR);
+        document.getElementById('qr-dots').addEventListener('change', updateQR);
+        document.getElementById('qr-corners').addEventListener('change', updateQR);
+        document.getElementById('bar-data').addEventListener('input', updateBarcode);
+        document.getElementById('bar-format').addEventListener('change', updateBarcode);
+
+        // 啟動
+        window.onload = initQRCode;
+    </script>
+    <script type="module" src="navbar.js"></script></body>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --accent-green: #28a745;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --input-bg: #3d3d3d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding-top: 40px; /* 取代 Header 的頂部空間 */
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .calculator-card {
+            background: var(--card-bg);
+            padding: 40px; 
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        #ranking-inputs {
+            display: none;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-calc { background-color: var(--accent-blue); color: white; }
+        .btn-calc:hover { background-color: #2980b9; transform: translateY(-2px); }
+
+        .btn-save { background-color: var(--accent-green); color: white; }
+        .btn-save:hover { background-color: #218838; transform: translateY(-2px); }
+
+        /* --- 應用商店橫幅 --- */
+        .app-store-banner {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            border-radius: 12px;
+            border: 1px solid var(--accent-blue);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .banner-text {
+            font-size: 0.95rem;
+            color: #bdc3c7;
+            line-height: 1.5;
+        }
+
+        .banner-text span {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .btn-store {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-store:hover {
+            background-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px dashed #555;
+            display: none;
+        }
+
+        #results h3 { margin-top: 0; color: var(--primary-dark); border-bottom: 1px solid #444; padding-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .button-group { flex-direction: column; }
+            .section-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="section-title">Semester Grade Calculator</h2>
+        
+        <div class="calculator-card">
+            <div class="input-group">
+                <label for="ch">Chinese Domain Grade</label>
+                <input type="number" id="ch" placeholder="Enter grade">
+            </div>
+            <div class="input-group">
+                <label for="en">English Domain Grade</label>
+                <input type="number" id="en" placeholder="Enter grade">
+            </div>
+            <div class="input-group">
+                <label for="ma">Mathematics Domain Grade</label>
+                <input type="number" id="ma" placeholder="Enter grade">
+            </div>
+            <div class="input-group">
+                <label for="ss">Social Studies Domain Grade</label>
+                <input type="number" id="ss" placeholder="Enter grade">
+            </div>
+            <div class="input-group">
+                <label for="fs">Science Domain Grade</label>
+                <input type="number" id="fs" placeholder="Enter grade">
+            </div>
+
+            <div class="checkbox-container">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-avg"> Average Grade
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-total"> Total Grade
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="calc-rank"> Rank Calculation
+                </label>
+            </div>
+
+            <div id="ranking-inputs">
+                <div class="input-group">
+                    <label for="pr">PR Value</label>
+                    <input type="number" id="pr" placeholder="Enter PR">
+                </div>
+                <div class="input-group">
+                    <label for="can">Total Students</label>
+                    <input type="number" id="can" placeholder="Enter total students">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-calc" onclick="calculate()">Perform calculations</button>
+                <button class="btn-save" onclick="saveToFile()">Save Grades (.txt)</button>
+            </div>
+
+            <div class="app-store-banner">
+                <div class="banner-text">
+                    Want to use this tool on desktop anytime?<br>
+                    Visit <span>LAN App Store</span> to download offline versions or more professional tools.
+                </div>
+                <a href="/en/lan.appstore.html" class="btn-store">Go to App Store</a>
+            </div>
+
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // 排名輸入框切換
+        document.getElementById('calc-rank').addEventListener('change', function() {
+            document.getElementById('ranking-inputs').style.display = this.checked ? 'block' : 'none';
+        });
+
+        function calculate() {
+            const ch = parseFloat(document.getElementById('ch').value) || 0;
+            const en = parseFloat(document.getElementById('en').value) || 0;
+            const ma = parseFloat(document.getElementById('ma').value) || 0;
+            const ss = parseFloat(document.getElementById('ss').value) || 0;
+            const fs = parseFloat(document.getElementById('fs').value) || 0;
+
+            const calcAvg = document.getElementById('calc-avg').checked;
+            const calcTotal = document.getElementById('calc-total').checked;
+            const calcRank = document.getElementById('calc-rank').checked;
+
+            const pr = parseFloat(document.getElementById('pr').value) || 0;
+            const can = parseFloat(document.getElementById('can').value) || 0;
+
+            const totalScore = ch + en + ma + ss + fs;
+            const resDiv = document.getElementById('results');
+            
+            let resultsHTML = '<h3>Calculation Results</h3>';
+            resultsHTML += `<p>📝 Subject Overview: ${ch}, ${en}, ${ma}, ${ss}, ${fs}</p>`;
+
+            if (calcAvg) {
+                resultsHTML += `<p>💡 Average Score: <span style="color:var(--primary-dark)">${(totalScore / 5).toFixed(2)}</span></p>`;
+            }
+            if (calcTotal) {
+                resultsHTML += `<p>📊 Total Score: <span style="color:var(--primary-dark)">${totalScore}</span></p>`;
+            }
+            if (calcRank && can > 0 && pr > 0) {
+                const rank = Math.floor(can * (1 - (pr / 100)));
+                resultsHTML += `<p>🚩 Estimated Rank: <span style="color:var(--accent-blue)">About #${rank}</span></p>`;
+            }
+
+            resDiv.innerHTML = resultsHTML;
+            resDiv.style.display = 'block';
+        }
+
+        function saveToFile() {
+            const ch = parseFloat(document.getElementById('ch').value) || 0;
+            const en = parseFloat(document.getElementById('en').value) || 0;
+            const ma = parseFloat(document.getElementById('ma').value) || 0;
+            const ss = parseFloat(document.getElementById('ss').value) || 0;
+            const fs = parseFloat(document.getElementById('fs').value) || 0;
+            const calcAvg = document.getElementById('calc-avg').checked;
+            const calcTotal = document.getElementById('calc-total').checked;
+            const calcRank = document.getElementById('calc-rank').checked;
+            const pr = parseFloat(document.getElementById('pr').value) || 0;
+            const can = parseFloat(document.getElementById('can').value) || 0;
+            const totalScore = ch + en + ma + ss + fs;
+
+            const title = prompt("Please enter the title for this record:", "Semester Grade Report");
+            if (!title) return;
+
+            let content = `===== ${title} =====\n\n`;
+            content += `Record Time: ${new Date().toLocaleString()}\n`;
+            content += `--------------------------\n`;
+            content += `國文: ${ch}\n英文: ${en}\n數學: ${ma}\n社會: ${ss}\n自然: ${fs}\n`;
+            content += `--------------------------\n`;
+
+            if (calcAvg) content += `Average Score: ${(totalScore / 5).toFixed(2)}\n`;
+            if (calcTotal) content += `Total Score: ${totalScore}\n`;
+            if (calcRank && can > 0 && pr > 0) {
+                const rank = Math.floor(can * (1 - (pr / 100)));
+                content += `Estimated Rank: ${rank}\n`;
+            }
+            content += `\nGenerated by LAN Studio Digital Toolbox\n`;
+            content += "=========================";
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.txt`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+    </script>
+    <script type="module" src="navbar.js" defer></script>
+</body>
+</html>
