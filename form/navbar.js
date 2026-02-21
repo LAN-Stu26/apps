@@ -266,7 +266,8 @@ const footerHTML = `
     <div style="text-align:center; color: #aaa; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
         <a href="#" style="color: #aaa; text-decoration:none; margin: 0 10px;"><b>回到頂端</b></a> |
         <a href="/form/improve-website.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">改善網站</a> |
-        <a href="/update.news.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">更新日誌</a>
+        <a href="/update.news.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">更新日誌</a> |
+        <a href="/site/Privacy_Policy.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">隱私權政策</a>
     </div>
     <div style="text-align:center; font-size:0.85rem; color:#555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
         <div id="visitor-counter" style="color: #888; padding-bottom: 20px; font-size: 0.9rem;">瀏覽人數：載入中...</div>
