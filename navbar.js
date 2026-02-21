@@ -268,13 +268,52 @@ const footerHTML = `
         <a href="/form/improve-website.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">改善網站</a> |
         <a href="/update.news.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">更新日誌</a>
     </div>
-    <div style="text-align:center; font-size:0.85rem; color: #555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio 版權所有</div>
+    <div style="text-align:center; font-size:0.85rem; color: #555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
+        <div id="visitor-counter" style="color: #888; padding-bottom: 20px; font-size: 0.9rem;">瀏覽人數：載入中...</div>
+        ©2026 LAN Studio 版權所有
+    </div>
 </footer>
 `;
 
 document.head.insertAdjacentHTML('beforeend', style);
 document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 document.body.insertAdjacentHTML('beforeend', footerHTML);
+
+// --- 瀏覽人數統計 ---
+async function recordAndDisplayVisitorCount() {
+    const counterElement = document.getElementById('visitor-counter');
+    if (!counterElement) return;
+
+    try {
+        // 透過 public API 獲取使用者 IP
+        const response = await fetch('https://api.ipify.org?format=json');
+        if (response.ok) {
+            const data = await response.json();
+            const userIp = data.ip;
+
+            // 以 IP 作為文檔 ID，確保訪客唯一性
+            if (userIp) {
+                const visitorRef = doc(db, "visitors", userIp);
+                // 使用 setDoc 和 merge 來新增紀錄或更新最後訪問時間
+                await setDoc(visitorRef, { lastVisit: new Date() }, { merge: true });
+            }
+        }
+    } catch (error) {
+        console.warn("無法記錄訪客IP:", error);
+    }
+    
+    // 總是嘗試獲取並顯示總數
+    try {
+        const visitorsCollection = collection(db, "visitors");
+        const snapshot = await getDocs(visitorsCollection);
+        counterElement.textContent = `瀏覽人數：${snapshot.size}`;
+    } catch (error) {
+        console.error("無法獲取瀏覽人數:", error);
+        counterElement.textContent = "瀏覽人數：無法取得";
+    }
+}
+
+recordAndDisplayVisitorCount();
 
 // 4. 互動邏輯
 const menuBtn = document.getElementById('mobile-menu-btn');
