@@ -22,11 +22,13 @@
             margin: 0;
             padding-top: 60px;
             -webkit-font-smoothing:antialiased;
+            /* 修正手機版水平溢出問題 */
+            overflow-x: hidden;
         }
 
         .hero-section {
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 20px; /* 手機版縮減內距 */
             background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, var(--bg-color) 100%);
             border-bottom: 1px solid #222;
             margin-bottom: 24px;
@@ -39,6 +41,8 @@
             text-shadow: 0 6px 18px rgba(255,217,102,0.08);
             letter-spacing: 2px;
             font-weight: 700;
+            /* 防止長標題在手機撐開螢幕 */
+            word-wrap: break-word;
         }
 
         .hero-subtitle {
@@ -52,7 +56,7 @@
         .container {
             max-width: 980px;
             margin: 0 auto;
-            padding: 24px 20px 60px;
+            padding: 0 20px 60px; /* 移除頂部重複 padding */
         }
 
         .info-card {
@@ -61,6 +65,9 @@
             padding: 28px;
             border: 1px solid rgba(255,255,255,0.04);
             box-shadow: 0 18px 40px rgba(0,0,0,0.5);
+            /* 防止內容溢出卡片 */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         h2 { color: var(--primary-color); margin-top: 18px }
@@ -70,6 +77,22 @@
         ul { padding-left: 1.1rem }
         .back-link { display:block; text-align:center; color:var(--muted); text-decoration:none; margin-top:20px }
         .back-link:hover { color: var(--primary-color) }
+
+        /* 響應式修正：手機版專用設定 */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 15px;
+            }
+            .hero-title {
+                font-size: 2.2rem; /* 縮小手機版標題字體 */
+            }
+            .info-card {
+                padding: 20px; /* 縮小卡片內距 */
+            }
+            body {
+                padding-top: 50px; /* 適配手機導覽列高度 */
+            }
+        }
 
     </style>
 </head>
@@ -121,7 +144,7 @@
             </ul>
 
             <h2>4. 數據安全</h2>
-            <p>您的個人資訊安全對我們至關重要，但請記住，沒有任何透過網際網路傳輸或電子儲存的方法是100%安全的。儘管我們努力使用商業上可接受的方法來保護您的個人資訊，我們無法保證其絕對安全。</p>
+            <p>您的個人資訊安全對我們至關重要，但請記住，沒有任何透過網際網路傳輸或電子儲存的方法是100%安全的. 儘管我們努力使用商業上可接受的方法來保護您的個人資訊，我們無法保證其絕對安全。</p>
 
             <h2>5. 您的數據保護權利</h2>
             <ul>
