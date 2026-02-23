@@ -191,9 +191,9 @@ const navbarHTML = `
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/app/ip.html"><b>IP 位置查詢</b></a>
                 <a href="/app/sboard.html"><b>計分板</b></a>
                 <a href="/app/qreditor.html"><b>QRCode 工具套組</b></a>
-                <a href="/tool/time.ing.html"><b>計時器</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
