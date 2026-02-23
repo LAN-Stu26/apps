@@ -39,7 +39,6 @@
             border-radius: 15px;
             border: 1px solid #444;
             margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .search-box {
@@ -110,7 +109,6 @@
             background: #111;
         }
 
-        /* 紀錄區域 */
         .history-section {
             background: rgba(255, 255, 255, 0.03);
             padding: 25px;
@@ -176,7 +174,7 @@
 
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="ip-input" placeholder="輸入 IP 地址或 'my'...">
+                <input type="text" id="ip-input" placeholder="輸入 IP (例如 8.8.8.8) 或 'my'...">
             </div>
             <div class="controls">
                 <button id="search-btn">🔍 查詢位置</button>
@@ -222,51 +220,65 @@
         renderHistory();
 
         async function fetchIPLocation(ip = "") {
-            statusDisplay.textContent = "正在通訊中...";
+            statusDisplay.textContent = "正在獲取地理位置 (CORS 安全連線)...";
             statusDisplay.classList.remove('error-text');
             
+            // 使用 ipapi.co，這對靜態網站前端請求較友善
+            const apiUrl = ip ? `https://ipapi.co/${ip}/json/` : `https://ipapi.co/json/`;
+            
             try {
-                const response = await fetch(`http://ip-api.com/json/${ip}?lang=zh-TW`);
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) throw new Error("API 回傳錯誤");
+                
                 const data = await response.json();
 
-                if (data.status === "success") {
+                if (!data.error) {
                     displayResult(data);
                     saveToHistory(data);
                 } else {
-                    statusDisplay.textContent = `[ 錯誤 ] ${data.message}`;
+                    statusDisplay.textContent = `[ 錯誤 ] ${data.reason || '查詢失敗'}`;
                     statusDisplay.classList.add('error-text');
                 }
             } catch (error) {
-                statusDisplay.textContent = "[ 錯誤 ] 無法連線至伺服器";
+                statusDisplay.textContent = "[ 錯誤 ] 無法取得資料，可能達到每日上限或 CORS 攔截";
                 statusDisplay.classList.add('error-text');
+                console.error(error);
             }
         }
 
         function displayResult(data) {
-            document.getElementById('res-country').textContent = data.country;
-            document.getElementById('res-city').textContent = data.city;
-            document.getElementById('res-region').textContent = data.regionName;
-            document.getElementById('res-timezone').textContent = data.timezone;
-            document.getElementById('res-isp').textContent = data.isp;
-            document.getElementById('res-coords').textContent = `${data.lat}, ${data.lon}`;
+            document.getElementById('res-country').textContent = data.country_name || "-";
+            document.getElementById('res-city').textContent = data.city || "-";
+            document.getElementById('res-region').textContent = data.region || "-";
+            document.getElementById('res-timezone').textContent = data.timezone || "-";
+            document.getElementById('res-isp').textContent = data.org || "-";
+            document.getElementById('res-coords').textContent = `${data.latitude}, ${data.longitude}`;
             
-            const mapUrl = `https://maps.google.com/maps?q=${data.lat},${data.lon}&z=13&output=embed`;
+            const lat = data.latitude;
+            const lon = data.longitude;
+            
+            // Google Maps Embed
+            const mapUrl = `https://maps.google.com/maps?q=${lat},${lon}&z=14&output=embed`;
             document.getElementById('google-map').src = mapUrl;
-            document.getElementById('map-link').href = `https://www.google.com/maps?q=${data.lat},${data.lon}`;
+            document.getElementById('map-link').href = `https://www.google.com/maps?q=${lat},${lon}`;
 
             resultContainer.style.display = "block";
-            statusDisplay.textContent = `最後查詢: ${data.query}`;
+            statusDisplay.textContent = `查詢成功: ${data.ip}`;
         }
 
         function saveToHistory(data) {
-            const timestamp = Date.now(); // 增加唯一辨識符
+            const timestamp = Date.now();
             const record = {
                 id: timestamp,
-                ip: data.query,
-                location: `${data.country} ${data.city}`,
+                ip: data.ip,
+                location: `${data.country_name} ${data.city}`,
                 time: new Date().toLocaleTimeString()
             };
             
+            // 避免重複
+            if (searchHistory.length > 0 && searchHistory[0].ip === data.ip) return;
+
             searchHistory.unshift(record);
             if (searchHistory.length > 15) searchHistory.pop(); 
             localStorage.setItem('ip_history', JSON.stringify(searchHistory));
@@ -278,7 +290,6 @@
                 historyList.innerHTML = '<li style="color:#666; font-size:0.9rem;">目前沒有查詢紀錄</li>';
                 return;
             }
-
             historyList.innerHTML = searchHistory.map((item) => `
                 <li class="history-item">
                     <div class="history-content" onclick="reSearch('${item.ip}')">
