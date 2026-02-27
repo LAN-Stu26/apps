@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歡迎來到 LAN Studio !</title>
+    <title>元宵吃湯圓挑戰 - LAN Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="圖片/標籤頭像.png">
     <style>
         :root {
-            --bg: #1d1d1d;
-            --card-bg: #252526;
+            --bg: #2c0707;
+            --card-bg: rgba(61, 10, 10, 0.95);
             --accent: #ffd966;
             --text: #ffffff;
+            --bowl-border: #e63946;
         }
 
         body {
             background-color: var(--bg);
+            background: radial-gradient(circle at center, #4a0e0e 0%, #1a0505 100%);
             color: var(--text);
             font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
@@ -24,147 +26,229 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
 
-        /* 服務選擇字卡 - 核心上升動畫 */
+        /* 天燈背景動畫 */
+        .lantern {
+            position: absolute;
+            bottom: -100px;
+            background: #e63946;
+            width: 30px;
+            height: 40px;
+            border-radius: 8px;
+            animation: rise linear infinite;
+            opacity: 0.4;
+            z-index: 0;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 0.5; }
+            100% { transform: translateY(-120vh); opacity: 0; }
+        }
+
+        /* 門戶卡片 */
         .portal-card {
             background: var(--card-bg);
-            padding: 40px;
+            padding: 25px;
             border-radius: 24px;
-            border: 1px solid rgba(255, 217, 102, 0.3);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
             text-align: center;
-            max-width: 380px;
+            max-width: 450px;
             width: 90%;
-            /* 動畫設定：持續 1.2 秒，帶有優雅的彈出感 */
-            animation: cardRise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
+            z-index: 10;
         }
 
-        /* 子元素分批進場動畫 */
-        .portal-card > * {
-            animation: contentFadeUp 0.8s ease-out forwards;
-            opacity: 0;
+        h1 { color: var(--accent); font-size: 1.8rem; margin-top: 0; }
+
+        /* 遊戲大碗 */
+        .bowl {
+            width: 280px;
+            height: 280px;
+            border: 8px solid var(--bowl-border);
+            border-radius: 50%;
+            margin: 15px auto;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
 
-        .welcome-title {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 8px;
-            letter-spacing: 4px;
-            animation-delay: 0.3s; /* 延遲進場 */
+        /* 湯圓樣式與懸停放大 */
+        .ball {
+            font-size: 40px;
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            /* 加入平滑過渡 */
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+        }
+        
+        /* 滑鼠碰到時放大 */
+        .ball:hover {
+            transform: scale(1.3);
+            z-index: 20; /* 確保放大的湯圓在最上層 */
         }
 
-        .status-msg {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 30px;
-            animation-delay: 0.4s;
+        .ball:active {
+            transform: scale(0.9); /* 點擊時輕微縮小反饋 */
         }
 
-        .button-group {
+        .info-panel {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            animation-delay: 0.5s;
+            justify-content: space-around;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .target-display {
+            font-size: 1.2rem;
+            background: rgba(255,217,102,0.2);
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 10px;
         }
 
         .btn {
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 12px 24px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.3s;
             text-decoration: none;
-            display: block;
+            display: inline-block;
+            border: none;
         }
-
-        .btn-main { background: var(--accent); color: #000; border: none; }
+        .btn-main { background: var(--accent); color: #4a0e0e; margin-bottom: 10px; }
         .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-        
-        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        .auto-redirect-tip {
-            margin-top: 30px;
-            font-size: 0.75rem;
-            color: #555;
-            animation-delay: 0.7s;
-        }
-
-        #target-lang { color: var(--accent); font-weight: bold; }
-
-        /* 動畫定義 */
-        @keyframes cardRise {
-            0% { transform: translateY(100px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes contentFadeUp {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
+        #game-screen, #result-screen { display: none; }
     </style>
 </head>
 <body>
 
+    <script>
+        // 生成天燈
+        for (let i = 0; i < 12; i++) {
+            let l = document.createElement('div');
+            l.className = 'lantern';
+            l.style.left = Math.random() * 100 + 'vw';
+            l.style.animationDuration = (Math.random() * 5 + 10) + 's';
+            l.style.animationDelay = (Math.random() * 5) + 's';
+            document.body.appendChild(l);
+        }
+    </script>
+
     <div class="portal-card">
-        <div class="welcome-title">LAN Studio</div>
-        <div id="geo-status" class="status-msg">正在優化您的瀏覽體驗...</div>
-        
-        <div class="button-group">
-            <a href="home.html" class="btn btn-main" onclick="stopTimer()">繁體中文服務 (Traditional Chinese)</a>
-            <a href="/en/home.html" class="btn btn-outline" onclick="stopTimer()">English Services</a>
+        <div id="start-screen">
+            <h1>🏮 元宵大挑戰</h1>
+            <p id="geo-status">正在偵測位置...</p>
+            <p style="color: #ccc; font-size: 0.9rem;">在 60 秒內吃掉正確顏色的湯圓！<br>點對 +1 分，點錯 -2 分</p>
+            <button class="btn btn-main" onclick="initGame()">開始吃湯圓</button>
+            <br>
+            <a href="home.html" class="btn btn-outline" style="font-size: 0.8rem;">直接進入首頁</a>
         </div>
 
-        <div class="auto-redirect-tip">
-            <span id="target-lang">偵測中...</span> 將於 <span id="countdown">5</span> 秒後自動跳轉
+        <div id="game-screen">
+            <div class="target-display" id="target-msg">載入中...</div>
+            <div class="info-panel">
+                <span>分數: <b id="score-val">0</b></span>
+                <span>剩餘: <b id="time-val">60</b>s</span>
+            </div>
+            <div class="bowl" id="bowl"></div>
+            <button class="btn btn-outline" style="width: 100%;" onclick="generateBalls()">換一鍋湯圓</button>
+        </div>
+
+        <div id="result-screen">
+            <h1>遊戲結束！</h1>
+            <p style="font-size: 1.5rem;">最終得分: <span id="final-score" style="color: var(--accent);">0</span></p>
+            <div class="button-group">
+                <button class="btn btn-main" onclick="location.href='home.html'">進入 LAN Studio</button>
+                <button class="btn btn-outline" onclick="location.reload()">重新挑戰</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let timeLeft = 5;
-        let redirectUrl = "home.html";
-        let langName = "繁體中文";
-        let timer;
-
-        function stopTimer() { clearInterval(timer); }
+        const colors = ['⚪', '🔴', '🟡', '🟢', '⚫'];
+        const colorNames = ['白', '紅', '黃', '綠', '黑'];
+        let targetIndex = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let gameTimer, colorTimer;
 
         async function detectLocation() {
             try {
-                // 地理位置偵測
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                
-                // 邏輯判斷：台港澳使用繁中，其他(含中國)使用英文
-                if (['TW', 'HK', 'MO'].includes(data.country_code)) {
-                    redirectUrl = "home.html";
-                    langName = "繁體中文頁面";
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                if (!['TW', 'HK', 'MO'].includes(data.country_code)) {
+                    window.location.replace("/en/home.html");
                 } else {
-                    redirectUrl = "/en/home.html";
-                    langName = "English Page";
+                    document.getElementById('geo-status').innerText = `偵測到：${data.country_name}，祝您元宵快樂！`;
                 }
-                
-                document.getElementById('geo-status').innerText = `偵測區域：${data.country_name || data.country_code}`;
-            } catch (error) {
-                document.getElementById('geo-status').innerText = "系統就緒，準備進入";
-            } finally {
-                document.getElementById('target-lang').innerText = langName;
-                startCountdown();
+            } catch (e) {
+                document.getElementById('geo-status').innerText = "準備好大快朵頤了嗎？";
             }
         }
 
-        function startCountdown() {
-            const countdownEl = document.getElementById('countdown');
-            timer = setInterval(() => {
+        function initGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            startTimers();
+            updateTarget();
+            generateBalls();
+        }
+
+        function startTimers() {
+            gameTimer = setInterval(() => {
                 timeLeft--;
-                countdownEl.innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    window.location.replace(redirectUrl);
-                }
+                document.getElementById('time-val').innerText = timeLeft;
+                if (timeLeft <= 0) endGame();
             }, 1000);
+            colorTimer = setInterval(updateTarget, 3000);
+        }
+
+        function updateTarget() {
+            targetIndex = Math.floor(Math.random() * colors.length);
+            document.getElementById('target-msg').innerHTML = `請吃 <span style="color:var(--accent)">${colorNames[targetIndex]}色</span> 湯圓！ ${colors[targetIndex]}`;
+        }
+
+        function generateBalls() {
+            const bowl = document.getElementById('bowl');
+            bowl.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const b = document.createElement('span');
+                const cIdx = Math.floor(Math.random() * colors.length);
+                b.innerText = colors[cIdx];
+                b.className = 'ball';
+                // 碗內隨機定位
+                b.style.left = (15 + Math.random() * 60) + '%';
+                b.style.top = (15 + Math.random() * 60) + '%';
+                b.onclick = () => checkBall(cIdx);
+                bowl.appendChild(b);
+            }
+        }
+
+        function checkBall(clickedIdx) {
+            if (clickedIdx === targetIndex) {
+                score += 1;
+            } else {
+                score -= 2;
+            }
+            document.getElementById('score-val').innerText = score;
+            generateBalls(); 
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            clearInterval(colorTimer);
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
         }
 
         detectLocation();
