@@ -1,6 +1,6 @@
 // 1. 引入 Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -493,6 +493,41 @@ async function toggleFavorite(user) {
     updateFavList(user);
 }
 
+async function deleteAccount(user) {
+    if (!confirm(`警告：這將會永久刪除您的帳號與所有資料，包括收藏等。確定要刪除帳號嗎？`)) {
+        return;
+    }
+
+    try {
+        const favCollectionRef = collection(db, "users", user.uid, "favorites");
+        const favSnapshot = await getDocs(favCollectionRef);
+        const deleteFavPromises = [];
+        favSnapshot.forEach((doc) => {
+            deleteFavPromises.push(deleteDoc(doc.ref));
+        });
+        await Promise.all(deleteFavPromises);
+
+        // Delete the user document itself
+        const userDocRef = doc(db, "users", user.uid);
+        await deleteDoc(userDocRef);
+
+        // Delete the user from Auth
+        await deleteUser(user);
+
+        alert('帳號已成功刪除。');
+        window.location.href = '/home.html'; // Redirect to home page
+
+    } catch (error) {
+        console.error("刪除帳號時發生錯誤:", error);
+        if (error.code === 'auth/requires-recent-login') {
+            alert('刪除帳號需要您最近曾登入。請重新登入後再試一次。');
+            signOut(auth);
+        } else {
+            alert('刪除帳號時發生錯誤，請稍後再試。');
+        }
+    }
+}
+
 onAuthStateChanged(auth, (user) => {
     const area = document.getElementById('auth-area');
     if (user) {
@@ -517,12 +552,14 @@ onAuthStateChanged(auth, (user) => {
                     <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
                 </div>
                 <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
+                <a id="delete-account-btn" style="cursor:pointer; color: #ff4d4d !important; border-top:1px solid #333;"><b>刪除帳號</b></a>
             </div>
         `;
         
         updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
         document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        document.getElementById('delete-account-btn').onclick = () => deleteAccount(user);
 
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
@@ -537,7 +574,7 @@ onAuthStateChanged(auth, (user) => {
 
     } else {
         favBtn.style.display = 'none';
-        area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
+        area.innerHTML = `<a id="login-btn"><b>Google 登入</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
     }
 });
