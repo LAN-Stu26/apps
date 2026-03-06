@@ -5,7 +5,7 @@
     <meta name="description" content="LAN Studio - 數位工具箱">
     <meta property="og:title" content="LAN Studio | Digital Toolbox">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAN Studio  元宵特活動 - 數位工具箱</title>
+    <title>LAN Studio - 數位工具箱</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,11 +15,10 @@
 
     <style>
         :root {
-            --primary-dark: #ffd966; /* 金色 */
-            --accent-blue: #e63946; /* 元宵紅，替換掉原本的藍色 */
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
             --bg-color: #1d1d1d;
             --card-bg: #2d2d2d;
-            --festival-red: #8b0000;
         }
 
         body {
@@ -28,37 +27,13 @@
             margin: 0;
             color: white;
             overflow-x: hidden;
-            /* 增加節慶底色漸層 */
-            background: linear-gradient(180deg, #2c0707 0%, #1d1d1d 30%);
         }
 
-        /* --- 天燈動畫背景 --- */
-        .lantern-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .lantern-light {
-            position: absolute;
-            bottom: -50px;
-            background: rgba(230, 57, 70, 0.4);
-            width: 20px;
-            height: 30px;
-            border-radius: 5px;
-            animation: rise linear infinite;
-        }
-        @keyframes rise {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            20% { opacity: 0.6; }
-            100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
-        }
-
-        /* --- 頁首圖片區 --- */
+        /* --- 頁首圖片區 (原有設計) --- */
         .hero-header {
             position: relative;
             width: 100%; 
-            height: 500px; /* 稍微增加高度以容納按鈕 */
+            height: 450px;
             background-color: #000;
             display: flex; 
             justify-content: center; 
@@ -72,7 +47,7 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            filter: brightness(0.5) sepia(0.3) hue-rotate(-30deg); /* 營造暖色調 */
+            filter: brightness(0.7);
         }
 
         .hero-title-box {
@@ -86,7 +61,7 @@
             font-weight: 700;
             margin: 0;
             color: var(--primary-dark);
-            text-shadow: 0 0 20px rgba(255, 217, 102, 0.5);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
             letter-spacing: 5px;
         }
 
@@ -95,40 +70,11 @@
             color: #ffffff;
             opacity: 0.9;
             margin-top: 10px;
-            margin-bottom: 30px;
             letter-spacing: 2px;
         }
 
-        /* 遊戲按鈕樣式 */
-        .btn-game-portal {
-            display: inline-block;
-            padding: 15px 35px;
-            background: var(--accent-blue);
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            box-shadow: 0 0 20px rgba(230, 57, 70, 0.6);
-            transition: all 0.3s;
-            border: 2px solid var(--primary-dark);
-            animation: pulse 2s infinite;
-        }
-        .btn-game-portal:hover {
-            transform: scale(1.1);
-            background: #ff4d5a;
-            box-shadow: 0 0 30px rgba(230, 57, 70, 0.8);
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- 主內容區 --- */
+        /* --- 主內容區 (原有設計) --- */
         .container {
-            position: relative;
-            z-index: 2; /* 確保內容在天燈之上 */
             max-width: 1200px;
             margin: 50px auto;
             padding: 0 30px;
@@ -174,6 +120,7 @@
             align-items: center; 
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
+            /* 保留你最愛的動畫效果 */
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -181,32 +128,32 @@
         .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
         .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; }
 
+        /* Hover 特效 */
         @media (hover: hover) {
             .app-card:hover {
                 transform: translateY(-12px);
-                box-shadow: 0 15px 30px rgba(230, 57, 70, 0.2);
+                box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
                 border-color: var(--accent-blue);
             }
         }
 
+        /* RWD 佈局 */
         @media (max-width: 850px) {
             .hero-title { font-size: 2.5rem; }
             .app-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 600px) { 
-            .hero-header { height: 350px; }
+            .hero-header { height: 250px; aspect-ratio: 16 / 9; }
             .hero-title { font-size: 2rem; }
             .app-grid { grid-template-columns: 1fr; } 
         }
 
-        .partner-icon { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
+            .partner-icon { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
 
     </style>
 </head>
 <body>
-
-    <div class="lantern-bg" id="lantern-bg"></div>
 
     <header class="hero-header">
         <img 
@@ -219,7 +166,6 @@
         <div class="hero-title-box">
             <h1 class="hero-title">LAN Studio</h1>
             <div class="hero-subtitle">免費 Ai 製作的線上工具網站</div>
-            <a href="index.html" class="btn-game-portal">🏮 限時活動：元宵吃湯圓挑戰</a>
         </div>
     </header>
 
@@ -230,10 +176,9 @@
                 <div class="news-mini-card" style="visibility:hidden; height:100px;"></div>
             </div>
             <div style="text-align: center;">
-                <a href="news.html" style="color: #3498db; text-decoration: none; font-size: 0.9rem;">查看完整公告 →</a>
+                <a href="news.html" style="color: var(--accent-blue); text-decoration: none; font-size: 0.9rem;">查看完整公告 →</a>
             </div>
         </section>
-
         <h2 class="section-title">推薦工具</h2>
         <div class="app-grid">
             <a href="/app/ip.html" class="app-card">
@@ -283,21 +228,6 @@
     </div>
     
     <script>
-        // 生成動態天燈效果
-        function createLanterns() {
-            const bg = document.getElementById('lantern-bg');
-            for(let i=0; i<15; i++) {
-                const lantern = document.createElement('div');
-                lantern.className = 'lantern-light';
-                lantern.style.left = Math.random() * 100 + '%';
-                lantern.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                lantern.style.animationDelay = (Math.random() * 5) + 's';
-                lantern.style.opacity = Math.random();
-                bg.appendChild(lantern);
-            }
-        }
-        createLanterns();
-
         async function loadLatestNews() {
             const container = document.getElementById('news-preview-container');
             try {
