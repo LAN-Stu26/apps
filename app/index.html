@@ -104,11 +104,11 @@
     <div id="navbar-placeholder"></div>
 
     <div class="error-wrapper">
-        <p class="error-code">404</p>
+        <p class="error-code">導航中</p>
         <p class="error-message">正在前往 apps.html</p>
         
         <p class="countdown-text">
-            系統將在 <span id="timer">1</span> 秒後自動為您跳轉
+            系統將在 <span id="timer">0.2</span> 秒後自動為您跳轉
         </p>
 
         <div class="button-group">
@@ -120,11 +120,11 @@
     <script type="module" src="/navbar.js"></script>
 
     <script>
-        let seconds = 1; // 已改為 1 秒
+        let seconds = 0.2; // 已改為 0.2 秒
         const countdownElement = document.getElementById('timer');
 
         const interval = setInterval(() => {
-            seconds--;
+            seconds -= 1;
             if (countdownElement) {
                 countdownElement.innerText = seconds;
             }
@@ -136,5 +136,4 @@
         }, 1000);
     </script>
 </body>
-
 </html>
