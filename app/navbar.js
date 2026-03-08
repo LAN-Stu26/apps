@@ -516,6 +516,7 @@ onAuthStateChanged(auth, (user) => {
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
                 </div>
+                <a href="/site/account.html"><b>進階設定</b></a>
                 <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
         `;
@@ -546,5 +547,6 @@ onAuthStateChanged(auth, (user) => {
     const link = document.createElement('link'); link.rel = 'icon'; link.href = '/圖片/標籤頭像.png';
     document.head.appendChild(link);
 })();
+
 
 export { auth, app };
