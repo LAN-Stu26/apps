@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帳號設定 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .account-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .account-card { background: #252525; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #444; }
+        .profile-header img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #ffd966; }
+        .profile-info h2 { margin: 0; color: #ffd966; font-size: 1.8rem; }
+        .profile-info p { margin: 5px 0 0; color: #aaa; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .info-item { background: #1a1a1a; padding: 15px; border-radius: 10px; border-left: 4px solid #ffd966; }
+        .info-item label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .info-item span { font-weight: bold; color: #eee; }
+        .danger-zone { margin-top: 50px; padding: 20px; border: 1px solid #ff4d4d; border-radius: 10px; background: rgba(255, 77, 77, 0.05); }
+        .danger-zone h3 { color: #ff4d4d; margin-top: 0; }
+        .btn-delete-account { background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-delete-account:hover { background: #ff3333; box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1d1d1d; display: flex; justify-content: center; align-items: center; z-index: 9999; color: #ffd966; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">驗證身份中...</div>
+
+    <div class="account-container">
+        <div class="account-card">
+            <div class="profile-header">
+                <img id="user-avatar" src="" alt="Avatar">
+                <div class="profile-info">
+                    <h2 id="user-name">載入中...</h2>
+                    <p id="user-email">---</p>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>會員狀態</label>
+                    <span id="user-status">一般會員</span>
+                </div>
+                <div class="info-item">
+                    <label>註冊日期</label>
+                    <span id="user-created">---</span>
+                </div>
+                <div class="info-item">
+                    <label>收藏數量</label>
+                    <span id="fav-count">0 個項目</span>
+                </div>
+                <div class="info-item">
+                    <label>最後登入</label>
+                    <span id="user-last-login">---</span>
+                </div>
+            </div>
+
+            <div class="danger-zone">
+                <h3>進階動作 / 危險區域</h3>
+                <p>刪除帳號將會永久移除您在 LAN Studio 的所有收藏、設定與個人資料。此操作無法撤銷。</p>
+                <button class="btn-delete-account" id="delete-account-btn">刪除我的帳號</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, app } from './studio.js'; 
+        import { getFirestore, doc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            const overlay = document.getElementById('loading-overlay');
+            
+            if (user) {
+                // 基本資料填充
+                document.getElementById('user-avatar').src = user.photoURL || '';
+                document.getElementById('user-name').innerText = user.displayName || '未命名使用者';
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-created').innerText = new Date(user.metadata.creationTime).toLocaleDateString();
+                document.getElementById('user-last-login').innerText = new Date(user.metadata.lastSignInTime).toLocaleString();
+
+                // 根據你的 Rules 第 4 點獲取收藏數
+                try {
+                    const favSnap = await getDocs(collection(db, "users", user.uid, "favorites"));
+                    document.getElementById('fav-count').innerText = `${favSnap.size} 個項目`;
+                } catch (e) {
+                    console.warn("無法獲取收藏資訊:", e);
+                }
+
+                overlay.style.display = 'none';
+
+                // 刪除帳號動作
+                document.getElementById('delete-account-btn').onclick = async () => {
+                    if (confirm("確定要刪除帳號嗎？這將清空所有收藏。")) {
+                        const verify = prompt("請輸入 'DELETE' 以確認：");
+                        if (verify === 'DELETE') {
+                            overlay.innerText = "正在清除資料並註銷帳號...";
+                            overlay.style.display = 'flex';
+
+                            try {
+                                // 1. 清理 Firestore 資料 (符合 Rules 第 4 點)
+                                const favs = await getDocs(collection(db, "users", user.uid, "favorites"));
+                                const deletes = favs.docs.map(d => deleteDoc(d.ref));
+                                await Promise.all(deletes);
+
+                                // 2. 刪除 Auth 帳號
+                                await deleteUser(user);
+                                
+                                alert("帳號已移除。");
+                                window.location.href = '/home.html';
+                            } catch (error) {
+                                if (error.code === 'auth/requires-recent-login') {
+                                    alert("安全驗證逾期，請重新登入後再執行刪除。");
+                                    auth.signOut();
+                                } else {
+                                    alert("刪除失敗：" + error.message);
+                                }
+                                overlay.style.display = 'none';
+                            }
+                        }
+                    }
+                };
+            } else {
+                window.location.href = '/home.html';
+            }
+        });
+    </script>
+</body>
+</html>
