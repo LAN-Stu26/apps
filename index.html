@@ -12,6 +12,7 @@
             --card-bg: #252526;
             --accent: #ffd966;
             --text: #ffffff;
+            --overlay: rgba(0, 0, 0, 0.85);
         }
 
         body {
@@ -26,7 +27,7 @@
             overflow: hidden;
         }
 
-        /* 服務選擇字卡 - 核心上升動畫 */
+        /* 核心卡片容器 */
         .portal-card {
             background: var(--card-bg);
             padding: 40px;
@@ -36,12 +37,12 @@
             text-align: center;
             max-width: 380px;
             width: 90%;
-            /* 動畫設定：持續 1.2 秒，帶有優雅的彈出感 */
             animation: cardRise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
+            position: relative;
+            z-index: 10;
         }
 
-        /* 子元素分批進場動畫 */
         .portal-card > * {
             animation: contentFadeUp 0.8s ease-out forwards;
             opacity: 0;
@@ -53,7 +54,7 @@
             color: var(--accent);
             margin-bottom: 8px;
             letter-spacing: 4px;
-            animation-delay: 0.3s; /* 延遲進場 */
+            animation-delay: 0.3s;
         }
 
         .status-msg {
@@ -70,6 +71,7 @@
             animation-delay: 0.5s;
         }
 
+        /* 按鈕樣式 */
         .btn {
             padding: 16px;
             border-radius: 12px;
@@ -79,10 +81,13 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none;
             display: block;
+            border: none;
+            outline: none;
         }
 
-        .btn-main { background: var(--accent); color: #000; border: none; }
+        .btn-main { background: var(--accent); color: #000; }
         .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .btn-grey { background: #444; color: #fff; }
         
         .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); }
 
@@ -94,6 +99,58 @@
         }
 
         #target-lang { color: var(--accent); font-weight: bold; }
+
+        /* 自定義彈窗樣式 */
+        #custom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
+            backdrop-filter: blur(8px);
+            display: none; /* 預設隱藏 */
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+            text-align: center;
+            max-width: 320px;
+            width: 85%;
+        }
+
+        .modal-title {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .modal-desc {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btns .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9rem;
+        }
 
         /* 動畫定義 */
         @keyframes cardRise {
@@ -114,12 +171,26 @@
         <div id="geo-status" class="status-msg">正在優化您的瀏覽體驗...</div>
         
         <div class="button-group">
-            <a href="home.html" class="btn btn-main" onclick="stopTimer()">繁體中文服務 (Traditional Chinese)</a>
-            <a href="/en/home.html" class="btn btn-outline" onclick="stopTimer()">English Services</a>
+            <button class="btn btn-main" onclick="handleLangClick('home.html')">繁體中文服務 (Traditional Chinese)</button>
+            <button class="btn btn-outline" onclick="handleLangClick('/en/home.html')">English Services</button>
         </div>
 
         <div class="auto-redirect-tip">
             <span id="target-lang">偵測中...</span> 將於 <span id="countdown">5</span> 秒後自動跳轉
+        </div>
+    </div>
+
+    <div id="custom-modal">
+        <div class="modal-content">
+            <div class="modal-title">偏好設定 / Preference</div>
+            <div class="modal-desc">
+                是否要記住此選擇？<br>下次將直接進入該版本。<br>
+                <small style="font-size: 0.7rem; color: #777;">Would you like to save this as your default language?</small>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-main" onclick="confirmSave(true)">要，記住</button>
+                <button class="btn btn-grey" onclick="confirmSave(false)">不需要</button>
+            </div>
         </div>
     </div>
 
@@ -128,16 +199,57 @@
         let redirectUrl = "home.html";
         let langName = "繁體中文";
         let timer;
+        let pendingUrl = ""; // 暫存使用者點選的網址
+        const STORAGE_KEY = 'lan_studio_lang_pref';
 
-        function stopTimer() { clearInterval(timer); }
+        function stopTimer() { 
+            clearInterval(timer); 
+            document.querySelector('.auto-redirect-tip').style.display = 'none';
+        }
 
-        async function detectLocation() {
+        // 點擊語言按鈕
+        function handleLangClick(url) {
+            stopTimer();
+            pendingUrl = url;
+            const modal = document.getElementById('custom-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.style.opacity = '1', 10);
+        }
+
+        // 彈窗按下後的處理
+        function confirmSave(shouldSave) {
+            if (shouldSave) {
+                localStorage.setItem(STORAGE_KEY, pendingUrl);
+            }
+            window.location.href = pendingUrl;
+        }
+
+        async function init() {
+            // 檢查是否帶有 #rechoose 強制重選
+            if (window.location.hash === '#rechoose') {
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('geo-status').innerText = "已重置偏好，請重新選擇";
+                history.replaceState(null, null, ' '); // 移除網址上的 #rechoose
+                startDetection();
+                return;
+            }
+
+            // 檢查是否有預設紀錄
+            const savedLang = localStorage.getItem(STORAGE_KEY);
+            if (savedLang) {
+                document.getElementById('geo-status').innerText = "套用偏好設定中...";
+                window.location.replace(savedLang);
+                return;
+            }
+
+            startDetection();
+        }
+
+        async function startDetection() {
             try {
-                // 地理位置偵測
                 const response = await fetch('https://ipapi.co/json/');
                 const data = await response.json();
                 
-                // 邏輯判斷：台港澳使用繁中，其他(含中國)使用英文
                 if (['TW', 'HK', 'MO'].includes(data.country_code)) {
                     redirectUrl = "home.html";
                     langName = "繁體中文頁面";
@@ -159,7 +271,7 @@
             const countdownEl = document.getElementById('countdown');
             timer = setInterval(() => {
                 timeLeft--;
-                countdownEl.innerText = timeLeft;
+                if (countdownEl) countdownEl.innerText = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     window.location.replace(redirectUrl);
@@ -167,7 +279,7 @@
             }, 1000);
         }
 
-        detectLocation();
+        init();
     </script>
 </body>
 </html>
