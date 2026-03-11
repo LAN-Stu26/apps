@@ -233,6 +233,7 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="/home.html"><b>繁體中文</b></a>
                 <a href="/en/home.html"><b>English</b></a>
+                <a href="/index.html#rechoose"><b>清除語言設定</b></a>
             </div>
         </li>
     </ul>
@@ -550,3 +551,4 @@ onAuthStateChanged(auth, (user) => {
 
 
 export { auth, app };
+
