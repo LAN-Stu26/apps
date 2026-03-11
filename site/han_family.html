@@ -15,12 +15,20 @@
             --accent-blue: #3498db;
         }
 
+        /* 保護機制：預設先隱藏整個 body 內容，驗證通過後才顯示 */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
-            padding-top: 60px; /* 預留導覽列空間 */
+            padding-top: 60px;
+            opacity: 0; /* 預設隱藏 */
+            transition: opacity 0.5s ease;
+        }
+
+        /* 當驗證成功時加入此 class */
+        body.auth-passed {
+            opacity: 1;
         }
 
         .container {
@@ -110,9 +118,20 @@
             margin-top: 40px;
         }
         .back-link:hover { color: var(--primary-color); }
+
+        /* 簡單的載入中樣式，避免畫面全黑太久 */
+        #auth-loading {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: #1d1d1d; color: #ffd966; z-index: 9999;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
+
+    <div id="auth-loading">驗證存取權限中...</div>
 
     <div class="hero-section">
         <h1 class="hero-title">韓家</h1>
@@ -156,6 +175,37 @@
         <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
     </div>
 
-    <script type="module" src="navbar.js"></script>
+    <script type="module">
+        import { auth } from './navbar.js'; // 假設 navbar.js 在同一目錄，若在根目錄請用 /navbar.js
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const loadingScreen = document.getElementById('auth-loading');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // 檢查是否為新北市教育局帳號
+                if (user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
+                    // 驗證通過
+                    document.body.classList.add('auth-passed');
+                    if (loadingScreen) loadingScreen.style.display = 'none';
+                } else {
+                    // 登入了但 Email 不符
+                    alert('此內容僅限新北市教育局帳號 (@apps.ntpc.edu.tw) 查看。');
+                    window.location.href = '/error_auth.html'; // 跳轉至錯誤頁面
+                }
+            } else {
+                // 未登入，提示並跳回首頁或登入頁
+                alert('請先登入新北市教育局帳號以查看此內容。');
+                window.location.href = '/home.html';
+            }
+        });
+
+        // 設置超時保護，如果 5 秒內沒反應(如 Firebase 載入失敗)，自動跳轉
+        setTimeout(() => {
+            if (!document.body.classList.contains('auth-passed')) {
+                console.log("Auth timeout or failed.");
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
