@@ -13,7 +13,12 @@
             --card-bg: #2d2d2d;
             --text-color: #ffffff;
             --accent-blue: #3498db;
-            --link-hover-bg: rgba(255, 217, 102, 0.1);
+        }
+
+        /* 修正：預設隱藏內容容器而非 body，避免導覽列載入位置出錯 */
+        #content-wrapper {
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
 
         body {
@@ -21,22 +26,21 @@
             color: var(--text-color);
             font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
-            padding-top: 60px; /* 預留導覽列空間 */
-            opacity: 0; /* 保護機制：預設隱藏 */
-            transition: opacity 0.5s ease;
+            /* 導覽列高度約 64-70px */
+            padding-top: 70px; 
         }
 
-        /* 驗證通過後顯示 */
-        body.auth-passed {
+        /* 驗證通過後的顯示狀態 */
+        body.auth-passed #content-wrapper {
             opacity: 1;
         }
 
-        /* 驗證中提示樣式 */
+        /* 驗證中提示 */
         #auth-loading {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
-            background: #1d1d1d; color: #ffd966; z-index: 9999;
+            background: #1d1d1d; color: #ffd966; z-index: 10000;
             font-size: 1.2rem;
         }
 
@@ -48,14 +52,14 @@
 
         .hero-section {
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 20px;
             background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, var(--bg-color) 100%);
             border-bottom: 1px solid #333;
             margin-bottom: 40px;
         }
 
         .hero-title {
-            font-size: 4rem;
+            font-size: 3.5rem; /* 微調大小 */
             color: var(--primary-color);
             margin: 0 0 15px 0;
             text-shadow: 0 4px 20px rgba(255, 217, 102, 0.2);
@@ -64,7 +68,7 @@
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #aaa;
             letter-spacing: 2px;
             max-width: 600px;
@@ -75,7 +79,7 @@
         .info-card {
             background: var(--card-bg);
             border-radius: 20px;
-            padding: 50px;
+            padding: 40px; /* 微調內距 */
             border: 1px solid rgba(255,255,255,0.05);
             box-shadow: 0 20px 50px rgba(0,0,0,0.4);
             margin-bottom: 40px;
@@ -104,37 +108,35 @@
 
         .label {
             color: var(--primary-color);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: block;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .value {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             line-height: 1.8;
             color: #eee;
         }
 
-        /* --- 連結美化部分 --- */
         .value a {
             display: inline-block;
             color: var(--primary-color);
             text-decoration: none;
-            padding: 5px 15px;
-            margin: 5px 0;
+            padding: 6px 16px;
+            margin: 4px 0;
             border: 1px solid rgba(255, 217, 102, 0.3);
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
             background: rgba(255, 217, 102, 0.05);
         }
 
         .value a:hover {
             background: var(--primary-color);
             color: #000;
-            box-shadow: 0 0 15px rgba(255, 217, 102, 0.4);
             transform: translateY(-2px);
         }
 
@@ -152,65 +154,66 @@
             color: #7f8c8d;
             text-decoration: none;
             transition: 0.3s;
-            margin-top: 40px;
+            margin: 40px 0;
             font-weight: bold;
         }
         .back-link:hover { 
             color: var(--primary-color);
-            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <div id="auth-loading">驗證存取權限中...</div>
+    <div id="auth-loading">驗證權限中...</div>
 
-    <div class="hero-section">
-        <h1 class="hero-title">欣氏</h1>
-        <div class="hero-subtitle">擁有多個聊天室的勢力，合作方為 GCLLT</div>
-    </div>
-
-    <div class="container">
-        <div class="info-card">
-            <div class="info-item">
-                <span class="label">商家介紹</span>
-                <div class="value">
-                    <span style="color: #aaa;">: ( 資料被刪除了</span>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <span class="label">現任 CEO / 負責人</span>
-                <div class="value">鄭O妍 / 宋O翰</div>
-            </div>
-
-            <div class="info-item">
-                <span class="label">合作期間</span>
-                <div class="value">2026</div>
-            </div>
-
-            <div class="info-item">
-                <span class="label">聯絡資訊</span>
-                <div class="value">
-                    <a href="mailto:tyk6492@apps.ntpc.edu.tw">📧 傳送郵件給負責人</a>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <span class="label">Google Chat 群組列表</span>
-                <div class="value chat-links">
-                    <a href="https://chat.google.com/room/AAQAlMl1CS4?cls=5">🌟 新北群</a>
-                    <a href="https://chat.google.com/room/AAQAZHqVEOM?cls=5">🔗 未知群組 (1)</a>
-                    <a href="https://chat.google.com/room/AAAAmlqBRGE?cls=5">🔗 未知群組 (2)</a>
-                    <a href="https://chat.google.com/room/AAQAlKbJ6cw?cls=5">🔗 未知群組 (3)</a>
-                    <a href="https://chat.google.com/room/AAQA-lV-_a0?cls=5">🔗 未知群組 (4)</a>
-                    <a href="https://chat.google.com/room/AAQAzanxbUs?cls=5">🔗 未知群組 (5)</a>
-                    <a href="https://chat.google.com/room/AAQAJvhaXXk?cls=7">🌟 新北「歡樂」城</a>
-                </div>
-            </div>
+    <div id="content-wrapper">
+        <div class="hero-section">
+            <h1 class="hero-title">欣氏</h1>
+            <div class="hero-subtitle">擁有多個聊天室的勢力，合作方為 GCLLT</div>
         </div>
 
-        <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
+        <div class="container">
+            <div class="info-card">
+                <div class="info-item">
+                    <span class="label">商家介紹</span>
+                    <div class="value">
+                        <span style="color: #aaa;">: ( 資料被刪除了</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">現任 CEO / 負責人</span>
+                    <div class="value">鄭O妍 / 宋O翰</div>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">合作期間</span>
+                    <div class="value">2026</div>
+                </div>
+
+                <div class="info-item">
+                    <span class="label">聯絡資訊</span>
+                    <div class="value">
+                        <a href="mailto:tyk6492@apps.ntpc.edu.tw">📧 傳送郵件給負責人</a>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">Google Chat 群組列表</span>
+                    <div class="value chat-links">
+                        <a href="https://chat.google.com/room/AAQAlMl1CS4?cls=5">🌟 新北群</a>
+                        <a href="https://chat.google.com/room/AAQAZHqVEOM?cls=5">🔗 未知群組 (1)</a>
+                        <a href="https://chat.google.com/room/AAAAmlqBRGE?cls=5">🔗 未知群組 (2)</a>
+                        <a href="https://chat.google.com/room/AAQAlKbJ6cw?cls=5">🔗 未知群組 (3)</a>
+                        <a href="https://chat.google.com/room/AAQA-lV-_a0?cls=5">🔗 未知群組 (4)</a>
+                        <a href="https://chat.google.com/room/AAQAzanxbUs?cls=5">🔗 未知群組 (5)</a>
+                        <a href="https://chat.google.com/room/AAQAJvhaXXk?cls=7">🌟 新北「歡樂」城</a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
+        </div>
     </div>
 
     <script type="module">
@@ -220,21 +223,16 @@
         const loadingScreen = document.getElementById('auth-loading');
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 檢查是否為新北市教育局帳號
-                if (user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
-                    // 驗證通過
-                    document.body.classList.add('auth-passed');
-                    if (loadingScreen) loadingScreen.style.display = 'none';
-                } else {
-                    // 帳號不符，跳轉 1001
-                    window.location.href = '/1001.html';
-                }
+            if (user && user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
+                // 驗證通過
+                document.body.classList.add('auth-passed');
+                if (loadingScreen) loadingScreen.style.display = 'none';
             } else {
-                // 未登入，跳轉 1001
+                // 不符合條件
                 window.location.href = '/1001.html';
             }
         });
     </script>
+    <script type="module" src="/navbar.js"></script>
 </body>
 </html>
