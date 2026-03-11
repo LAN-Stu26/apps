@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1001 - 存取權限受限</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ffd966;
+            --bg-color: #1d1d1d;
+            --error-red: #ff4d4d;
+        }
+
+        /* 修正：不要在 body 使用 flex 置中，否則導覽列會錯位 */
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            display: block; /* 恢復塊狀佈局 */
+            min-height: 100vh;
+        }
+
+        /* 建立專屬容器來處理置中 */
+        .page-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px); /* 扣除導覽列高度 */
+            padding-top: 70px; 
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .error-container {
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        .error-message {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .domain-tag {
+            display: inline-block;
+            background: rgba(255, 217, 102, 0.1);
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-home {
+            background: var(--primary-color);
+            color: #000 !important; /* 強制覆蓋 navbar 的 a 標籤顏色 */
+        }
+
+        .btn-home:hover {
+            background: #ffebad;
+            transform: translateY(-2px);
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <div class="error-container">
+            <div class="lock-icon">🔒</div>
+            <h1 class="error-code">1001</h1>
+            <h2 class="error-title">存取權限受限</h2>
+            <p class="error-message">
+                抱歉，您嘗試存取的內容受到保護。<br>
+                此頁面僅供持有 <span class="domain-tag">@apps.ntpc.edu.tw</span> 帳號的成員查看。
+            </p>
+            
+            <div class="btn-group">
+                <a href="/home.html" class="btn btn-home">返回首頁</a>
+            </div>
+
+            <p style="margin-top: 40px; font-size: 0.8rem; color: #555;">
+                如果您認為這是錯誤，請確保您已透過導覽列切換至正確的 Google 帳號。
+            </p>
+        </div>
+    </div>
+
+    <script type="module" src="/navbar.js"></script>
+</body>
+</html>
