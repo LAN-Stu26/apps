@@ -16,28 +16,22 @@
             --link-hover-bg: rgba(255, 217, 102, 0.1);
         }
 
+        /* 初始隱藏 body，避免權限不足時閃過內容 */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
-            padding-top: 60px; /* 預留導覽列空間 */
-            opacity: 0; /* 保護機制：預設隱藏 */
-            transition: opacity 0.5s ease;
+            padding-top: 80px; /* 這裡預留導覽列的高度 */
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
-        /* 驗證通過後顯示 */
+        /* 驗證成功後由 JS 加入此 class */
         body.auth-passed {
+            visibility: visible;
             opacity: 1;
-        }
-
-        /* 驗證中提示樣式 */
-        #auth-loading {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: center; align-items: center;
-            background: #1d1d1d; color: #ffd966; z-index: 9999;
-            font-size: 1.2rem;
         }
 
         .container {
@@ -48,7 +42,7 @@
 
         .hero-section {
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 20px;
             background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, var(--bg-color) 100%);
             border-bottom: 1px solid #333;
             margin-bottom: 40px;
@@ -118,7 +112,6 @@
             color: #eee;
         }
 
-        /* --- 連結美化部分 --- */
         .value a {
             display: inline-block;
             color: var(--primary-color);
@@ -133,7 +126,7 @@
 
         .value a:hover {
             background: var(--primary-color);
-            color: #000;
+            color: #000 !important;
             box-shadow: 0 0 15px rgba(255, 217, 102, 0.4);
             transform: translateY(-2px);
         }
@@ -162,8 +155,6 @@
     </style>
 </head>
 <body>
-
-    <div id="auth-loading">驗證存取權限中...</div>
 
     <div class="hero-section">
         <h1 class="hero-title">欣氏</h1>
@@ -213,28 +204,29 @@
         <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
     </div>
 
+    <script type="module" src="/navbar.js"></script>
+
     <script type="module">
         import { auth } from '/navbar.js'; 
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const loadingScreen = document.getElementById('auth-loading');
-
+        // 監聽登入狀態
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 檢查是否為新北市教育局帳號
-                if (user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
-                    // 驗證通過
-                    document.body.classList.add('auth-passed');
-                    if (loadingScreen) loadingScreen.style.display = 'none';
-                } else {
-                    // 帳號不符，跳轉 1001
-                    window.location.href = '/1001.html';
-                }
+            if (user && user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
+                // 驗證通過：顯示頁面
+                document.body.classList.add('auth-passed');
             } else {
-                // 未登入，跳轉 1001
-                window.location.href = '/1001.html';
+                // 驗證失敗：跳轉
+                window.location.replace('/1001.html');
             }
         });
+
+        // 5秒安全機制：如果 Firebase 沒反應，強制跳轉避免白屏
+        setTimeout(() => {
+            if (!document.body.classList.contains('auth-passed')) {
+                window.location.replace('/1001.html');
+            }
+        }, 5000);
     </script>
 </body>
 </html>
