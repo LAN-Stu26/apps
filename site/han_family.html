@@ -175,37 +175,28 @@
         <a href="/cooperate.html" class="back-link">← 返回合作商家列表</a>
     </div>
 
-    <script type="module">
-        import { auth } from './navbar.js'; // 假設 navbar.js 在同一目錄，若在根目錄請用 /navbar.js
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<script type="module">
+    import { auth } from '/navbar.js'; 
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const loadingScreen = document.getElementById('auth-loading');
+    const loadingScreen = document.getElementById('auth-loading');
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 檢查是否為新北市教育局帳號
-                if (user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
-                    // 驗證通過
-                    document.body.classList.add('auth-passed');
-                    if (loadingScreen) loadingScreen.style.display = 'none';
-                } else {
-                    // 登入了但 Email 不符
-                    alert('此內容僅限新北市教育局帳號 (@apps.ntpc.edu.tw) 查看。');
-                    window.location.href = '/error_auth.html'; // 跳轉至錯誤頁面
-                }
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // 嚴格檢查 Email 網域
+            if (user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
+                // 驗證成功：顯示內容並移除加載層
+                document.body.classList.add('auth-passed');
+                if (loadingScreen) loadingScreen.style.display = 'none';
             } else {
-                // 未登入，提示並跳回首頁或登入頁
-                alert('請先登入新北市教育局帳號以查看此內容。');
-                window.location.href = '/home.html';
+                // 帳號不符：直接跳轉 1001
+                window.location.href = '/1001.html';
             }
-        });
-
-        // 設置超時保護，如果 5 秒內沒反應(如 Firebase 載入失敗)，自動跳轉
-        setTimeout(() => {
-            if (!document.body.classList.contains('auth-passed')) {
-                console.log("Auth timeout or failed.");
-            }
-        }, 5000);
-    </script>
+        } else {
+            // 未登入：直接跳轉 1001
+            window.location.href = '/1001.html';
+        }
+    });
+</script>
 </body>
 </html>
