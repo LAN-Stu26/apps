@@ -15,9 +15,10 @@
             --accent-blue: #3498db;
         }
 
-        /* 修正：預設隱藏內容容器而非 body，避免導覽列載入位置出錯 */
+        /* 安全更新：預設隱藏內容，並禁用所有指針事件防止未驗證操作 */
         #content-wrapper {
             opacity: 0;
+            pointer-events: none;
             transition: opacity 0.5s ease;
         }
 
@@ -26,13 +27,13 @@
             color: var(--text-color);
             font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
-            /* 導覽列高度約 64-70px */
             padding-top: 70px; 
         }
 
         /* 驗證通過後的顯示狀態 */
         body.auth-passed #content-wrapper {
             opacity: 1;
+            pointer-events: auto;
         }
 
         /* 驗證中提示 */
@@ -59,7 +60,7 @@
         }
 
         .hero-title {
-            font-size: 3.5rem; /* 微調大小 */
+            font-size: 3.5rem;
             color: var(--primary-color);
             margin: 0 0 15px 0;
             text-shadow: 0 4px 20px rgba(255, 217, 102, 0.2);
@@ -79,7 +80,7 @@
         .info-card {
             background: var(--card-bg);
             border-radius: 20px;
-            padding: 40px; /* 微調內距 */
+            padding: 40px;
             border: 1px solid rgba(255,255,255,0.05);
             box-shadow: 0 20px 50px rgba(0,0,0,0.4);
             margin-bottom: 40px;
@@ -222,14 +223,29 @@
 
         const loadingScreen = document.getElementById('auth-loading');
 
-        onAuthStateChanged(auth, (user) => {
+        // 封裝權限檢查邏輯
+        function checkAccess(user) {
             if (user && user.email && user.email.endsWith('@apps.ntpc.edu.tw')) {
-                // 驗證通過
                 document.body.classList.add('auth-passed');
                 if (loadingScreen) loadingScreen.style.display = 'none';
             } else {
-                // 不符合條件
-                window.location.href = '/1001.html';
+                // 使用 replace 防止在歷史紀錄中留下此頁面，避免返回死循環
+                window.location.replace('/1001.html');
+            }
+        }
+
+        // 監聽 Firebase 登入狀態
+        onAuthStateChanged(auth, (user) => {
+            checkAccess(user);
+        });
+
+        // 核心更新：處理瀏覽器 BFCache (解決點擊返回鍵還能看到內容的問題)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                // 如果是從快取讀取，立即重新隱藏內容並檢查權持
+                document.body.classList.remove('auth-passed');
+                if (loadingScreen) loadingScreen.style.display = 'flex';
+                checkAccess(auth.currentUser);
             }
         });
     </script>
