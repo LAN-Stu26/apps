@@ -108,7 +108,7 @@
             <h2 class="error-title">存取權限受限</h2>
             <p class="error-message">
                 抱歉，您嘗試存取的內容受到保護。<br>
-                此頁面僅供持有 <span class="domain-tag">@apps.ntpc.edu.tw</span> 帳號的成員查看。
+                此頁面僅供持有 <span id="domain-display" class="domain-tag">特定</span> 帳號的成員查看。
             </p>
             
             <div class="btn-group">
@@ -120,6 +120,27 @@
             </p>
         </div>
     </div>
+
+    <script>
+        /**
+         * 處理動態顯示特定字串
+         */
+        function updateDomainDisplay() {
+            const domainSpan = document.getElementById('domain-display');
+            // 檢查網址列是否有 #type:@apps.ntpc.edu.tw
+            if (window.location.hash === '#type:@apps.ntpc.edu.tw') {
+                domainSpan.textContent = '@apps.ntpc.edu.tw';
+            } else {
+                domainSpan.textContent = '特定';
+            }
+        }
+
+        // 初始化執行
+        updateDomainDisplay();
+
+        // 監聽網址 hash 變化（如果使用者在不重新整理的情況下手動輸入網址 hash）
+        window.addEventListener('hashchange', updateDomainDisplay);
+    </script>
 
     <script type="module" src="/navbar.js"></script>
 </body>
