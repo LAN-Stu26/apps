@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在跳轉 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1d1d1d;
+            --accent-red: #e74c3c;
+            --accent-blue: #ffd966;
+            --text-secondary: #bdc3c7;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #navbar-container {
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .error-wrapper {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 0;
+            color: #ffd966; /* 已更改為指定顏色 */
+            line-height: 1;
+            text-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); /* 同步調整陰影 */
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin: 20px 0 10px 0;
+            color: var(--text-secondary);
+        }
+
+        .countdown-text {
+            font-size: 1.1rem;
+            color: #95a5a6;
+            margin-bottom: 30px;
+        }
+
+        #timer {
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 5px;
+        }
+
+        /* 按鈕容器佈局 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .back-home {
+            display: inline-block;
+            padding: 12px 35px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background-color: var(--accent-blue);
+            color: #1d1d1d;
+        }
+
+        .back-home:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .error-code { font-size: 6rem; }
+            .error-message { font-size: 1.2rem; }
+            .button-group { flex-direction: column; width: 100%; max-width: 250px; }
+            .back-home { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <div class="error-wrapper">
+        <p class="error-code">導航中</p>
+        <p class="error-message">正在前往 home.html</p>
+        
+        <p class="countdown-text">
+            系統將在 <span id="timer">0.2</span> 秒後自動為您跳轉
+        </p>
+
+        <div class="button-group">
+            <a href="/lanai/home.html" class="back-home">沒有成功嗎? 點我立即前往</a>
+        </div>
+
+    </div>
+
+    <script type="module" src="/navbar.js"></script>
+
+    <script>
+        let seconds = 0.2; // 已改為 0.2 秒
+        const countdownElement = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            seconds -= 1;
+            if (countdownElement) {
+                countdownElement.innerText = seconds;
+            }
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = '/lanai/home.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
