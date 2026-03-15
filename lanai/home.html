@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>LanAI 模型下載中心 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --text-gray: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* --- 修正 navbar.js 導致的排版位移 --- */
+        /* 強制抵消 navbar 產生的 padding，確保 hero-header 貼齊頂部 */
+        body > header.hero-header {
+            margin-top: -70px !important;
+        }
+        body.has-announcement > header.hero-header {
+            margin-top: -115px !important;
+        }
+
+        /* --- 頁首圖片區 --- */
+        .hero-header {
+            position: relative;
+            width: 100%; 
+            height: 450px;
+            background-color: #000;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.6) blur(2px);
+        }
+
+        .hero-title-box {
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-dark);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #ffffff;
+            opacity: 0.9;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* --- 主內容區 --- */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .section-title {
+            text-align: center; 
+            font-size: 2.2rem;
+            margin-bottom: 40px; 
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-blue);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        /* --- 模型展示網格：固定一排 3 個 --- */
+        .app-grid {
+            display: grid;
+            /* 修改處：在電腦版（寬度足夠時）固定為 3 欄 */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .app-icon { font-size: 3rem; margin-bottom: 15px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.5rem; }
+        .app-card p { margin: 0 0 20px 0; color: #bdc3c7; font-size: 0.95rem; line-height: 1.6; flex-grow: 1; }
+        
+        .feature-list {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 0;
+            list-style: none;
+        }
+        .feature-list li {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li::before {
+            content: '✓';
+            color: var(--primary-dark);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+            transition: background 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            background: #2980b9;
+        }
+
+        /* 展開功能 */
+        .all-models-section {
+            display: none;
+            margin-top: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .all-models-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toggle-btn {
+            display: block;
+            margin: 40px auto;
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .toggle-btn:hover {
+            background: var(--primary-dark);
+            color: var(--bg-color);
+        }
+
+        .rank-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-right: 10px;
+        }
+
+        /* Hover 特效 */
+        @media (hover: hover) {
+            .app-card:hover {
+                transform: translateY(-12px);
+                box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+                border-color: var(--accent-blue);
+            }
+        }
+
+        /* RWD：僅在手機平板寬度不足時才改回一排 1 個或 2 個 */
+        @media (max-width: 992px) {
+            .app-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-title { font-size: 3rem; }
+        }
+        @media (max-width: 600px) {
+            .app-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-header">
+        <img src="/圖片/Rainy_day_bokeh_background.png" alt="LAN Studio Banner" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1620712943543-bcc4628c9757?q=80&w=1974&auto=format&fit=crop'">
+        
+        <div class="hero-title-box">
+            <h1 class="hero-title">LanAI Hub</h1>
+            <div class="hero-subtitle">由 LAN Studio 研發的神經網路模型系列</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="section-title">推薦首選</h2>
+        <div class="app-grid" id="featured-models">
+            <div class="app-card">
+                <div class="badge">最新版本</div>
+                <div class="app-icon">🚀</div>
+                <h3>LanAI 0.4.0</h3>
+                <p>文法結構強化版。繼承所有動態學習技術，專為高精確度文法對話設計。</p>
+                <ul class="feature-list">
+                    <li>9 年級英語文法深度特化</li>
+                    <li>自動 Temperature 採樣優化</li>
+                </ul>
+                <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.4.py" class="btn-download" download>直接下載</a>
+            </div>
+
+            <div class="app-card">
+                <div class="badge">推薦應用</div>
+                <div class="app-icon">🧠</div>
+                <h3>LanAI 0.3.3</h3>
+                <p>意圖感知優化版。在嚴謹邏輯與創意對話之間自動切換的最佳平衡點。</p>
+                <ul class="feature-list">
+                    <li>雙模式意圖判斷 (Logic/Chat)</li>
+                    <li>動態權重微調機制</li>
+                </ul>
+                <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.3.3.py" class="btn-download" download>直接下載</a>
+            </div>
+
+            <div class="app-card">
+                <div class="badge">高效能</div>
+                <div class="app-icon">⚡</div>
+                <h3>LanAI 0.3.2</h3>
+                <p>動態權重擴展版。首個實現運行時自動擴張矩陣維度的模型。</p>
+                <ul class="feature-list">
+                    <li>自適應隱藏層維度擴展</li>
+                    <li>單樣本快速學習機制</li>
+                </ul>
+                <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.3.2.py" class="btn-download" download>直接下載</a>
+            </div>
+        </div>
+
+        <button class="toggle-btn" id="toggle-btn">顯示完整排名與歷史版本</button>
+
+        <section class="all-models-section" id="all-models">
+            <h2 class="section-title">完整排名清單</h2>
+            <div class="app-grid">
+                <div class="app-card">
+                    <span class="rank-number">#4</span>
+                    <h3>LanAI 0.3.1</h3>
+                    <p>即時訓練先行版。開啟「持續學習」時代。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.3.1.py" class="btn-download" download>下載 0.3.1</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#5</span>
+                    <h3>LanAI 0.2.3</h3>
+                    <p>數學解算增強版。結合神經網路與規則引擎。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.2.3.py" class="btn-download" download>下載 0.2.3</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#6</span>
+                    <h3>LanAI 0.3</h3>
+                    <p>架構擴張基礎版。確立大型架構基礎。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.3.py" class="btn-download" download>下載 0.3</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#7</span>
+                    <h3>LanAI 0.2.2</h3>
+                    <p>穩定性修復版。針對詞彙混淆進行優化。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.2.2.py" class="btn-download" download>下載 0.2.2</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#8</span>
+                    <h3>LanAI 0.2.1</h3>
+                    <p>效能優化版。大幅提升 Python 環境運算速度。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.2.1.py" class="btn-download" download>下載 0.2.1</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#9</span>
+                    <h3>LanAI 0.2</h3>
+                    <p>句子生成器原型。關鍵技術里程碑。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.2.py" class="btn-download" download>下載 0.2</a>
+                </div>
+                <div class="app-card">
+                    <span class="rank-number">#10</span>
+                    <h3>LanAI 0.1</h3>
+                    <p>核心原型版。最純粹的 GRU 架構實現。</p>
+                    <a href="https://raw.githubusercontent.com/LAN-Stu26/apps/main/lanai/LanAI.0.1.py" class="btn-download" download>下載 0.1</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+        const allModels = document.getElementById('all-models');
+
+        toggleBtn.addEventListener('click', () => {
+            if (allModels.classList.contains('active')) {
+                allModels.classList.remove('active');
+                toggleBtn.innerText = '顯示完整排名與歷史版本';
+                window.scrollTo({ top: document.getElementById('featured-models').offsetTop - 100, behavior: 'smooth' });
+            } else {
+                allModels.classList.add('active');
+                toggleBtn.innerText = '收合歷史版本';
+            }
+        });
+    </script>
+    <script type="module" src="/navbar.js"></script>
+</body>
+</html>
