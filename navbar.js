@@ -185,6 +185,7 @@ const navbarHTML = `
     <a href="/home.html" class="logo">LAN Studio</a>
     <ul id="nav-list">
         <li><a href="/home.html"><b>首頁</b></a></li>
+        <li><a href="/lanai/home.html"><b>LanAI</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
@@ -243,9 +244,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 我們新增了隱私權政策，請點及按鈕查看</div>
+    <div class="bar-content">📢 LAN Studio 推出 Ai 模型啦!</div>
     <div class="bar-actions">
-        <a href="/site/Privacy_Policy.html" class="btn-bar-go">前往查看</a>
+        <a href="/lanai/home.html" class="btn-bar-go">前往查看</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
@@ -550,5 +551,3 @@ onAuthStateChanged(auth, (user) => {
 })();
 
 export { auth, app };
-
-
