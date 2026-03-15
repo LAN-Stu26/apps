@@ -185,6 +185,7 @@ const navbarHTML = `
     <a href="/home.html"class="logo">LAN Studio</a>
     <ul id="nav-list">
         <li><a href="/home.html"><b>首頁</b></a></li>
+        <li><a href="/lanai/home.html"><b>LanAI</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
