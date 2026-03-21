@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 編輯器 - LAN Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --primary-dark: #ffd966;
+            --bg-color: #1d1d1d;
+            --secondary-dark: #2a2a2a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            height: 100vh !important;
+            overflow: hidden !important; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        #custom-footer { display: none !important; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 90px 30px 20px 30px !important; 
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; gap: 15px; }
+        .title-area { display: flex; align-items: flex-end; gap: 15px; flex-wrap: wrap; }
+        h1 { color: var(--primary-dark); letter-spacing: 2px; line-height: 1; margin: 0; }
+
+        .filename-group { display: flex; align-items: center; margin-bottom: 2px; }
+        .filename-group input {
+            background: transparent; border: none; border-bottom: 2px solid #555;
+            color: white; font-size: 1.1rem; padding: 2px 10px; outline: none; width: 250px;
+            transition: border-color 0.3s; font-family: 'Noto Sans TC', sans-serif;
+        }
+        .filename-group input:focus { border-bottom-color: var(--primary-dark); }
+        .filename-group span { color: #888; font-size: 1.1rem; font-weight: bold; margin-left: 5px; }
+
+        .header-actions { display: flex; gap: 10px; margin-left: auto; }
+
+        .btn-main {
+            padding: 10px 20px; background-color: var(--primary-dark); color: #111;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .controls-wrapper {
+            background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px;
+            margin-bottom: 15px; flex-shrink: 0;
+        }
+
+        .controls-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        
+        /* 拖曳區域的樣式 */
+        .draggable-area {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+            min-height: 40px; padding: 5px; border-radius: 8px;
+            border: 1px dashed transparent; transition: all 0.3s;
+        }
+        .draggable-area.drag-over { border-color: var(--primary-dark); background: rgba(255, 217, 102, 0.05); }
+
+        .advanced-controls { display: none; margin-top: 10px; border-top: 1px solid #444; }
+        .advanced-controls.show { display: block; }
+
+        .controls-row button, .draggable-area button {
+            background-color: #444; color: white; border: none; padding: 8px 15px;
+            border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s;
+            user-select: none; /* 防止拖曳時反白文字 */
+        }
+        .controls-row button:hover, .draggable-area button:hover { background-color: #555; transform: translateY(-2px); }
+        
+        /* 正在拖曳的按鈕特效 */
+        .draggable-area button.dragging { opacity: 0.4; transform: scale(0.95); background-color: var(--primary-dark); color: #000; }
+
+        /* 復原重作按鈕特別顏色 */
+        .history-btn { background-color: #2c3e50 !important; color: #ffd966 !important; }
+        .history-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; color: #888 !important; }
+
+        .right-controls { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .workspace { display: flex; gap: 20px; flex: 1; min-height: 0; }
+        .pane {
+            flex: 1; background-color: var(--secondary-dark); border: 1px solid #444; border-radius: 12px;
+            padding: 20px; font-size: 1.1rem; line-height: 1.6; height: 100%; overflow-y: auto;
+        }
+
+        textarea.pane { color: #ddd; resize: none; font-family: 'Consolas', monospace; outline: none; transition: border-color 0.3s; }
+        textarea.pane:focus { border-color: var(--primary-dark); }
+        #preview.pane { color: #eee; }
+
+        #preview h1, #preview h2, #preview h3 { color: var(--primary-dark); margin-top: 15px; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        #preview p { margin-bottom: 15px; }
+        #preview ul, #preview ol { margin-bottom: 15px; padding-left: 25px; }
+        #preview code { background-color: #111; color: var(--primary-dark); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        #preview pre { background-color: #111; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 15px; }
+        #preview pre code { background-color: transparent; color: #ddd; padding: 0; }
+        #preview blockquote { border-left: 4px solid var(--primary-dark); padding-left: 15px; color: #aaa; margin-left: 0; margin-bottom: 15px; }
+        #preview a { color: #66b3ff; text-decoration: none; }
+        #preview a:hover { text-decoration: underline; }
+        #preview table { border-collapse: collapse; width: 100%; margin-bottom: 15px; }
+        #preview th, #preview td { border: 1px solid #555; padding: 8px; text-align: left; }
+        #preview th { background-color: #111; color: var(--primary-dark); }
+        #preview img { max-width: 100%; border-radius: 8px; }
+
+        .workspace.edit-only #preview { display: none; }
+        .workspace.preview-only #editor { display: none; }
+
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        .modal-content { background-color: var(--secondary-dark); margin: 10% auto; padding: 25px; width: 90%; max-width: 400px; border-radius: 15px; border: 1px solid #444; position: relative; }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #888; }
+        .setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; }
+        input[type="color"] { border: none; width: 40px; height: 40px; background: none; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .workspace { flex-direction: column; }
+            .right-controls { margin-left: 0; margin-top: 10px; width: 100%; justify-content: space-between;}
+            .title-area { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .container { padding-top: 100px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="title-area">
+                <h1>Markdown 編輯器</h1>
+                <div class="filename-group">
+                    <input type="text" id="filename-input" value="未命名檔案" placeholder="請輸入檔案名稱...">
+                    <span>.md</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <input type="file" id="import-file" style="display: none;" accept=".md, .txt">
+                <button id="import-btn" class="btn-main" style="background-color: #4CAF50; color: white;">📂 匯入</button>
+                <button id="download-btn" class="btn-main">⬇ 匯出</button>
+            </div>
+        </div>
+
+        <div class="controls-wrapper">
+            <div class="controls-row">
+                <button id="undo-btn" class="history-btn" onclick="undo()" title="快捷鍵: Ctrl+Z">↩ 復原</button>
+                <button id="redo-btn" class="history-btn" onclick="redo()" title="快捷鍵: Ctrl+Y">↪ 重作</button>
+
+                <div style="width: 1px; height: 25px; background: #555; margin: 0 5px;"></div>
+
+                <div class="draggable-area" id="main-toolbar">
+                    <button draggable="true" data-id="bold" onclick="insertSyntax('**', '**')"><b>B</b> 粗體</button>
+                    <button draggable="true" data-id="italic" onclick="insertSyntax('*', '*')"><i>I</i> 斜體</button>
+                    <button draggable="true" data-id="h3" onclick="insertSyntax('### ', '')">H3 標題</button>
+                    <button draggable="true" data-id="quote" onclick="insertSyntax('> ', '')">❞ 引用</button>
+                    <button draggable="true" data-id="list" onclick="insertSyntax('- ', '')">● 清單</button>
+                    <button draggable="true" data-id="link" onclick="insertSyntax('[連結名稱](', ')')">🔗 連結</button>
+                    <button draggable="true" data-id="code" onclick="insertSyntax('```\n', '\n```')">{" "} 程式碼</button>
+                </div>
+
+                <button id="toggle-more-btn" style="background-color: #2c3e50;">➕ 更多</button>
+
+                <div class="right-controls">
+                    <button id="layout-btn" style="background-color: #8e44ad;">⛶ 切換版面</button>
+                    <button id="settings-btn" style="background-color: #666;">⚙️ 設定</button>
+                    <button id="clear-btn" style="background-color: #e74c3c;">↺ 清空</button>
+                </div>
+            </div>
+
+            <div class="advanced-controls" id="advanced-controls-wrapper">
+                <div class="draggable-area" id="adv-toolbar" style="padding-top: 10px;">
+                    <button draggable="true" data-id="strike" onclick="insertSyntax('~~', '~~')"><s>S</s> 刪除線</button>
+                    <button draggable="true" data-id="image" onclick="insertSyntax('![圖片替代文字](', '圖片網址)')">🖼️ 圖片</button>
+                    <button draggable="true" data-id="hr" onclick="insertSyntax('\n---\n', '')">➖ 分隔線</button>
+                    <button draggable="true" data-id="todo" onclick="insertSyntax('- [ ] ', '')">☑ 待辦事項</button>
+                    <button draggable="true" data-id="table" onclick="insertSyntax('\n| 欄位1 | 欄位2 |\n| --- | --- |\n| 內容 | 內容 |\n', '')">📊 表格</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace" id="workspace">
+            <textarea id="editor" class="pane" placeholder="在這裡輸入 Markdown 語法..."></textarea>
+            <div id="preview" class="pane"></div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-settings">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 20px;">編輯器設定</h2>
+            <div class="setting-row">主題強調色 <input type="color" id="color-primary" value="#ffd966"></div>
+            <div class="setting-row">整體背景色 <input type="color" id="color-bg" value="#1d1d1d"></div>
+            <div class="setting-row">編輯區背景色 <input type="color" id="color-pane" value="#2a2a2a"></div>
+            <button id="reset-settings-btn" style="width: 100%; margin-top: 20px; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">恢復預設顏色</button>
+        </div>
+    </div>
+
+    <script type="module" src="navbar.js"></script>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const workspace = document.getElementById('workspace');
+        const filenameInput = document.getElementById('filename-input');
+        
+        marked.setOptions({ breaks: true, gfm: true });
+
+        // --- 1. 客製化歷史紀錄 (Undo / Redo) 系統 ---
+        const historyStack = [];
+        let historyStep = -1;
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+
+        function updateHistoryButtons() {
+            undoBtn.disabled = historyStep <= 0;
+            redoBtn.disabled = historyStep >= historyStack.length - 1;
+        }
+
+        function saveHistory() {
+            // 如果內容沒變，不儲存 (避免無效堆疊)
+            if (historyStep >= 0 && historyStack[historyStep].value === editor.value) return;
+            
+            // 如果在歷史中間插入新動作，捨棄後面的重作紀錄
+            if (historyStep < historyStack.length - 1) {
+                historyStack.splice(historyStep + 1);
+            }
+            
+            historyStack.push({
+                value: editor.value,
+                start: editor.selectionStart,
+                end: editor.selectionEnd
+            });
+            
+            // 避免記憶體吃緊，最多儲存 50 步
+            if(historyStack.length > 50) historyStack.shift();
+            else historyStep++;
+            
+            updateHistoryButtons();
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                applyHistory();
+            }
+        }
+
+        function redo() {
+            if (historyStep < historyStack.length - 1) {
+                historyStep++;
+                applyHistory();
+            }
+        }
+
+        function applyHistory() {
+            const state = historyStack[historyStep];
+            editor.value = state.value;
+            editor.selectionStart = state.start;
+            editor.selectionEnd = state.end;
+            updatePreview();
+            updateHistoryButtons();
+            editor.focus();
+        }
+
+        // 綁定 Ctrl+Z 與 Ctrl+Y 快捷鍵
+        editor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
+                e.preventDefault(); undo();
+            } else if (e.ctrlKey && (e.key === 'y' || e.key === 'Y')) {
+                e.preventDefault(); redo();
+            }
+        });
+
+        // 監聽打字輸入並延遲儲存紀錄 (Debounce)
+        let typingTimer;
+        editor.addEventListener('input', () => {
+            updatePreview();
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(saveHistory, 400); // 停頓 0.4 秒才算一個動作
+        });
+
+        // 初始化第一次狀態
+        saveHistory();
+
+
+        // --- 2. 編輯器核心功能 ---
+        function updatePreview() { preview.innerHTML = marked.parse(editor.value); }
+
+        function insertSyntax(prefix, suffix) {
+            saveHistory(); // 插入前存檔
+
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+            const selectedText = text.substring(start, end);
+            
+            editor.value = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+            editor.focus();
+            
+            if (selectedText.length === 0) {
+                editor.selectionStart = editor.selectionEnd = start + prefix.length;
+            } else {
+                editor.selectionStart = editor.selectionEnd = start + prefix.length + selectedText.length + suffix.length;
+            }
+            
+            updatePreview();
+            saveHistory(); // 插入後存檔
+        }
+
+        // --- 3. 拖曳與自訂工具列系統 ---
+        const draggables = document.querySelectorAll('.draggable-area button[draggable="true"]');
+        const dragAreas = document.querySelectorAll('.draggable-area');
+        let draggedElement = null;
+
+        // 讀取本地儲存的工具列順序
+        function loadToolbarOrder() {
+            const savedOrder = JSON.parse(localStorage.getItem('md-toolbar-order'));
+            if (!savedOrder) return;
+            
+            dragAreas.forEach(area => {
+                const areaId = area.id;
+                if (savedOrder[areaId]) {
+                    savedOrder[areaId].forEach(btnId => {
+                        const btn = document.querySelector(`button[data-id="${btnId}"]`);
+                        if (btn) area.appendChild(btn);
+                    });
+                }
+            });
+        }
+        
+        // 儲存工具列順序
+        function saveToolbarOrder() {
+            const order = {};
+            dragAreas.forEach(area => {
+                const btns = Array.from(area.querySelectorAll('button'));
+                order[area.id] = btns.map(btn => btn.getAttribute('data-id'));
+            });
+            localStorage.setItem('md-toolbar-order', JSON.stringify(order));
+        }
+
+        draggables.forEach(btn => {
+            btn.addEventListener('dragstart', (e) => {
+                draggedElement = btn;
+                setTimeout(() => btn.classList.add('dragging'), 0);
+            });
+            btn.addEventListener('dragend', () => {
+                btn.classList.remove('dragging');
+                draggedElement = null;
+                saveToolbarOrder(); // 拖曳結束自動存檔
+            });
+        });
+
+        dragAreas.forEach(area => {
+            area.addEventListener('dragover', e => {
+                e.preventDefault();
+                area.classList.add('drag-over');
+                const afterElement = getDragAfterElement(area, e.clientX);
+                if (afterElement == null) {
+                    area.appendChild(draggedElement);
+                } else {
+                    area.insertBefore(draggedElement, afterElement);
+                }
+            });
+            area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+            area.addEventListener('drop', () => area.classList.remove('drag-over'));
+        });
+
+        function getDragAfterElement(container, x) {
+            const draggableElements = [...container.querySelectorAll('button:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = x - box.left - box.width / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // 初始化載入按鈕位置
+        loadToolbarOrder();
+
+        // --- 4. 其他 UI 按鈕事件 ---
+        document.getElementById('toggle-more-btn').addEventListener('click', () => {
+            document.getElementById('advanced-controls-wrapper').classList.toggle('show');
+        });
+
+        let layoutState = 0;
+        document.getElementById('layout-btn').addEventListener('click', () => {
+            layoutState = (layoutState + 1) % 3;
+            workspace.className = 'workspace'; 
+            if (layoutState === 1) workspace.classList.add('edit-only');
+            if (layoutState === 2) workspace.classList.add('preview-only');
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (confirm('確定要清空所有內容嗎？')) {
+                editor.value = ''; updatePreview(); saveHistory(); editor.focus();
+            }
+        });
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            if(!editor.value) return alert("沒有內容可以匯出！");
+            let filename = filenameInput.value.trim();
+            if(!filename) filename = "未命名檔案";
+            const blob = new Blob([editor.value], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `${filename}.md`;
+            a.click(); URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('import-btn').addEventListener('click', () => {
+            document.getElementById('import-file').click();
+        });
+        
+        document.getElementById('import-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            filenameInput.value = file.name.replace(/\.[^/.]+$/, "");
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                editor.value = event.target.result;
+                updatePreview();
+                saveHistory(); // 匯入後存檔
+            };
+            reader.readAsText(file);
+            e.target.value = ''; 
+        });
+
+        // --- 設定彈窗 ---
+        const modal = document.getElementById('settingsModal');
+        document.getElementById('settings-btn').addEventListener('click', () => modal.style.display = 'block');
+        document.getElementById('close-settings').addEventListener('click', () => modal.style.display = 'none');
+        window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
+
+        function updateColor(varName, pickerId) {
+            document.getElementById(pickerId).addEventListener('input', (e) => {
+                document.documentElement.style.setProperty(varName, e.target.value);
+            });
+        }
+        updateColor('--primary-dark', 'color-primary');
+        updateColor('--bg-color', 'color-bg');
+        updateColor('--secondary-dark', 'color-pane');
+
+        document.getElementById('reset-settings-btn').addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-dark', '#ffd966');
+            document.documentElement.style.setProperty('--bg-color', '#1d1d1d');
+            document.documentElement.style.setProperty('--secondary-dark', '#2a2a2a');
+            document.getElementById('color-primary').value = '#ffd966';
+            document.getElementById('color-bg').value = '#1d1d1d';
+            document.getElementById('color-pane').value = '#2a2a2a';
+        });
+    </script>
+</body>
+</html>

@@ -185,16 +185,15 @@ const navbarHTML = `
     <a href="/home.html" class="logo">LAN Studio</a>
     <ul id="nav-list">
         <li><a href="/home.html"><b>首頁</b></a></li>
-        <li><a href="/lanai/home.html"><b>LanAI</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
                 <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
+                <a href="/app/markdown.html"><b>Markdown 編輯器</b></a>
                 <a href="/app/ip.html"><b>IP 位置查詢</b></a>
                 <a href="/app/sboard.html"><b>計分板</b></a>
-                <a href="/app/qreditor.html"><b>QRCode 工具套組</b></a>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -540,7 +539,7 @@ onAuthStateChanged(auth, (user) => {
 
     } else {
         favBtn.style.display = 'none';
-        area.innerHTML = `<a id="login-btn"><b>登入</b></a>`;
+        area.innerHTML = `<a id="login-btn"><b>Google 登入</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
     }
 });
@@ -550,6 +549,4 @@ onAuthStateChanged(auth, (user) => {
     document.head.appendChild(link);
 })();
 
-
 export { auth, app };
-
