@@ -176,6 +176,26 @@ const style = `
     .footer-top { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; }
     .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; animation: shine 4s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
     .ai-notice-navbar { font-weight: bold; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4) 0% center / 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
+
+    /* 預設隱藏子內容 */
+    .nested-content {
+        display: none;
+        background-color: #222; /* 稍微深一點的顏色區隔 */
+        padding-left: 10px;    /* 縮排視覺效果 */
+    }
+
+    /* 當父層有 active 類別時顯示 */
+    .nested-dropdown.active .nested-content {
+        display: block;
+        animation: fadeInDown 0.3s ease;
+    }
+
+    /* 選項箭頭動畫 (可選) */
+    .nested-toggle::after {
+        transition: transform 0.3s;
+        display: inline-block;
+    }
+
 </style>
 `;
 
@@ -190,10 +210,15 @@ const navbarHTML = `
             <div class="dropdown-content">
                 <a href="/apps.html"><b>所有網頁程式</b></a>
                 <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
-                <a href="#"  class="ai-notice-navbar">最新 ▾▾▾</a>
-                <a href="/app/markdown.html"><b>Markdown 編輯器</b></a>
-                <a href="/app/ip.html"><b>IP 位置查詢</b></a>
-                <a href="/app/sboard.html"><b>計分板</b></a>
+        
+                <div class="nested-dropdown">
+                    <a href="#" class="nested-toggle"><b>最新網頁應用 ▾</b></a>
+                    <div class="nested-content">
+                        <a href="/app/markdown.html"><b>Markdown 編輯器</b></a>
+                        <a href="/app/ip.html"><b>IP 位置查詢</b></a>
+                        <a href="/app/sboard.html"><b>計分板</b></a>
+                    </div>
+                </div>
             </div>
         </li>
         <li><a href="/news.html"><b>最新消息</b></a></li>
@@ -344,6 +369,22 @@ if (menuBtn) {
         navList.classList.toggle('active');
     });
 }
+
+// 處理巢狀選單收合
+document.querySelectorAll('.nested-toggle').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+        e.preventDefault(); // 防止連結跳轉
+        e.stopPropagation(); // 防止觸發父層 dropdown 的關閉機制
+        
+        const parent = toggle.closest('.nested-dropdown');
+        parent.classList.toggle('active');
+        
+        // 如果你希望「一次只能打開一個子收合」，可以加入以下：
+        // document.querySelectorAll('.nested-dropdown').forEach(d => {
+        //    if(d !== parent) d.classList.remove('active');
+        // });
+    });
+});
 
 document.addEventListener('click', () => {
     if(navList.classList.contains('active')){
