@@ -220,7 +220,7 @@
     <div id="login-overlay" style="display: none;"><h2>🔐 請先登入以開啟加密空間</h2></div>
 
     <script type="module">
-        import { auth } from "./navbar.js";
+        import { auth } from "/navbar.app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
