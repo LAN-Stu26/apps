@@ -286,9 +286,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 LAN Studio 推出 Ai 模型啦!</div>
+    <div class="bar-content">📢 本站今日更新 Privacy Policy</div>
     <div class="bar-actions">
-        <a href="/lanai/home.html" class="btn-bar-go">前往查看</a>
+        <a href="/site/Privacy_Policy.html" class="btn-bar-go">前往查看</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
