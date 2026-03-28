@@ -244,6 +244,7 @@ const navbarHTML = `
                     <a href="#" class="nested-toggle"><b>服務 ▾</b></a>
                     <div class="nested-content">
                         <a href="/cooperate.html"><b>合作商家</b></a>
+                        <a href="/site/Privacy_Policy.html"><b>隱私權政策</b></a>
                         <a href="/download.html"><b>下載專區</b></a>
                     </div>
                 </div>
