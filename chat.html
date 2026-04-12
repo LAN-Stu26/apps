@@ -18,46 +18,48 @@
             --message-bg: #333;
         }
 
-        /* 1. 強制隱藏 navbar.js 生成的 UI 元件且不留白 */
+        /* 1. 強制修正 navbar.js 對 body 造成的影響 */
+        body {
+            font-family: 'Noto Sans TC', sans-serif !important;
+            background-color: var(--bg-color) !important;
+            color: white !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+        }
+
+        /* 2. 強制移除所有 navbar.js 生成的 UI 元件 */
         #custom-navbar, #custom-footer, #announcement-bar {
             display: none !important;
             visibility: hidden !important;
             height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
         }
 
-        /* 2. 移除 navbar.js 強制加在內容上的 padding */
+        /* 3. 移除 navbar.js 強制加在內容上的 padding-top */
         body > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
             padding-top: 0 !important;
             margin-top: 0 !important;
+            flex: 1 !important; /* 確保主佈局填滿 */
         }
         
-        /* 3. 禁用 navbar.js 的公告欄樣式 */
-        body.has-announcement {
-            padding-top: 0 !important;
-        }
+        /* 4. 禁用公告欄狀態下的額外 padding */
         body.has-announcement > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
             padding-top: 0 !important;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--bg-color);
-            color: white;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
         /* 聊天主要佈局 */
         .chat-layout {
             display: flex;
             flex: 1;
-            height: 100vh; /* 填滿全螢幕，因為導覽列已隱藏 */
+            height: 100%;
             position: relative;
         }
 
