@@ -18,14 +18,14 @@
             --message-bg: #333;
         }
 
-        /* --- 強制隱藏 navbar.js 生成的 UI 元素 --- */
+        /* 1. 強制隱藏 navbar.js 生成的 UI 元件且不留白 */
         #custom-navbar, #custom-footer, #announcement-bar {
             display: none !important;
         }
 
-        /* 覆蓋 navbar.js 強加在 body 上的 padding-top */
+        /* 2. 移除 navbar.js 強制加在內容上的 padding */
         body > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
-            padding-top: 0 !important;
+            padding-top: 0 !important; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,35 +40,34 @@
             overflow: hidden;
         }
 
-        /* 聊天主要佈局 - 填滿全螢幕 */
+        /* 聊天主要佈局 */
         .chat-layout {
             display: flex;
             flex: 1;
-            height: 100vh;
+            height: 100vh; /* 填滿全螢幕，因為導覽列已隱藏 */
             position: relative;
         }
 
         /* 載入中提示 */
         #loading-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            inset: 0;
+            background: rgba(0,0,0,0.8);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 999999;
+            z-index: 99999;
+            flex-direction: column;
+            gap: 15px;
         }
-        .loader {
+
+        .spinner {
+            width: 40px; height: 40px;
             border: 4px solid #333;
             border-top: 4px solid var(--primary-dark);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 側邊欄 */
         .sidebar {
@@ -92,10 +91,11 @@
             background: var(--primary-dark);
             color: var(--bg-color);
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         .room-list { flex: 1; overflow-y: auto; }
@@ -104,17 +104,18 @@
             padding: 15px 20px;
             cursor: pointer;
             border-bottom: 1px solid #333;
+            transition: 0.2s;
         }
 
-        .room-item.active {
+        .room-item:hover, .room-item.active {
             background-color: #333;
             border-left: 4px solid var(--primary-dark);
         }
 
         .room-item h4 { font-size: 0.9rem; color: var(--primary-dark); }
-        .room-item p { font-size: 0.7rem; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .room-item p { font-size: 0.7rem; color: #888; overflow: hidden; text-overflow: ellipsis; }
 
-        /* 主聊天區 */
+        /* 主聊天視窗 */
         .main-chat {
             flex: 1;
             display: flex;
@@ -123,7 +124,7 @@
         }
 
         .chat-header {
-            padding: 15px 20px;
+            padding: 15px 25px;
             background: var(--secondary-dark);
             border-bottom: 1px solid #444;
             display: flex;
@@ -140,20 +141,22 @@
             gap: 15px;
         }
 
-        .message { max-width: 80%; display: flex; flex-direction: column; }
+        .message { max-width: 75%; display: flex; flex-direction: column; }
         .message.sent { align-self: flex-end; align-items: flex-end; }
         .message.received { align-self: flex-start; }
+        .message-info { font-size: 0.75rem; color: #888; margin-bottom: 4px; }
         .message-bubble {
             padding: 10px 15px;
             border-radius: 12px;
             font-size: 0.95rem;
+            line-height: 1.5;
             word-break: break-all;
         }
         .sent .message-bubble { background-color: var(--primary-dark); color: var(--bg-color); }
         .received .message-bubble { background-color: var(--message-bg); color: white; }
 
         .input-area {
-            padding: 15px;
+            padding: 20px;
             background: var(--secondary-dark);
             display: flex;
             gap: 10px;
@@ -172,24 +175,22 @@
         .input-area button {
             background: var(--primary-dark);
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 45px; height: 45px;
             border-radius: 50%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         /* 彈窗 */
         .modal {
             display: none;
             position: fixed;
-            z-index: 10000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            z-index: 100000;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
         }
+
         .modal-content {
             background: var(--secondary-dark);
             margin: 15vh auto;
@@ -197,27 +198,30 @@
             width: 90%;
             max-width: 400px;
             border-radius: 15px;
+            border: 1px solid #444;
             text-align: center;
         }
+
         .modal-content input {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            background: #111;
+            background: #1d1d1d;
             border: 1px solid #444;
             color: white;
             border-radius: 8px;
         }
+
         .modal-content button {
             background: var(--primary-dark);
             color: var(--bg-color);
             border: none;
             padding: 12px;
-            width: 100%;
             border-radius: 8px;
             font-weight: bold;
-            margin-top: 10px;
+            width: 100%;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         /* 手機 UI 設計 */
@@ -225,37 +229,37 @@
             .sidebar {
                 position: absolute;
                 left: 0; top: 0; bottom: 0;
-                z-index: 1001;
+                z-index: 1000;
                 transform: translateX(-100%);
+                box-shadow: 5px 0 15px rgba(0,0,0,0.5);
             }
             .sidebar.active { transform: translateX(0); }
-            .chat-header h3::before {
+            #current-room-title::before {
                 content: '☰ ';
                 color: var(--primary-dark);
-                margin-right: 8px;
+                margin-right: 10px;
                 cursor: pointer;
             }
-            .chat-overlay {
-                display: none;
+            .chat-layout.menu-open::after {
+                content: '';
                 position: absolute;
                 inset: 0;
                 background: rgba(0,0,0,0.5);
-                z-index: 1000;
+                z-index: 999;
             }
-            .chat-overlay.active { display: block; }
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
-        <div class="loader"></div>
-        <p>正在連線至 Lan Chat...</p>
+        <div class="spinner"></div>
+        <p>載入中，請稍候...</p>
     </div>
 
-    <div class="chat-overlay" id="chat-overlay" onclick="toggleSidebar()"></div>
-
-    <div class="chat-layout">
+    <div class="chat-layout" id="chat-layout">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <button onclick="checkAuthAndShow('createModal')">＋ 建立房間</button>
@@ -271,8 +275,8 @@
 
         <div class="main-chat">
             <div class="chat-header">
-                <h3 onclick="toggleSidebar()" id="current-room-title" style="cursor: pointer;">公共聊天室</h3>
-                <span id="current-room-id" style="font-size: 0.7rem; color: #666; cursor: pointer;">ID: public</span>
+                <h3 id="current-room-title" onclick="toggleSidebar()">公共聊天室</h3>
+                <span id="current-room-id" style="font-size: 0.7rem; color: #666; cursor: pointer;" title="點擊複製 ID">ID: public</span>
             </div>
             
             <div class="messages-container" id="messages-container"></div>
@@ -289,19 +293,19 @@
     <div id="createModal" class="modal">
         <div class="modal-content">
             <h3 style="color: var(--primary-dark)">建立私密聊天室</h3>
-            <input type="text" id="new-room-name" placeholder="聊天室顯示名稱">
-            <input type="text" id="new-room-id" placeholder="自訂 ID (6-30 個字)">
-            <button onclick="handleCreateRoom()">建立</button>
-            <p onclick="closeModal('createModal')" style="margin-top: 15px; cursor: pointer; color: #888; font-size: 0.8rem;">取消</p>
+            <input type="text" id="new-room-name" placeholder="請輸入聊天室顯示名稱">
+            <input type="text" id="new-room-id" placeholder="自訂房間 ID (6-30 字元)">
+            <button onclick="handleCreateRoom()">確認建立</button>
+            <p onclick="closeModal('createModal')" style="margin-top: 15px; cursor: pointer; color: #888;">取消</p>
         </div>
     </div>
 
     <div id="joinModal" class="modal">
         <div class="modal-content">
             <h3 style="color: var(--primary-dark)">加入聊天室</h3>
-            <input type="text" id="join-room-id" placeholder="貼上聊天室 ID">
-            <button onclick="handleJoinRoom()">加入</button>
-            <p onclick="closeModal('joinModal')" style="margin-top: 15px; cursor: pointer; color: #888; font-size: 0.8rem;">取消</p>
+            <input type="text" id="join-room-id" placeholder="輸入房間 ID">
+            <button onclick="handleJoinRoom()">加入房間</button>
+            <p onclick="closeModal('joinModal')" style="margin-top: 15px; cursor: pointer; color: #888;">取消</p>
         </div>
     </div>
 
@@ -314,10 +318,10 @@
         let currentUser = null;
         let unsubscribeMessages = null;
 
-        // 從 LocalStorage 獲取儲存的房間清單
+        // 本地存儲：保存使用者加入過的房間，防止重載後消失
         let myRooms = JSON.parse(localStorage.getItem('chat_joined_rooms') || '[]');
 
-        // 監聽 Auth
+        // 監聽登入狀態
         auth.onAuthStateChanged(user => {
             currentUser = user;
             document.getElementById('loading-overlay').style.display = 'none';
@@ -325,15 +329,7 @@
             loadMessages(currentRoomId);
         });
 
-        // 建立房間前檢查登入
-        window.checkAuthAndShow = (modalId) => {
-            if (!currentUser) {
-                alert("請先透過導覽列(或登入按鈕)登入 Google 帳號後再進行此操作");
-                return;
-            }
-            showModal(modalId);
-        };
-
+        // 渲染房間列表
         function renderRoomList() {
             const list = document.getElementById('room-list');
             list.innerHTML = `
@@ -351,21 +347,28 @@
             });
         }
 
+        // 切換房間
         window.switchRoom = (roomId, roomName) => {
             currentRoomId = roomId;
             document.getElementById('current-room-title').innerText = roomName;
             document.getElementById('current-room-id').innerText = `ID: ${roomId}`;
+            
+            // 手機版自動收合側邊欄
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('chat-layout').classList.remove('menu-open');
+
             renderRoomList();
             loadMessages(roomId);
-            if(window.innerWidth <= 768) toggleSidebar();
         };
 
+        // 載入訊息
         function loadMessages(roomId) {
             if (unsubscribeMessages) unsubscribeMessages();
             const container = document.getElementById('messages-container');
-            container.innerHTML = '<p style="text-align:center; color:#555;">載入訊息中...</p>';
+            container.innerHTML = '<p style="text-align:center; color:#555;">正在連線到聊天室...</p>';
             
             const q = query(collection(db, "chat_rooms", roomId, "messages"), orderBy("timestamp", "asc"));
+            
             unsubscribeMessages = onSnapshot(q, (snapshot) => {
                 container.innerHTML = '';
                 snapshot.forEach((doc) => {
@@ -374,7 +377,7 @@
                     const msgDiv = document.createElement('div');
                     msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
                     msgDiv.innerHTML = `
-                        <div class="message-info">${data.userName} • ${data.timestamp?.toDate().toLocaleTimeString() || '...'}</div>
+                        <div class="message-info">${data.userName || '訪客'} • ${data.timestamp?.toDate().toLocaleTimeString() || '傳送中...'}</div>
                         <div class="message-bubble">${data.text}</div>
                     `;
                     container.appendChild(msgDiv);
@@ -383,74 +386,87 @@
             });
         }
 
+        // 傳送訊息
         document.getElementById('chat-form').onsubmit = async (e) => {
             e.preventDefault();
             const input = document.getElementById('msg-input');
             const text = input.value.trim();
-            if (!text || !currentUser) return;
+            if (!text) return;
 
-            const userName = currentUser.displayName || '匿名使用者';
+            const userName = currentUser ? currentUser.displayName : '訪客';
+            const uid = currentUser ? currentUser.uid : 'anonymous';
+
             input.value = '';
             await addDoc(collection(db, "chat_rooms", currentRoomId, "messages"), {
-                text,
-                uid: currentUser.uid,
-                userName,
-                timestamp: serverTimestamp()
+                text, uid, userName, timestamp: serverTimestamp()
             });
         };
 
-        window.handleCreateRoom = async () => {
-            const name = document.getElementById('new-room-name').value.trim();
-            const id = document.getElementById('new-room-id').value.trim();
-
-            if (!name || id.length < 6 || id.length > 30) {
-                return alert('請輸入名稱，且 ID 需為 6-30 個字元');
-            }
-
-            const roomRef = doc(db, "chat_rooms", id);
-            const snap = await getDoc(roomRef);
-            if (snap.exists()) return alert('此 ID 已被使用');
-
-            await setDoc(roomRef, { name, owner: currentUser.uid, createdAt: serverTimestamp() });
-            saveAndSwitch(id, name);
-            closeModal('createModal');
+        // 登入檢查
+        window.checkAuthAndShow = (modalId) => {
+            if (!currentUser) return alert('建立房間功能僅限已登入會員使用');
+            showModal(modalId);
         };
 
+        // 建立房間
+        window.handleCreateRoom = async () => {
+            const name = document.getElementById('new-room-name').value.trim();
+            const customId = document.getElementById('new-room-id').value.trim();
+            
+            if (!name || customId.length < 6 || customId.length > 30) {
+                return alert('請輸入名稱，且 ID 需為 6-30 個字元');
+            }
+            
+            const roomRef = doc(db, "chat_rooms", customId);
+            const snap = await getDoc(roomRef);
+            if (snap.exists()) return alert('此 ID 已被佔用，請換一個');
+
+            await setDoc(roomRef, {
+                name: name,
+                createdBy: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+
+            addRoomToLocal(customId, name);
+            closeModal('createModal');
+            switchRoom(customId, name);
+        };
+
+        // 加入房間
         window.handleJoinRoom = async () => {
             const id = document.getElementById('join-room-id').value.trim();
             if (!id) return;
-
+            
             const roomSnap = await getDoc(doc(db, "chat_rooms", id));
             if (roomSnap.exists()) {
-                saveAndSwitch(id, roomSnap.data().name);
+                addRoomToLocal(id, roomSnap.data().name);
                 closeModal('joinModal');
+                switchRoom(id, roomSnap.data().name);
             } else {
-                alert('找不到該聊天室');
+                alert('找不到該聊天室 ID');
             }
         };
 
-        function saveAndSwitch(id, name) {
+        function addRoomToLocal(id, name) {
             if (!myRooms.find(r => r.id === id)) {
                 myRooms.push({ id, name });
                 localStorage.setItem('chat_joined_rooms', JSON.stringify(myRooms));
             }
-            switchRoom(id, name);
         }
 
-        window.toggleSidebar = () => {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('chat-overlay').classList.toggle('active');
-        };
-
+        // UI 互動
         window.showModal = (id) => document.getElementById(id).style.display = 'block';
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-        
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('chat-layout').classList.toggle('menu-open');
+        };
+
         document.getElementById('current-room-id').onclick = function() {
             const id = this.innerText.replace('ID: ', '');
-            navigator.clipboard.writeText(id).then(() => alert('ID 已複製'));
+            navigator.clipboard.writeText(id).then(() => alert('ID 已複製到剪貼簿'));
         };
-    </script>
 
-    <script type="module" src="/navbar.js" defer></script>
+    </script>
 </body>
 </html>
