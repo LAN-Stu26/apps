@@ -21,11 +21,24 @@
         /* 1. 強制隱藏 navbar.js 生成的 UI 元件且不留白 */
         #custom-navbar, #custom-footer, #announcement-bar {
             display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         /* 2. 移除 navbar.js 強制加在內容上的 padding */
         body > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
-            padding-top: 0 !important; 
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+        
+        /* 3. 禁用 navbar.js 的公告欄樣式 */
+        body.has-announcement {
+            padding-top: 0 !important;
+        }
+        body.has-announcement > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
+            padding-top: 0 !important;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
