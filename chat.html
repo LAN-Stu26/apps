@@ -18,52 +18,60 @@
             --message-bg: #333;
         }
 
-        /* 1. 強制重置 body，防止 navbar.js 的腳本推擠 */
-        html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 100% !important;
-            width: 100% !important;
-            overflow: hidden !important;
-            background-color: var(--bg-color) !important;
-        }
-
-        /* 2. 徹底隱藏導航列相關元件，確保它們不佔據任何空間 */
-        #custom-navbar, #custom-footer, #announcement-bar, .nav-placeholder {
+        /* 1. 強制隱藏 navbar.js 生成的 UI 元件且不留白 */
+        #custom-navbar, #custom-footer, #announcement-bar {
             display: none !important;
+            visibility: hidden !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            position: absolute !important;
-            pointer-events: none !important;
         }
 
-        /* 3. 聊天主要佈局：使用 fixed 定位強制置頂，無視 body 的 padding */
-        .chat-layout {
-            display: flex;
-            position: fixed; /* 關鍵：固定定位 */
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw;
-            height: 100vh;
-            z-index: 100; /* 確保在所有內容之上 */
-            background-color: var(--bg-color);
+        /* 2. 移除 navbar.js 強制加在內容上的 padding */
+        body > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+        
+        /* 3. 禁用 navbar.js 的公告欄樣式 */
+        body.has-announcement {
+            padding-top: 0 !important;
+        }
+        body.has-announcement > *:not(#custom-navbar):not(#custom-footer):not(#announcement-bar) {
+            padding-top: 0 !important;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 聊天主要佈局 */
+        .chat-layout {
+            display: flex;
+            flex: 1;
+            height: 100vh; /* 填滿全螢幕，因為導覽列已隱藏 */
+            position: relative;
+        }
 
         /* 載入中提示 */
         #loading-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.8);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 99999;
             flex-direction: column;
             gap: 15px;
-            color: white;
         }
 
         .spinner {
@@ -323,8 +331,10 @@
         let currentUser = null;
         let unsubscribeMessages = null;
 
+        // 本地存儲：保存使用者加入過的房間，防止重載後消失
         let myRooms = JSON.parse(localStorage.getItem('chat_joined_rooms') || '[]');
 
+        // 監聽登入狀態
         auth.onAuthStateChanged(user => {
             currentUser = user;
             document.getElementById('loading-overlay').style.display = 'none';
@@ -332,6 +342,7 @@
             loadMessages(currentRoomId);
         });
 
+        // 渲染房間列表
         function renderRoomList() {
             const list = document.getElementById('room-list');
             list.innerHTML = `
@@ -349,20 +360,25 @@
             });
         }
 
+        // 切換房間
         window.switchRoom = (roomId, roomName) => {
             currentRoomId = roomId;
             document.getElementById('current-room-title').innerText = roomName;
             document.getElementById('current-room-id').innerText = `ID: ${roomId}`;
+            
+            // 手機版自動收合側邊欄
             document.getElementById('sidebar').classList.remove('active');
             document.getElementById('chat-layout').classList.remove('menu-open');
+
             renderRoomList();
             loadMessages(roomId);
         };
 
+        // 載入訊息
         function loadMessages(roomId) {
             if (unsubscribeMessages) unsubscribeMessages();
             const container = document.getElementById('messages-container');
-            container.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">正在連線到聊天室...</p>';
+            container.innerHTML = '<p style="text-align:center; color:#555;">正在連線到聊天室...</p>';
             
             const q = query(collection(db, "chat_rooms", roomId, "messages"), orderBy("timestamp", "asc"));
             
@@ -383,6 +399,7 @@
             });
         }
 
+        // 傳送訊息
         document.getElementById('chat-form').onsubmit = async (e) => {
             e.preventDefault();
             const input = document.getElementById('msg-input');
@@ -398,29 +415,41 @@
             });
         };
 
+        // 登入檢查
         window.checkAuthAndShow = (modalId) => {
             if (!currentUser) return alert('建立房間功能僅限已登入會員使用');
             showModal(modalId);
         };
 
+        // 建立房間
         window.handleCreateRoom = async () => {
             const name = document.getElementById('new-room-name').value.trim();
             const customId = document.getElementById('new-room-id').value.trim();
-            if (!name || customId.length < 6 || customId.length > 30) return alert('請輸入名稱，且 ID 需為 6-30 個字元');
+            
+            if (!name || customId.length < 6 || customId.length > 30) {
+                return alert('請輸入名稱，且 ID 需為 6-30 個字元');
+            }
             
             const roomRef = doc(db, "chat_rooms", customId);
             const snap = await getDoc(roomRef);
             if (snap.exists()) return alert('此 ID 已被佔用，請換一個');
 
-            await setDoc(roomRef, { name, createdBy: currentUser.uid, createdAt: serverTimestamp() });
+            await setDoc(roomRef, {
+                name: name,
+                createdBy: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+
             addRoomToLocal(customId, name);
             closeModal('createModal');
             switchRoom(customId, name);
         };
 
+        // 加入房間
         window.handleJoinRoom = async () => {
             const id = document.getElementById('join-room-id').value.trim();
             if (!id) return;
+            
             const roomSnap = await getDoc(doc(db, "chat_rooms", id));
             if (roomSnap.exists()) {
                 addRoomToLocal(id, roomSnap.data().name);
@@ -438,6 +467,7 @@
             }
         }
 
+        // UI 互動
         window.showModal = (id) => document.getElementById(id).style.display = 'block';
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.toggleSidebar = () => {
@@ -449,6 +479,7 @@
             const id = this.innerText.replace('ID: ', '');
             navigator.clipboard.writeText(id).then(() => alert('ID 已複製到剪貼簿'));
         };
+
     </script>
 </body>
 </html>
