@@ -286,9 +286,9 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 本站於 2026/03/28 更新 Privacy Policy</div>
+    <div class="bar-content">📢 技術困難，請幫助我們!</div>
     <div class="bar-actions">
-        <a href="/site/Privacy_Policy.html" class="btn-bar-go">前往查看</a>
+        <a href="/news.html" class="btn-bar-go">NEWS</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
