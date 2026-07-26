@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mobile MD Editor - 手機 Markdown 編輯器</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+  <style>
+    /* 自訂捲軸樣式 */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 2px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    
+    /* 防止手機伸縮反彈影響 UI */
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Markdown 預覽區塊樣式增強 */
+    .markdown-body h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem; }
+    .markdown-body h2 { font-size: 1.4rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.25rem; }
+    .markdown-body h3 { font-size: 1.2rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+    .markdown-body p { margin-bottom: 0.75rem; line-height: 1.6; }
+    .markdown-body ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .markdown-body ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .markdown-body blockquote { border-left: 4px solid #3b82f6; padding-left: 0.75rem; color: #64748b; margin-bottom: 0.75rem; font-style: italic; }
+    .markdown-body code { background-color: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
+    .dark .markdown-body code { background-color: #334155; color: #f1f5f9; }
+    .markdown-body pre { background-color: #1e293b; color: #f8fafc; padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; }
+    .markdown-body pre code { background-color: transparent; padding: 0; color: inherit; }
+    .markdown-body a { color: #2563eb; text-decoration: underline; }
+    .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; }
+    .markdown-body th, .markdown-body td { border: 1px solid #cbd5e1; padding: 0.4rem 0.6rem; text-align: left; }
+    .dark .markdown-body th, .dark .markdown-body td { border-color: #475569; }
+    .markdown-body th { background-color: #f8fafc; }
+    .dark .markdown-body th { background-color: #1e293b; }
+    .markdown-body img { max-width: 100%; height: auto; border-radius: 0.375rem; margin: 0.5rem 0; }
+    .markdown-body input[type="checkbox"] { margin-right: 0.5rem; }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-screen flex flex-col overflow-hidden font-sans">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 py-2 flex items-center justify-between shrink-0 h-14">
+    <div class="flex items-center space-x-2">
+      <button id="btn-sidebar" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+      <input id="doc-title" type="text" value="未命名文章.md" class="bg-transparent font-medium text-base focus:outline-none focus:border-b-2 focus:border-blue-500 w-36 sm:w-48 truncate" />
+    </div>
+
+    <!-- 功能按鈕群 -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+      <button id="btn-toggle-view" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm flex items-center space-x-1">
+        <i id="icon-toggle-view" class="fa-solid fa-eye"></i>
+        <span id="text-toggle-view" class="hidden sm:inline">預覽</span>
+      </button>
+
+      <button id="btn-save" class="p-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm flex items-center space-x-1">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span class="hidden sm:inline">儲存</span>
+      </button>
+
+      <button id="btn-menu" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+        <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主內容區 (編輯 / 預覽) -->
+  <main class="flex-1 relative overflow-hidden flex">
+    <!-- 編輯區 -->
+    <div id="editor-container" class="w-full h-full flex flex-col bg-white dark:bg-slate-900">
+      <textarea id="markdown-input" class="w-full flex-1 p-4 bg-transparent resize-none focus:outline-none font-mono text-sm leading-relaxed text-slate-800 dark:text-slate-100" placeholder="在此開始輸入 Markdown 內容..."></textarea>
+      
+      <!-- 手機專用快速輸入工具列 (橫向滑動) -->
+      <div id="quick-toolbar" class="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-1.5 flex items-center space-x-1 overflow-x-auto whitespace-nowrap shrink-0">
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="#" data-suffix="">H1</button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="## " data-suffix="">H2</button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="**" data-suffix="**"><i class="fa-solid fa-bold"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="*" data-suffix="*"><i class="fa-solid fa-italic"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="~~" data-suffix="~~"><i class="fa-solid fa-strikethrough"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="- " data-suffix=""><i class="fa-solid fa-list-ul"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="1. " data-suffix=""><i class="fa-solid fa-list-ol"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="- [ ] " data-suffix=""><i class="fa-regular fa-square-check"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="> " data-suffix=""><i class="fa-solid fa-quote-left"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="`" data-suffix="`"><i class="fa-solid fa-code"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="[標題](url)" data-suffix=""><i class="fa-solid fa-link"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="![描述](image_url)" data-suffix=""><i class="fa-regular fa-image"></i></button>
+        <button class="qb-btn px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 active:bg-blue-50 dark:active:bg-slate-600" data-prefix="---" data-suffix="">分割線</button>
+      </div>
+    </div>
+
+    <!-- 預覽區 (預設隱藏，可在手機上全螢幕切換或在平板上併排) -->
+    <div id="preview-container" class="hidden w-full h-full bg-white dark:bg-slate-900 p-4 overflow-y-auto markdown-body">
+      <div id="preview-content"></div>
+    </div>
+  </main>
+
+  <!-- 側邊欄：檔案管理 -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden backdrop-blur-sm"></div>
+  <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-4/5 max-w-xs bg-white dark:bg-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-xl">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <h2 class="font-bold text-lg flex items-center space-x-2">
+        <i class="fa-solid fa-folder-open text-blue-500"></i>
+        <span>本機文件列表</span>
+      </h2>
+      <button id="btn-close-sidebar" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+
+    <!-- 建議通知區塊 -->
+    <div class="m-3 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-lg text-xs text-amber-800 dark:text-amber-200 flex flex-col space-y-1">
+      <div class="font-semibold flex items-center space-x-1">
+        <i class="fa-solid fa-circle-info text-amber-500"></i>
+        <span>資料管理建議</span>
+      </div>
+      <p class="leading-relaxed">
+        由於瀏覽器快取可能隨時被清理，建議您建立專門的實體資料夾，定期將重要的 Markdown 檔案匯出至手機本機備份！
+      </p>
+    </div>
+
+    <!-- 新增檔案按鈕 -->
+    <div class="px-3 pb-2">
+      <button id="btn-new-doc" class="w-full py-2 px-3 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-medium flex items-center justify-center space-x-2 border border-blue-200 dark:border-slate-600">
+        <i class="fa-solid fa-plus"></i>
+        <span>新增文章</span>
+      </button>
+    </div>
+
+    <!-- 文章檔案清單 -->
+    <div id="file-list" class="flex-1 overflow-y-auto px-3 py-1 space-y-1">
+      <!-- 動態載入檔案列表 -->
+    </div>
+
+    <div class="p-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-400 text-center">
+      LocalStorage 儲存空間使用中
+    </div>
+  </aside>
+
+  <!-- 更多選項彈出視窗 (Modal) -->
+  <div id="menu-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center">
+    <div class="bg-white dark:bg-slate-800 w-full sm:w-80 rounded-t-2xl sm:rounded-2xl p-4 space-y-3 transform transition-transform">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-bold text-base">選單與管理</h3>
+        <button id="btn-close-menu" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <button id="btn-export-file" class="w-full py-2.5 px-3 text-left text-sm flex items-center space-x-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fa-solid fa-file-export text-blue-500 text-base"></i>
+        <span>匯出至手機本機 (.md)</span>
+      </button>
+
+      <button id="btn-import-file" class="w-full py-2.5 px-3 text-left text-sm flex items-center space-x-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fa-solid fa-file-import text-green-500 text-base"></i>
+        <span>從手機匯入 (.md)</span>
+      </button>
+      <input type="file" id="input-file-import" accept=".md,.txt" class="hidden" />
+
+      <button id="btn-delete-doc" class="w-full py-2.5 px-3 text-left text-sm flex items-center space-x-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400">
+        <i class="fa-solid fa-trash text-base"></i>
+        <span>刪除當前文件</span>
+      </button>
+
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs text-slate-500">
+        <span>深色模式</span>
+        <button id="btn-toggle-theme" class="p-1 px-3 bg-slate-200 dark:bg-slate-700 rounded-full text-slate-800 dark:text-slate-200">
+          <i class="fa-solid fa-moon dark:hidden"></i>
+          <i class="fa-solid fa-sun hidden dark:inline"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 訊息提示 -->
+  <div id="toast" class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+    已儲存變更
+  </div>
+
+  <!-- JavaScript 邏輯程式碼 -->
+  <script>
+    // 初始化環境與狀態
+    const STORAGE_KEY = 'mobile_md_editor_docs';
+    const CURRENT_DOC_ID_KEY = 'mobile_md_editor_current_id';
+
+    let documents = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    let currentDocId = localStorage.getItem(CURRENT_DOC_ID_KEY) || null;
+    let isPreviewMode = false;
+
+    // DOM 元素引用
+    const editorContainer = document.getElementById('editor-container');
+    const previewContainer = document.getElementById('preview-container');
+    const previewContent = document.getElementById('preview-content');
+    const markdownInput = document.getElementById('markdown-input');
+    const docTitleInput = document.getElementById('doc-title');
+
+    const btnToggleView = document.getElementById('btn-toggle-view');
+    const iconToggleView = document.getElementById('icon-toggle-view');
+    const textToggleView = document.getElementById('text-toggle-view');
+
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const btnSidebar = document.getElementById('btn-sidebar');
+    const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+    const fileList = document.getElementById('file-list');
+    const btnNewDoc = document.getElementById('btn-new-doc');
+
+    const menuModal = document.getElementById('menu-modal');
+    const btnMenu = document.getElementById('btn-menu');
+    const btnCloseMenu = document.getElementById('btn-close-menu');
+    const btnSave = document.getElementById('btn-save');
+    const btnExport = document.getElementById('btn-export-file');
+    const btnImport = document.getElementById('btn-import-file');
+    const inputFileImport = document.getElementById('input-file-import');
+    const btnDelete = document.getElementById('btn-delete-doc');
+    const btnToggleTheme = document.getElementById('btn-toggle-theme');
+
+    // 配置 Marked 解析器
+    marked.setOptions({
+      highlight: function(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return hljs.highlightAuto(code).value;
+      },
+      breaks: true
+    });
+
+    // 初始化應用程式
+    function init() {
+      // 判斷是否需要建立預設範例文件
+      if (Object.keys(documents).length === 0) {
+        const defaultId = Date.now().toString();
+        documents[defaultId] = {
+          id: defaultId,
+          title: '歡迎使用 Markdown 編輯器.md',
+          content: `# 歡迎使用手機 Markdown 編輯器
+
+這是一款專為手機情境設計的隨手筆記工具！
+
+## 🌟 主要特色
+- **快捷工具列**：輸入時快速插入語法。
+- **本機儲存**：自動將資料保存在瀏覽器。
+- **檔案管理提示**：支援將檔案匯出成 \`.md\` 檔案至專屬手機資料夾。
+
+## 📝 語法支援展示
+
+### 任務清單
+- [x] 安裝並體驗編輯器
+- [ ] 匯出第一個 MD 檔案至手機專用目錄
+- [ ] 建立每日筆記習慣
+
+### 程式碼區塊
+\`\`\`javascript
+function helloWorld() {
+    console.log("Hello Mobile Markdown!");
+}
+\`\`\`
+
+> 💡 **提示**：點擊右上方「預覽」按鈕可切換模式；點擊選單可以匯出檔案備份！`,
+          updatedAt: Date.now()
+        };
+        currentDocId = defaultId;
+        saveDocumentsToStorage();
+      } else if (!currentDocId || !documents[currentDocId]) {
+        currentDocId = Object.keys(documents)[0];
+      }
+
+      loadDocument(currentDocId);
+      renderFileList();
+      
+      // 暗色模式初始判斷
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    // 載入指定文件
+    function loadDocument(id) {
+      if (!documents[id]) return;
+      currentDocId = id;
+      localStorage.setItem(CURRENT_DOC_ID_KEY, id);
+      
+      docTitleInput.value = documents[id].title;
+      markdownInput.value = documents[id].content;
+      updatePreview();
+      renderFileList();
+    }
+
+    // 儲存至 LocalStorage
+    function saveDocumentsToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    }
+
+    // 當前文件存檔
+    function saveCurrentDocument() {
+      if (!currentDocId) return;
+      documents[currentDocId].title = docTitleInput.value || '未命名文章.md';
+      documents[currentDocId].content = markdownInput.value;
+      documents[currentDocId].updatedAt = Date.now();
+      
+      saveDocumentsToStorage();
+      renderFileList();
+      showToast('文章已儲存');
+    }
+
+    // 呈現檔案列表
+    function renderFileList() {
+      fileList.innerHTML = '';
+      const sortedDocs = Object.values(documents).sort((a, b) => b.updatedAt - a.updatedAt);
+
+      sortedDocs.forEach(doc => {
+        const isCurrent = doc.id === currentDocId;
+        const item = document.createElement('div');
+        item.className = `p-2.5 rounded-lg text-sm flex items-center justify-between cursor-pointer transition-colors ${
+          isCurrent 
+            ? 'bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-medium' 
+            : 'hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300'
+        }`;
+        
+        item.innerHTML = `
+          <div class="flex items-center space-x-2 overflow-hidden">
+            <i class="fa-regular fa-file-lines shrink-0"></i>
+            <span class="truncate">${escapeHtml(doc.title)}</span>
+          </div>
+        `;
+
+        item.addEventListener('click', () => {
+          saveCurrentDocument();
+          loadDocument(doc.id);
+          closeSidebar();
+        });
+
+        fileList.appendChild(item);
+      });
+    }
+
+    // 更新預覽渲染
+    function updatePreview() {
+      const rawMarkdown = markdownInput.value;
+      previewContent.innerHTML = marked.parse(rawMarkdown);
+    }
+
+    // 切換 編輯 / 預覽 模式
+    function toggleViewMode() {
+      isPreviewMode = !isPreviewMode;
+      if (isPreviewMode) {
+        updatePreview();
+        editorContainer.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+        iconToggleView.className = 'fa-solid fa-pen';
+        textToggleView.textContent = '編輯';
+      } else {
+        previewContainer.classList.add('hidden');
+        editorContainer.classList.remove('hidden');
+        iconToggleView.className = 'fa-solid fa-eye';
+        textToggleView.textContent = '預覽';
+      }
+    }
+
+    // 快捷輸入語法處理
+    function insertFormatting(prefix, suffix) {
+      const start = markdownInput.selectionStart;
+      const end = markdownInput.selectionEnd;
+      const text = markdownInput.value;
+      const selectedText = text.substring(start, end);
+
+      const replacement = prefix + selectedText + suffix;
+      markdownInput.value = text.substring(0, start) + replacement + text.substring(end);
+
+      // 設定游標位置
+      const newCursorPos = start + prefix.length + selectedText.length;
+      markdownInput.focus();
+      markdownInput.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    // 側邊欄控制
+    function openSidebar() {
+      sidebarOverlay.classList.remove('hidden');
+      setTimeout(() => sidebar.classList.remove('-translate-x-full'), 10);
+    }
+
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+    }
+
+    // Modal 控制
+    function openMenu() { menuModal.classList.remove('hidden'); }
+    function closeMenu() { menuModal.classList.add('hidden'); }
+
+    // Toast 訊息顯示
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2000);
+    }
+
+    // 工具函式：轉義 HTML 特殊字元
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+
+    // ----- 事件監聽器綁定 ----- //
+
+    // 切換預覽模式
+    btnToggleView.addEventListener('click', toggleViewMode);
+
+    // 快捷工具列按鈕點擊
+    document.querySelectorAll('.qb-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const prefix = btn.getAttribute('data-prefix');
+        const suffix = btn.getAttribute('data-suffix');
+        insertFormatting(prefix, suffix);
+      });
+    });
+
+    // 側邊欄開關
+    btnSidebar.addEventListener('click', openSidebar);
+    btnCloseSidebar.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // 選單 Modal 開關
+    btnMenu.addEventListener('click', openMenu);
+    btnCloseMenu.addEventListener('click', closeMenu);
+
+    // 儲存按鈕
+    btnSave.addEventListener('click', () => {
+      saveCurrentDocument();
+    });
+
+    // 自動儲存與名稱變更處理
+    docTitleInput.addEventListener('change', () => {
+      let title = docTitleInput.value.trim();
+      if (!title.endsWith('.md')) title += '.md';
+      docTitleInput.value = title;
+      saveCurrentDocument();
+    });
+
+    // 建立新文章
+    btnNewDoc.addEventListener('click', () => {
+      saveCurrentDocument();
+      const newId = Date.now().toString();
+      documents[newId] = {
+        id: newId,
+        title: `未命名文章_${Object.keys(documents).length + 1}.md`,
+        content: '',
+        updatedAt: Date.now()
+      };
+      saveDocumentsToStorage();
+      loadDocument(newId);
+      closeSidebar();
+      showToast('已新增文章');
+    });
+
+    // 匯出當前檔案至手機本機 (下載 .md 檔)
+    btnExport.addEventListener('click', () => {
+      saveCurrentDocument();
+      const doc = documents[currentDocId];
+      const blob = new Blob([doc.content], { type: 'text/markdown;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.title || 'document.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      closeMenu();
+      showToast('檔案已匯出，請存入實體專屬目錄');
+    });
+
+    // 匯入檔案按鈕引導
+    btnImport.addEventListener('click', () => {
+      inputFileImport.click();
+    });
+
+    // 處理手機本機檔案匯入
+    inputFileImport.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newId = Date.now().toString();
+        documents[newId] = {
+          id: newId,
+          title: file.name,
+          content: event.target.result,
+          updatedAt: Date.now()
+        };
+        saveDocumentsToStorage();
+        loadDocument(newId);
+        closeMenu();
+        showToast('匯入成功！');
+      };
+      reader.readAsText(file);
+      // 重置 input value 以允許再次載入相同名稱檔案
+      inputFileImport.value = '';
+    });
+
+    // 刪除文章
+    btnDelete.addEventListener('click', () => {
+      if (Object.keys(documents).length <= 1) {
+        showToast('無法刪除最後一篇文章');
+        return;
+      }
+
+      if (confirm(`確定要刪除「${documents[currentDocId].title}」嗎？`)) {
+        delete documents[currentDocId];
+        currentDocId = Object.keys(documents)[0];
+        saveDocumentsToStorage();
+        loadDocument(currentDocId);
+        closeMenu();
+        showToast('已刪除文章');
+      }
+    });
+
+    // 切換深色模式
+    btnToggleTheme.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // 啟動應用程式
+    init();
+  </script>
+</body>
+</html>
