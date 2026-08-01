@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -399,5 +398,373 @@
                 id: 'forms',
                 title: '5. 表單與輸入元件',
                 icon: '📋',
-                summary: '收集使用者輸入資料（輸入框、按鈕、核取方塊）。
-         
+                summary: '收集使用者輸入資料（輸入框、按鈕、核取方塊）。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">表單標籤 (&lt;form&gt;)</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        表單是用戶與網站互動的關鍵元件，用於收集註冊資料、搜尋關鍵字或回饋訊息。
+                    </p>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">核心元素與屬性：</h3>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm mb-6">
+                        <pre><code>&lt;form action="/submit-url" method="POST"&gt;
+    &lt;label for="username"&gt;使用者名稱：&lt;/label&gt;
+    &lt;input type="text" id="username" name="username" placeholder="請輸入姓名" required&gt;
+
+    &lt;label for="pwd"&gt;密碼：&lt;/label&gt;
+    &lt;input type="password" id="pwd" name="password"&gt;
+
+    &lt;button type="submit"&gt;送出資料&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+
+                    <h4 class="text-lg font-bold text-slate-800 mb-2">常見 Input 類型 (type)：</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 text-sm">
+                        <div class="bg-slate-100 p-2 rounded"><code>type="text"</code> 文字</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="password"</code> 密碼</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="email"</code> 電子郵件</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="checkbox"</code> 核取方塊</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="radio"</code> 單選鈕</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="date"</code> 日期選擇器</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="number"</code> 數字輸入框</div>
+                        <div class="bg-slate-100 p-2 rounded"><code>type="file"</code> 上傳檔案</div>
+                    </div>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { bg-color: #4f46e5; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>用戶意見回饋表單</h2>
+    <form onsubmit="event.preventDefault(); alert('表單已模擬送出！');">
+        <div class="form-group">
+            <label for="name">姓名：</label>
+            <input type="text" id="name" placeholder="請輸入您的姓名" required>
+        </div>
+        
+        <div class="form-group">
+            <label>性別：</label>
+            <input type="radio" id="m" name="gender" value="m"><label for="m" style="display:inline;"> 男</label>
+            <input type="radio" id="f" name="gender" value="f"><label for="f" style="display:inline;"> 女</label>
+        </div>
+
+        <div class="form-group">
+            <label for="topic">諮詢主題：</label>
+            <select id="topic">
+                <option>課程諮詢</option>
+                <option>技術支援</option>
+                <option>其他事項</option>
+            </select>
+        </div>
+
+        <button type="submit">確認送出</button>
+    </form>
+</body>
+</html>`
+            },
+            {
+                id: 'semantic',
+                title: '6. HTML5 語意化標籤',
+                icon: '🧩',
+                summary: '使用符合結構語意的標籤，提升 SEO 與維護性。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">語意化標籤 (Semantic HTML)</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        過去開發者常濫用 <code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;div&gt;</code> 排版整頁內容。HTML5 引入了「語意化標籤」，能清晰說明區塊的目的，有利於搜索引擎 (SEO) 爬取與螢幕閱讀器解析。
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="border border-indigo-200 bg-indigo-50/50 p-4 rounded-xl">
+                            <h4 class="font-bold text-indigo-900 mb-2">主要區塊標籤</h4>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;header&gt;</code>：頁尾或區塊頂部導覽列</li>
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;nav&gt;</code>：主要選單連結區塊</li>
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;main&gt;</code>：頁面的主要核心內容區</li>
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;footer&gt;</code>：頁尾（版權宣告、聯絡資訊）</li>
+                            </ul>
+                        </div>
+                        <div class="border border-indigo-200 bg-indigo-50/50 p-4 rounded-xl">
+                            <h4 class="font-bold text-indigo-900 mb-2">內容區分標籤</h4>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;section&gt;</code>：主題性的獨立章節區塊</li>
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;article&gt;</code>：獨立完整文章內容（部落格貼文、新聞）</li>
+                                <li><code class="bg-white px-1.5 py-0.5 border rounded text-indigo-600 font-mono">&lt;aside&gt;</code>：側邊欄或次要資訊區塊</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        header, nav, main, footer { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        header { background: #e0e7ff; }
+        nav { background: #e0f2fe; }
+        main { background: #ffffff; }
+        footer { background: #f3f4f6; text-align: center; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>網站標題 (Header)</h1>
+    </header>
+
+    <nav>
+        <a href="#">首頁</a> | <a href="#">關於我們</a> | <a href="#">聯絡方式</a>
+    </nav>
+
+    <main>
+        <article>
+            <h2>文章標題</h2>
+            <p>這是一篇使用 &lt;article&gt; 語意化標籤所包覆的獨立內容。</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 網站版權所有 (Footer)</p>
+    </footer>
+</body>
+</html>`
+            }
+        ];
+
+        // 隨堂測驗資料
+        const quizQuestions = [
+            {
+                id: 'q1',
+                question: '1. 下列哪一個標籤代表整個網頁中最重要且通常唯一的最高階層標題？',
+                options: ['<h6>', '<h1>', '<head>', '<title>'],
+                answer: 1
+            },
+            {
+                id: 'q2',
+                question: '2. 若要在點擊超連結時在「新分頁」開啟網頁，應設定屬性？',
+                options: ['href="_blank"', 'target="_blank"', 'open="new"', 'window="new"'],
+                answer: 1
+            },
+            {
+                id: 'q3',
+                question: '3. 關於 <img alt="..."> 屬性的作用，下列何者正確？',
+                options: ['設定圖片檔案的伺服器路徑', '設定圖片懸停時出現的提示文字', '當圖片無法載入時顯示的替代文字', '設定圖片寬高'],
+                answer: 2
+            },
+            {
+                id: 'q4',
+                question: '4. 下列哪一個 HTML5 標籤最適合用來包裹頁面的主要導覽選單連結？',
+                options: ['<header>', '<section>', '<nav>', '<aside>'],
+                answer: 2
+            }
+        ];
+
+        let activeLessonIndex = 0;
+
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            loadLesson(0);
+            renderQuiz();
+            setupPlaygroundRealtime();
+            setupMobileMenu();
+        });
+
+        // 渲染導覽選單
+        function renderNav() {
+            const navList = document.getElementById('nav-list');
+            navList.innerHTML = lessons.map((lesson, idx) => `
+                <button onclick="selectLesson(${idx})" id="nav-btn-${idx}" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center space-x-2.5 ${idx === 0 ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-100'}">
+                    <span>${lesson.icon}</span>
+                    <span class="truncate">${lesson.title}</span>
+                </button>
+            `).join('');
+        }
+
+        // 切換章節
+        function selectLesson(index) {
+            activeLessonIndex = index;
+            
+            // 更新選單樣式
+            lessons.forEach((_, idx) => {
+                const btn = document.getElementById(`nav-btn-${idx}`);
+                if (idx === index) {
+                    btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-sm transition flex items-center space-x-2.5 bg-indigo-50 text-indigo-700 font-semibold";
+                } else {
+                    btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-sm transition flex items-center space-x-2.5 text-slate-600 hover:bg-slate-100";
+                }
+            });
+
+            loadLesson(index);
+            switchTab('tutorial');
+            closeMobileMenu();
+        }
+
+        // 載入章節資料
+        function loadLesson(index) {
+            const lesson = lessons[index];
+            const viewTutorial = document.getElementById('view-tutorial');
+            
+            viewTutorial.innerHTML = `
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-600 tracking-wider uppercase bg-indigo-50 px-2.5 py-1 rounded">HTML5 課程章節</span>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-2">${lesson.title}</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="prose max-w-none text-slate-700">
+                        ${lesson.content}
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-100 flex flex-wrap gap-4 justify-between items-center">
+                        <button onclick="openInPlayground('${lesson.sampleCode.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>使用編輯器練習此章節語法</span>
+                        </button>
+
+                        <div class="flex space-x-2">
+                            ${index > 0 ? `<button onclick="selectLesson(${index - 1})" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">← 上一章</button>` : ''}
+                            ${index < lessons.length - 1 ? `<button onclick="selectLesson(${index + 1})" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">下一章 →</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 頁籤切換
+        function switchTab(tab) {
+            document.getElementById('view-tutorial').classList.add('hidden');
+            document.getElementById('view-playground').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+
+            if (tab === 'tutorial') {
+                document.getElementById('view-tutorial').classList.remove('hidden');
+            } else if (tab === 'playground') {
+                document.getElementById('view-playground').classList.remove('hidden');
+                if (!document.getElementById('code-input').value) {
+                    resetPlayground();
+                }
+            } else if (tab === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            }
+        }
+
+        // 開啟範例至 Playground
+        function openInPlayground(code) {
+            document.getElementById('code-input').value = code;
+            switchTab('playground');
+            updatePreview();
+            showToast('已將章節範例帶入編輯器！');
+        }
+
+        // 重置 Playground 內容
+        function resetPlayground() {
+            const currentLesson = lessons[activeLessonIndex];
+            document.getElementById('code-input').value = currentLesson.sampleCode;
+            updatePreview();
+        }
+
+        // 即時渲染 Preview
+        function setupPlaygroundRealtime() {
+            const input = document.getElementById('code-input');
+            input.addEventListener('input', updatePreview);
+        }
+
+        function updatePreview() {
+            const code = document.getElementById('code-input').value;
+            const output = document.getElementById('code-output');
+            const iframeDoc = output.contentDocument || output.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(code);
+            iframeDoc.close();
+        }
+
+        // 複製程式碼片段
+        function copyCode(btn) {
+            const codeText = btn.previousElementSibling.innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast('程式碼已成功複製！');
+        }
+
+        // Toast 訊息提示
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 2500);
+        }
+
+        // 渲染測驗題目
+        function renderQuiz() {
+            const quizForm = document.getElementById('quiz-form');
+            quizForm.innerHTML = quizQuestions.map((q, qIndex) => `
+                <div class="space-y-3">
+                    <p class="font-semibold text-slate-800">${q.question}</p>
+                    <div class="space-y-2 pl-2">
+                        ${q.options.map((opt, optIndex) => `
+                            <label class="flex items-center space-x-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="${q.id}" value="${optIndex}" class="text-indigo-600 focus:ring-indigo-500">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 提交測驗
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach((q) => {
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (selected && parseInt(selected.value) === q.answer) {
+                    score += 25;
+                }
+            });
+
+            const scoreDisplay = document.getElementById('quiz-score');
+            if (score === 100) {
+                scoreDisplay.className = "text-lg font-bold text-emerald-600";
+                scoreDisplay.innerText = `得分：${score} / 100 分！太棒了，完美答對！ 🎉`;
+            } else {
+                scoreDisplay.className = "text-lg font-bold text-amber-600";
+                scoreDisplay.innerText = `得分：${score} / 100 分。繼續加強學習吧！ 💪`;
+            }
+        }
+
+        // 手機版選單開關
+        function setupMobileMenu() {
+            const btn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+
+            overlay.addEventListener('click', closeMobileMenu);
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
