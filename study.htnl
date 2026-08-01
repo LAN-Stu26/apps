@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 基礎教學與互動練習</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button id="mobile-menu-btn" class="md:hidden text-white hover:text-indigo-200 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-white text-indigo-600 font-black px-2 py-1 rounded text-xl shadow">HTML5</span>
+                    <h1 class="text-xl font-bold tracking-wide">網頁基礎開發入門教學</h1>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="switchTab('playground')" class="bg-indigo-500 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    <span>即時練習區</span>
+                </button>
+                <button onclick="switchTab('quiz')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>觀念小測驗</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主體內容區 (側邊欄 + 主內容) -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
+
+        <!-- 側邊章節選單 (Desktop & Mobile Dropdown Overlay) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 w-64 bg-white md:bg-transparent shadow-xl md:shadow-none p-4 md:p-0 overflow-y-auto flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sticky top-20">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">課程導覽目錄</h2>
+                <nav class="space-y-1" id="nav-list">
+                    <!-- 由 JavaScript 動態生成導覽列項目 -->
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 背景遮罩 (手機選單用) -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden"></div>
+
+        <!-- 主內容顯示區 -->
+        <main class="flex-1 min-w-0">
+
+            <!-- 教學文章視圖 -->
+            <div id="view-tutorial" class="space-y-6">
+                <!-- 動態注入文章內容 -->
+            </div>
+
+            <!-- 即時編輯器視圖 -->
+            <div id="view-playground" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">HTML 即時程式碼試衣間 (Playground)</h2>
+                        <p class="text-sm text-slate-500">在左側輸入 HTML 程式碼，右側會即時渲染出網頁實作效果。</p>
+                    </div>
+                    <button onclick="resetPlayground()" class="text-xs text-indigo-600 hover:text-indigo-800 underline font-medium">重設為範例</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]">
+                    <!-- 編輯區 -->
+                    <div class="flex flex-col bg-slate-900 rounded-xl overflow-hidden shadow-md">
+                        <div class="bg-slate-800 px-4 py-2 text-xs font-mono text-slate-400 flex justify-between items-center">
+                            <span>HTML Editor</span>
+                            <span class="text-indigo-400">Live Sync</span>
+                        </div>
+                        <textarea id="code-input" class="flex-1 w-full bg-slate-900 text-slate-100 font-mono p-4 text-sm focus:outline-none resize-none leading-relaxed" spellcheck="false"></textarea>
+                    </div>
+
+                    <!-- 預覽區 -->
+                    <div class="flex flex-col bg-white rounded-xl overflow-hidden border border-slate-200 shadow-md">
+                        <div class="bg-slate-100 px-4 py-2 text-xs font-medium text-slate-500 border-b border-slate-200 flex justify-between items-center">
+                            <span>即時效果預覽 (Preview)</span>
+                            <span class="flex items-center space-x-1">
+                                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block"></span>
+                                <span class="text-xs text-slate-400">即時更新</span>
+                            </span>
+                        </div>
+                        <iframe id="code-output" class="flex-1 w-full border-none bg-white"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 觀念小測驗視圖 -->
+            <div id="view-quiz" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-3xl mx-auto">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">HTML 觀念隨堂小測驗</h2>
+                    <p class="text-slate-500 text-sm mt-1">測試看看你對 HTML 基礎標籤與語意的理解程度吧！</p>
+                </div>
+
+                <form id="quiz-form" class="space-y-8">
+                    <!-- 動態生成測驗題目 -->
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                    <button type="button" onclick="submitQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg shadow transition">
+                        提交測驗答案
+                    </button>
+                    <div id="quiz-score" class="text-lg font-bold"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Toast 提示訊息 -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        提示訊息
+    </div>
+
+    <script>
+        // 教學課程內容資料庫
+        const lessons = [
+            {
+                id: 'intro',
+                title: '1. HTML 簡介與文件結構',
+                icon: '🚀',
+                summary: '了解 HTML 的定義與標準網頁架構。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">什麼是 HTML？</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        HTML 全名為 <strong>HyperText Markup Language（超文本標記語言）</strong>。它不是程式語言，而是一種標記語言，用來架構網頁的內容與骨架。HTML 使用各種「標籤（Tags）」來告訴瀏覽器如何顯示文字、圖片、影片及表格等元素。
+                    </p>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">標準 HTML5 文件結構</h3>
+                    <p class="text-slate-600 mb-3 leading-relaxed">每一個標準的 HTML5 網頁都具備以下基本骨架：</p>
+
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm mb-6 relative group">
+                        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-TW"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;我的第一個網頁&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;你好，世界！&lt;/h1&gt;
+    &lt;p&gt;這是我用 HTML 製作的第一個網頁。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                        <button onclick="copyCode(this)" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition">複製程式碼</button>
+                    </div>
+
+                    <h4 class="text-lg font-bold text-slate-800 mb-2">關鍵元素解析：</h4>
+                    <ul class="list-disc list-inside space-y-2 text-slate-600 mb-6">
+                        <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono text-sm">&lt;!DOCTYPE html&gt;</code>：宣告此文件為 HTML5 標準規範。</li>
+                        <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono text-sm">&lt;html&gt;</code>：整個網頁的根元素（Root Element）。</li>
+                        <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono text-sm">&lt;head&gt;</code>：包含網頁的後台設定（Meta 資訊、標題、樣式表連結等），內容不會直接呈現在頁面上。</li>
+                        <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono text-sm">&lt;body&gt;</code>：包含所有能在網頁上被使用者看到的內容。</li>
+                    </ul>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML 基礎練習</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1 { color: #4f46e5; }
+    </style>
+</head>
+<body>
+    <h1>歡迎來到 HTML5 學習區！</h1>
+    <p>這是網頁的段落內容，嘗試修改這段文字看看吧。</p>
+</body>
+</html>`
+            },
+            {
+                id: 'text',
+                title: '2. 文字與標題標籤',
+                icon: '📝',
+                summary: '學習排版文字、標題等級與強調文字效果。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">文字排版與強調標籤</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        HTML 提供了豐富的標籤用來設定文字階層與強調特定的語意。
+                    </p>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">1. 標題標籤 (&lt;h1&gt; ~ &lt;h6&gt;)</h3>
+                    <p class="text-slate-600 mb-3">標題從 H1（最重要/最大）到 H6（最小）。通常一個頁面建議只有一個 <code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;h1&gt;</code>。</p>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">2. 段落與換行 (&lt;p&gt;, &lt;br&gt;, &lt;hr&gt;)</h3>
+                    <ul class="list-disc list-inside space-y-1 text-slate-600 mb-4">
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;p&gt;</code>：建立一個文字段落。</li>
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;br&gt;</code>：強制換行（單一標籤，無須閉合）。</li>
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;hr&gt;</code>：水平分隔線。</li>
+                    </ul>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">3. 常用文字強調標籤</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-left border-collapse border border-slate-200">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700">
+                                    <th class="p-3 border border-slate-200">標籤</th>
+                                    <th class="p-3 border border-slate-200">作用</th>
+                                    <th class="p-3 border border-slate-200">範例</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-600 font-mono text-sm">
+                                <tr>
+                                    <td class="p-3 border border-slate-200">&lt;strong&gt; / &lt;b&gt;</td>
+                                    <td class="p-3 border border-slate-200">粗體（strong 具語意重要性）</td>
+                                    <td class="p-3 border border-slate-200"><strong>粗體字</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-200">&lt;em&gt; / &lt;i&gt;</td>
+                                    <td class="p-3 border border-slate-200">斜體（em 具斜體強調語意）</td>
+                                    <td class="p-3 border border-slate-200"><em>斜體字</em></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-200">&lt;mark&gt;</td>
+                                    <td class="p-3 border border-slate-200">螢光筆畫記標示</td>
+                                    <td class="p-3 border border-slate-200"><mark>重點畫記</mark></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-slate-200">&lt;del&gt;</td>
+                                    <td class="p-3 border border-slate-200">刪除線</td>
+                                    <td class="p-3 border border-slate-200"><del>原價 1000 元</del></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html>
+<body>
+    <h1>主標題 (H1)</h1>
+    <h2>副標題 (H2)</h2>
+    <h3>小標題 (H3)</h3>
+    <hr>
+    <p>這是一個段落。<br>這行使用了 &lt;br&gt; 進行換行。</p>
+    <p>我們可以特別強調 <strong>重要內容 (strong)</strong> 以及 <em>斜體文字 (em)</em>。</p>
+    <p>今日特價商品：<del>NT$ 500</del> <mark>NT$ 299</mark>！</p>
+</body>
+</html>`
+            },
+            {
+                id: 'links-images',
+                title: '3. 超連結與多媒體元件',
+                icon: '🔗',
+                summary: '連結其他網頁、嵌入圖片、音訊與影片。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">超連結與多媒體標籤</h2>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">1. 超連結 (&lt;a&gt;)</h3>
+                    <p class="text-slate-600 mb-2">使用 <code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;a&gt;</code> 標籤可以建立連結至外部網站或頁面內部錨點：</p>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm mb-4">
+                        <pre><code>&lt;!-- 開啟外部連結，target="_blank" 代表在新分頁開啟 --&gt;
+&lt;a href="https://www.google.com" target="_blank"&gt;前往 Google&lt;/a&gt;</code></pre>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">2. 圖片標籤 (&lt;img&gt;)</h3>
+                    <p class="text-slate-600 mb-2"><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;img&gt;</code> 屬於單一標籤，主要屬性有：</p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-600 mb-4">
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">src</code>：圖片檔案路徑或 URL。</li>
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">alt</code>：圖片替代文字（圖片失效時顯示，有助於 SEO 與無障礙閱讀）。</li>
+                    </ul>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">3. 影音標籤 (&lt;audio&gt; 與 &lt;video&gt;)</h3>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm mb-6">
+                        <pre><code>&lt;!-- controls 屬性可顯示播放控制介面 --&gt;
+&lt;video width="320" height="240" controls&gt;
+    &lt;source src="video.mp4" type="video/mp4"&gt;
+    您的瀏覽器不支援影片標籤。
+&lt;/video&gt;</code></pre>
+                    </div>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html>
+<body>
+    <h2>超連結與圖片範例</h2>
+    
+    <p>造訪 <a href="https://developer.mozilla.org" target="_blank" style="color: blue;">MDN Web 文件</a> 學習更多前端知識。</p>
+    
+    <h3>展示圖片</h3>
+    <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400" alt="筆記型電腦程式碼" style="max-width: 100%; border-radius: 8px;">
+</body>
+</html>`
+            },
+            {
+                id: 'lists-tables',
+                title: '4. 列表與表格結構',
+                icon: '📊',
+                summary: '學習有序、無序列表與表格資料對齊展示。',
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">列表與表格標籤</h2>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">1. 列表標籤</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 border p-4 rounded-xl">
+                            <h4 class="font-bold text-slate-700 mb-2">無序列表 (&lt;ul&gt; + &lt;li&gt;)</h4>
+                            <ul class="list-disc list-inside text-slate-600 text-sm">
+                                <li>蘋果</li>
+                                <li>香蕉</li>
+                                <li>橘子</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-50 border p-4 rounded-xl">
+                            <h4 class="font-bold text-slate-700 mb-2">有序列表 (&lt;ol&gt; + &lt;li&gt;)</h4>
+                            <ol class="list-decimal list-inside text-slate-600 text-sm">
+                                <li>步驟一：註冊帳號</li>
+                                <li>步驟二：填寫資料</li>
+                                <li>步驟三：完成驗證</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">2. 表格結構 (&lt;table&gt;)</h3>
+                    <p class="text-slate-600 mb-3">完整表格結構包含：</p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-600 mb-4">
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;tr&gt;</code>：橫列 (Table Row)</li>
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;th&gt;</code>：標頭單元格 (Table Header)</li>
+                        <li><code class="bg-slate-100 px-1 rounded text-indigo-600 font-mono">&lt;td&gt;</code>：資料單元格 (Table Data)</li>
+                    </ul>
+                `,
+                sampleCode: `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>待辦事項 (無序列表)</h2>
+    <ul>
+        <li>學習 HTML5 基礎</li>
+        <li>練習 CSS 樣式</li>
+    </ul>
+
+    <h2>學員成績單 (表格)</h2>
+    <table>
+        <tr>
+            <th>姓名</th>
+            <th>HTML</th>
+            <th>CSS</th>
+        </tr>
+        <tr>
+            <td>小明</td>
+            <td>95</td>
+            <td>88</td>
+        </tr>
+        <tr>
+            <td>小華</td>
+            <td>90</td>
+            <td>92</td>
+        </tr>
+    </table>
+</body>
+</html>`
+            },
+            {
+                id: 'forms',
+                title: '5. 表單與輸入元件',
+                icon: '📋',
+                summary: '收集使用者輸入資料（輸入框、按鈕、核取方塊）。',
+         
