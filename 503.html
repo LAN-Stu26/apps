@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>錯誤 503 - LAN Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1d1d1d;
+            --accent-red: #e74c3c;
+            --accent-blue: #ffd966;
+            --text-secondary: #bdc3c7;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #navbar-container {
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .error-wrapper {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 0;
+            color: var(--accent-red);
+            line-height: 1;
+            text-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin: 20px 0 10px 0;
+            color: var(--text-secondary);
+        }
+
+        /* 下載頁面專用的額外訊息樣式 */
+        #download-reason {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--accent-red);
+            padding: 15px 25px;
+            margin: 10px 0 25px 0;
+            border-radius: 4px;
+            max-width: 500px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .countdown-text {
+            font-size: 1.1rem;
+            color: #95a5a6;
+            margin-bottom: 30px;
+        }
+
+        #timer {
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .back-home, .go-search {
+            display: inline-block;
+            padding: 12px 35px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .back-home {
+            background-color: var(--accent-blue);
+            color: #1d1d1d;
+        }
+
+        .back-home:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-2px);
+        }
+
+        .go-search {
+            background-color: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+        }
+
+        .go-search:hover {
+            background-color: rgba(255, 217, 102, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .error-code { font-size: 6rem; }
+            .error-message { font-size: 1.2rem; }
+            .button-group { flex-direction: column; width: 100%; max-width: 250px; }
+            .back-home, .go-search { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <div class="error-wrapper">
+        <p class="error-code">503</p>
+        <p class="error-message">此頁面可能暫停使用。</p>
+
+        <p class="countdown-text">
+            系統將在 <span id="timer">5</span> 秒後自動帶您返回首頁
+        </p>
+
+        <div class="button-group">
+            <a href="/home.html" class="back-home">立即返回首頁</a>
+            <a href="/search.html" class="go-search">或搜尋網站</a>
+        </div>
+    </div>
+
+    <script type="module" src="/navbar.js"></script>
+
+    <script>
+        
+        let seconds = 5;
+        const countdownElement = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            seconds--;
+            if (countdownElement) {
+                countdownElement.innerText = seconds;
+            }
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = '/home.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
