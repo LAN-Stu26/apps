@@ -1,4 +1,5 @@
 // 1. 引入 Firebase SDK
+import "./clean-urls.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -202,59 +203,59 @@ const style = `
 // 3. HTML 生成
 const navbarHTML = `
 <nav id="custom-navbar">
-    <a href="/home.html" class="logo">LAN Studio</a>
+    <a href="/" class="logo">LAN Studio</a>
     <ul id="nav-list">
-        <li><a href="/home.html"><b>首頁</b></a></li>
+        <li><a href="/"><b>首頁</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
             <div class="dropdown-content">
-                <a href="/apps.html"><b>所有網頁程式</b></a>
-                <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
+                <a href="/apps"><b>所有網頁程式</b></a>
+                <a href="/lan.appstore"><b>網頁程式商店</b></a>
         
                 <div class="nested-dropdown">
                     <a href="#" class="nested-toggle"><b>最新網頁應用 ▾</b></a>
                     <div class="nested-content">
-                        <a href="/app/markdown.html"><b>Markdown 編輯器</b></a>
-                        <a href="/app/ip.html"><b>IP 位置查詢</b></a>
-                        <a href="/app/sboard.html"><b>計分板</b></a>
+                        <a href="/app/markdown"><b>Markdown 編輯器</b></a>
+                        <a href="/app/ip"><b>IP 位置查詢</b></a>
+                        <a href="/app/sboard"><b>計分板</b></a>
                     </div>
                 </div>
 
-                <a href="/lanai/home.html" class="ai-notice-navbar"><b>LanAi</b></a>
+                <a href="/lanai/home" class="ai-notice-navbar"><b>LanAi</b></a>
 
             </div>
         </li>
-        <li><a href="/news.html"><b>最新消息</b></a></li>
+        <li><a href="/news"><b>最新消息</b></a></li>
         <li class="dropdown">
             <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
             <div class="dropdown-content">
                 <a href="#"  class="ai-notice-navbar">會員專屬▾▾▾</a>
-                <a href="/app/note.html"><b>加密雲端筆記</b></a>
+                <a href="/app/note"><b>加密雲端筆記</b></a>
                 <a href="#"  class="ai-notice-navbar">體驗升級!!!▾▾▾</a>
-                <a href="/app/editor.html"><b>Html Editor</b></a>
+                <a href="/app/editor"><b>Html Editor</b></a>
             </div>
         </li>
         <li class="dropdown">
             <span class="dropbtn"><b>關於本站 ▾</b></span>
             <div class="dropdown-content">
                 <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
-                <a href="/update.news.html"><b>更新日誌</b></a>
+                <a href="/update.news"><b>更新日誌</b></a>
 
                 <div class="nested-dropdown">
                     <a href="#" class="nested-toggle"><b>服務 ▾</b></a>
                     <div class="nested-content">
                         <a href="https://lan.x10.network" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> LAN Network</b></a>
-                        <a href="/cooperate.html"><b>合作商家</b></a>
-                        <a href="/site/Privacy_Policy.html"><b>隱私權政策</b></a>
+                        <a href="/cooperate"><b>合作商家</b></a>
+                        <a href="/site/Privacy_Policy"><b>隱私權政策</b></a>
                     </div>
                 </div>
 
                 <div class="nested-dropdown">
                     <a href="#" class="nested-toggle"><b>所有表單 ▾</b></a>
                     <div class="nested-content">
-                        <a href="/form/help_us.html"><b>幫助我們</b></a>
-                        <a href="/form/improve-website.html"><b>改善表單</b></a>
-                        <a href="/form/partner-with-us.html"><b>合作表單</b></a>
+                        <a href="/form/help_us"><b>幫助我們</b></a>
+                        <a href="/form/improve-website"><b>改善表單</b></a>
+                        <a href="/form/partner-with-us"><b>合作表單</b></a>
                     </div>
                 </div>
 
@@ -268,16 +269,6 @@ const navbarHTML = `
         </li>
         <li>
             <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
-        </li>
-        <li class="dropdown">
-            <span class="dropbtn" style="padding: 10px;">
-                <div class="lang-sphere"></div>
-            </span>
-            <div class="dropdown-content">
-                <a href="/home.html"><b>繁體中文</b></a>
-                <a href="/en/home.html"><b>English</b></a>
-                <a href="/index.html#rechoose"><b>清除語言設定</b></a>
-            </div>
         </li>
     </ul>
     <div class="menu-toggle" id="mobile-menu-btn">
@@ -296,7 +287,7 @@ const navbarHTML = `
 
 let pageTitle = document.title.split('-')[0].trim();
 const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
-const breadcrumbContent = isHomePage ? `首頁` : `<a href="/home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> >> <a href="/apps.html" style="color:inherit; text-decoration:none; opacity:0.7;">所有網頁程式</a> > ${pageTitle}`;
+const breadcrumbContent = isHomePage ? `首頁` : `<a href="/" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> >> <a href="/apps" style="color:inherit; text-decoration:none; opacity:0.7;">所有網頁程式</a> > ${pageTitle}`;
 
 const footerHTML = `
 <footer id="custom-footer">
@@ -310,7 +301,7 @@ const footerHTML = `
     <div style="text-align:center; color: #aaa; border-top:1px solid #222; padding-top:20px; margin-top:20px;"><b>
         <a href="#" style="color: #aaa; text-decoration:none; margin: 0 10px;">回到頂端</a> |
         <a href="https://lan.x10.network" target="_blank" style="color: #aaa; text-decoration:none; margin: 0 10px;"><style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> LAN Network</a> |
-        <a href="/site/Privacy_Policy.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">隱私權政策</a></b>
+        <a href="/site/Privacy_Policy" style="color: #aaa; text-decoration:none; margin: 0 10px;">隱私權政策</a></b>
     </div>
     <div style="text-align:center; font-size:0.85rem; color: #555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
         <div id="visitor-counter" style="color: #888; padding-bottom: 20px; font-size: 0.9rem;">瀏覽人數：載入中...</div>
@@ -422,7 +413,7 @@ document.querySelectorAll('.dropdown').forEach(dd => {
 const searchNavBtn = document.getElementById('search-nav-btn');
 if (searchNavBtn) {
     searchNavBtn.addEventListener('click', () => {
-        window.location.href = '/search.html';
+        window.location.href = '/search';
     });
 }
 
@@ -575,7 +566,7 @@ onAuthStateChanged(auth, (user) => {
                 <div id="fav-list-container">
                     <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
                 </div>
-                <a href="/site/account.html"><b>進階設定</b></a>
+                <a href="/site/account"><b>進階設定</b></a>
                 <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
             </div>
         `;

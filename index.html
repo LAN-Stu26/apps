@@ -2,284 +2,386 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="快速搜尋並開啟 LAN Studio 的線上工具。">
+    <meta property="og:title" content="LAN Studio | 所有工具">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歡迎來到 LAN Studio !</title>
+    <title>LAN Studio｜快速開啟工具</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="圖片/標籤頭像.png">
+
     <style>
         :root {
-            --bg: #1d1d1d;
-            --card-bg: #252526;
-            --accent: #ffd966;
-            --text: #ffffff;
-            --overlay: rgba(0, 0, 0, 0.85);
+            --primary-dark: #ffd966;
+            --accent-blue: #3498db;
+            --bg-color: #1d1d1d;
+            --card-bg: #2d2d2d;
+            --tag-time: #3498db;
+            --tag-color: #2ecc71;
+            --tag-productivity: #9b59b6;
+            --tag-creative: #e74c3c;
+            --tag-member: #f39c12;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
             font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            color: white;
+            overflow-x: hidden;
         }
 
-        /* 核心卡片容器 */
-        .portal-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 217, 102, 0.3);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        .container {
+            max-width: 1200px;
+            margin: 36px auto;
+            padding: 0 24px;
+        }
+
+        .section-title {
+            text-align: center; 
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            margin: 0 0 12px;
+            color: var(--primary-dark);
+            letter-spacing: 1px;
+        }
+
+        .section-intro {
+            color: #aeb6bf;
             text-align: center;
-            max-width: 380px;
-            width: 90%;
-            animation: cardRise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            position: relative;
-            z-index: 10;
-        }
-
-        .portal-card > * {
-            animation: contentFadeUp 0.8s ease-out forwards;
-            opacity: 0;
-        }
-
-        .welcome-title {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 8px;
-            letter-spacing: 4px;
-            animation-delay: 0.3s;
-        }
-
-        .status-msg {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 30px;
-            animation-delay: 0.4s;
-        }
-
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            animation-delay: 0.5s;
-        }
-
-        /* 按鈕樣式 */
-        .btn {
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            display: block;
-            border: none;
-            outline: none;
-        }
-
-        .btn-main { background: var(--accent); color: #000; }
-        .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-        .btn-grey { background: #444; color: #fff; }
-        
-        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 217, 102, 0.3); }
-
-        .auto-redirect-tip {
-            margin-top: 30px;
-            font-size: 0.75rem;
-            color: #555;
-            animation-delay: 0.7s;
-        }
-
-        #target-lang { color: var(--accent); font-weight: bold; }
-
-        /* 自定義彈窗樣式 */
-        #custom-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--overlay);
-            backdrop-filter: blur(8px);
-            display: none; /* 預設隱藏 */
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-content {
-            background: #2d2d2d;
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--accent);
-            text-align: center;
-            max-width: 320px;
-            width: 85%;
-        }
-
-        .modal-title {
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .modal-desc {
-            font-size: 0.9rem;
-            color: #ccc;
-            margin-bottom: 25px;
+            margin: 0 0 28px;
             line-height: 1.6;
         }
 
-        .modal-btns {
+        /* --- 分類篩選器樣式 --- */
+        .filter-container {
             display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 28px;
+            align-items: center;
         }
 
-        .modal-btns .btn {
-            flex: 1;
-            padding: 12px;
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #bdc3c7;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
 
-        /* 動畫定義 */
-        @keyframes cardRise {
-            0% { transform: translateY(100px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
         }
 
-        @keyframes contentFadeUp {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+        .filter-btn.active {
+            background: var(--primary-dark);
+            color: #1d1d1d;
+            font-weight: bold;
+            border-color: var(--primary-dark);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            width: 200px;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-input::placeholder {
+            color: #7f8c8d;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 8px rgba(255, 217, 102, 0.3);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 30px; 
+            border-radius: 16px;
+            text-decoration: none; 
+            color: inherit;
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .app-card.hidden {
+            display: none;
+        }
+
+        .app-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .app-card h3 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 1.4rem; }
+        .app-card p { margin: 0; color: #7f8c8d; font-size: 0.95rem; line-height: 1.6; flex-grow: 1; }
+
+        .app-tags {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .app-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .app-tag.tag-time { color: var(--tag-time); border-color: var(--tag-time); }
+        .app-tag.tag-color { color: var(--tag-color); border-color: var(--tag-color); }
+        .app-tag.tag-productivity { color: var(--tag-productivity); border-color: var(--tag-productivity); }
+        .app-tag.tag-creative { color: var(--tag-creative); border-color: var(--tag-creative); }
+        .app-tag.tag-member { color: var(--tag-member); border-color: var(--tag-member); }
+
+        @media (hover: hover) {
+            .app-card:hover {
+                transform: translateY(-12px);
+                box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+                border-color: var(--accent-blue);
+            }
+        }
+
+        @media (max-width: 850px) {
+            .app-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-container { gap: 8px; flex-direction: column; }
+            .filter-btn { padding: 6px 14px; font-size: 0.85rem; }
+            .search-box { margin-left: 0; width: 100%; }
+            .search-input { width: 100%; }
+        }
+
+        @media (max-width: 600px) { 
+            .section-title { font-size: 2rem; }
+            .app-grid { grid-template-columns: 1fr; } 
+            .app-tags { gap: 6px; }
+            .app-tag { font-size: 0.65rem; padding: 3px 10px; }
         }
     </style>
+<script src="/clean-urls.js" defer></script>
 </head>
 <body>
-
-    <div class="portal-card">
-        <div class="welcome-title">LAN Studio</div>
-        <div id="geo-status" class="status-msg">正在優化您的瀏覽體驗...</div>
+    <div class="container">
+        <h1 class="section-title">找到工具，立即開始</h1>
+        <p class="section-intro">搜尋名稱或選擇分類，快速開啟你需要的工具。</p>
         
-        <div class="button-group">
-            <button class="btn btn-main" onclick="handleLangClick('home.html')">繁體中文服務 (Traditional Chinese)</button>
-            <button class="btn btn-outline" onclick="handleLangClick('/en/home.html')">English Services</button>
-        </div>
-
-        <div class="auto-redirect-tip">
-            <span id="target-lang">偵測中...</span> 將於 <span id="countdown">5</span> 秒後自動跳轉
-        </div>
-    </div>
-
-    <div id="custom-modal">
-        <div class="modal-content">
-            <div class="modal-title">偏好設定 / Preference</div>
-            <div class="modal-desc">
-                是否要記住此選擇？<br>下次將直接進入該版本。<br>
-                <small style="font-size: 0.7rem; color: #777;">Would you like to save this as your default language?</small>
-            </div>
-            <div class="modal-btns">
-                <button class="btn btn-main" onclick="confirmSave(true)">要，記住</button>
-                <button class="btn btn-grey" onclick="confirmSave(false)">不需要</button>
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="time">時間工具</button>
+            <button class="filter-btn" data-filter="color">螢幕工具</button>
+            <button class="filter-btn" data-filter="productivity">生產力</button>
+            <button class="filter-btn" data-filter="creative">創意工具</button>
+            <button class="filter-btn" data-filter="member">會員專屬/升級程式</button>
+            
+            <div class="search-box">
+                <input type="search" class="search-input" id="searchInput" placeholder="搜尋工具名稱…" aria-label="搜尋工具名稱">
             </div>
         </div>
-    </div>
 
+        <div class="app-grid">
+            <a href="/app/markdown" class="app-card" data-category="productivity creative">
+                <div class="app-icon">💻</div>
+                <h3>Markdown 編輯器</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/app/ip" class="app-card" data-category="productivity creative">
+                <div class="app-icon">📡</div>
+                <h3>IP 位置查詢</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/app/sboard" class="app-card" data-category="color creative">
+                <div class="app-icon">🔢</div>
+                <h3>計分板</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-color">螢幕工具</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/app/qreditor" class="app-card" data-category="productivity creative">
+                <div class="app-icon">🔳</div>
+                <h3>QRCode & 條碼製作工具</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/tool/time.ing" class="app-card" data-category="time productivity">
+                <div class="app-icon">🕒</div>
+                <h3>計時器</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-time">時間工具</span>
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
+            </a>
+            <a href="/app/grade_calculator" class="app-card" data-category="productivity creative">
+                <div class="app-icon">🧮</div>
+                <h3>學期成績計算</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/tool/pomodoro" class="app-card" data-category="productivity time">
+                <div class="app-icon">⏱️</div>
+                <h3>新版番茄鐘</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-time">時間工具</span>
+                </div>
+            </a>
+            <a href="/tool/time" class="app-card" data-category="time color">
+                <div class="app-icon">🕒</div>
+                <h3>現在時間</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-time">時間工具</span>
+                    <span class="app-tag tag-color">螢幕工具</span>
+                </div>
+            </a>
+            <a href="/tool/fullscreen" class="app-card" data-category="color">
+                <div class="app-icon">🎨</div>
+                <h3>全螢幕顏色</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-color">螢幕工具</span>
+                </div>
+            </a>
+            <a href="/tool/classroom" class="app-card" data-category="productivity">
+                <div class="app-icon">🧑‍🏫</div>
+                <h3>抽號器</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
+            </a>
+            <a href="/app/note" class="app-card" data-category="member productivity">
+                <div class="app-icon">📓</div>
+                <h3>加密雲端筆記</h3>
+                <p><span style="color:#ff4d4d;">會員限定</span></p>
+                <div class="app-tags">
+                    <span class="app-tag tag-member">會員專屬程式</span>
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
+            </a>
+            <a href="/app/editor" class="app-card" data-category="member productivity">
+                <div class="app-icon">💻</div>
+                <h3>HTML Editor</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-member">會員升級程式</span>
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
+            </a>
+            <a href="/app/marquee" class="app-card" data-category="color creative">
+                <div class="app-icon">📢</div>
+                <h3>跑馬燈</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-color">螢幕工具</span>
+                    <span class="app-tag tag-creative">創意工具</span>
+                </div>
+            </a>
+            <a href="/tool/pomodoro_technique" class="app-card" data-category="productivity time">
+                <div class="app-icon">⏱️</div>
+                <h3>番茄鐘</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                    <span class="app-tag tag-time">時間工具</span>
+                </div>
+            </a>
+            <a href="/app/r_c-timer" class="app-card" data-category="time">
+                <div class="app-icon">🧩</div>
+                <h3>魔方計時器</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-time">時間工具</span>
+                </div>
+            </a>
+            <a href="/tool/word_counter" class="app-card" data-category="productivity">
+                <div class="app-icon">✍️</div>
+                <h3>字數計算器</h3>
+                <div class="app-tags">
+                    <span class="app-tag tag-productivity">生產力</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <script type="module" src="navbar.js" defer></script>
     <script>
-        let timeLeft = 5;
-        let redirectUrl = "home.html";
-        let langName = "繁體中文";
-        let timer;
-        let pendingUrl = ""; // 暫存使用者點選的網址
-        const STORAGE_KEY = 'lan_studio_lang_pref';
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const appCards = document.querySelectorAll('.app-card');
+        const searchInput = document.getElementById('searchInput');
+        let currentFilter = 'all';
 
-        function stopTimer() { 
-            clearInterval(timer); 
-            document.querySelector('.auto-redirect-tip').style.display = 'none';
-        }
+        function filterAndSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
 
-        // 點擊語言按鈕
-        function handleLangClick(url) {
-            stopTimer();
-            pendingUrl = url;
-            const modal = document.getElementById('custom-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.style.opacity = '1', 10);
-        }
+            appCards.forEach(card => {
+                // 修正重點：將 data-category 字串轉換為陣列，並去除可能的多餘空白
+                const categories = card.getAttribute('data-category').split(/\s+/);
+                const title = card.querySelector('h3').textContent.toLowerCase();
 
-        // 彈窗按下後的處理
-        function confirmSave(shouldSave) {
-            if (shouldSave) {
-                localStorage.setItem(STORAGE_KEY, pendingUrl);
-            }
-            window.location.href = pendingUrl;
-        }
-
-        async function init() {
-            // 檢查是否帶有 #rechoose 強制重選
-            if (window.location.hash === '#rechoose') {
-                localStorage.removeItem(STORAGE_KEY);
-                document.getElementById('geo-status').innerText = "已重置偏好，請重新選擇";
-                history.replaceState(null, null, ' '); // 移除網址上的 #rechoose
-                startDetection();
-                return;
-            }
-
-            // 檢查是否有預設紀錄
-            const savedLang = localStorage.getItem(STORAGE_KEY);
-            if (savedLang) {
-                document.getElementById('geo-status').innerText = "套用偏好設定中...";
-                window.location.replace(savedLang);
-                return;
-            }
-
-            startDetection();
-        }
-
-        async function startDetection() {
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
+                // 檢查分類篩選：如果是 'all' 或 陣列中包含目前的標籤
+                const categoryMatch = currentFilter === 'all' || categories.includes(currentFilter);
                 
-                if (['TW', 'HK', 'MO'].includes(data.country_code)) {
-                    redirectUrl = "home.html";
-                    langName = "繁體中文頁面";
+                // 檢查搜尋條件
+                const searchMatch = searchTerm === '' || title.includes(searchTerm);
+
+                // 兩者皆符合則顯示
+                if (categoryMatch && searchMatch) {
+                    card.classList.remove('hidden');
                 } else {
-                    redirectUrl = "/en/home.html";
-                    langName = "English Page";
+                    card.classList.add('hidden');
                 }
-                
-                document.getElementById('geo-status').innerText = `偵測區域：${data.country_name || data.country_code}`;
-            } catch (error) {
-                document.getElementById('geo-status').innerText = "系統就緒，準備進入";
-            } finally {
-                document.getElementById('target-lang').innerText = langName;
-                startCountdown();
-            }
+            });
         }
 
-        function startCountdown() {
-            const countdownEl = document.getElementById('countdown');
-            timer = setInterval(() => {
-                timeLeft--;
-                if (countdownEl) countdownEl.innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    window.location.replace(redirectUrl);
-                }
-            }, 1000);
-        }
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentFilter = btn.getAttribute('data-filter');
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterAndSearch();
+            });
+        });
 
-        init();
+        searchInput.addEventListener('input', () => {
+            filterAndSearch();
+        });
     </script>
 </body>
 </html>

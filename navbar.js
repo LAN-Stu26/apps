@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import "./clean-urls.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCjG4P9ZNX2OYOdXw69oFboPoilvAZLG_Q",
@@ -176,108 +177,50 @@ const style = `
     .footer-top { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; }
     .ai-notice { font-size: 0.9rem; text-align: right; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; animation: shine 4s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
     .ai-notice-navbar { font-weight: bold; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #f3af5f, #4285f4) 0% center / 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; } @keyframes shine { to { background-position: 200% center; } }
-
-    /* 預設隱藏子內容 */
-    .nested-content {
-        display: none;
-        background-color: #222; /* 稍微深一點的顏色區隔 */
-        padding-left: 10px;    /* 縮排視覺效果 */
-    }
-
-    /* 當父層有 active 類別時顯示 */
-    .nested-dropdown.active .nested-content {
-        display: block;
-        animation: fadeInDown 0.3s ease;
-    }
-
-    /* 選項箭頭動畫 (可選) */
-    .nested-toggle::after {
-        transition: transform 0.3s;
-        display: inline-block;
-    }
-
 </style>
 `;
 
 // 3. HTML 生成
 const navbarHTML = `
 <nav id="custom-navbar">
-    <a href="/home.html" class="logo">LAN Studio</a>
+    <a href="/" class="logo">LAN Studio</a>
     <ul id="nav-list">
-        <li><a href="/home.html"><b>首頁</b></a></li>
+        <li><a href="/"><b>首頁</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>網頁應用程式 ▾</b></span>
+            <span class="dropbtn"><b>工具 ▾</b></span>
             <div class="dropdown-content">
-                <a href="/apps.html"><b>所有網頁程式</b></a>
-                <a href="/lan.appstore.html"><b>網頁程式商店</b></a>
-        
-                <div class="nested-dropdown">
-                    <a href="#" class="nested-toggle"><b>最新網頁應用 ▾</b></a>
-                    <div class="nested-content">
-                        <a href="/app/markdown.html"><b>Markdown 編輯器</b></a>
-                        <a href="/app/ip.html"><b>IP 位置查詢</b></a>
-                        <a href="/app/sboard.html"><b>計分板</b></a>
-                    </div>
-                </div>
-
-                <a href="/lanai/home.html" class="ai-notice-navbar"><b>LanAi</b></a>
-
+                <a href="/apps"><b>所有工具</b></a>
+                <a href="/lan.appstore"><b>網頁應用程式商店</b></a>
+                <a href="/app/qreditor"><b>QR Code 與條碼工具</b></a>
+                <a href="/tool/time.ing"><b>計時器</b></a>
+                <a href="/app/grade_calculator"><b>學期成績計算</b></a>
             </div>
         </li>
-        <li><a href="/news.html"><b>最新消息</b></a></li>
+        <li><a href="/news"><b>最新消息</b></a></li>
         <li class="dropdown">
-            <span class="dropbtn"><b>會員專屬/升級程式 ▾</b></span>
+            <span class="dropbtn"><b>會員工具 ▾</b></span>
             <div class="dropdown-content">
-                <a href="#"  class="ai-notice-navbar">會員專屬▾▾▾</a>
-                <a href="/app/note.html"><b>加密雲端筆記</b></a>
-                <a href="#"  class="ai-notice-navbar">體驗升級!!!▾▾▾</a>
-                <a href="/app/editor.html"><b>Html Editor</b></a>
+                <a href="/app/note"><b>加密雲端筆記</b></a>
+                <a href="/app/editor"><b>HTML 編輯器</b></a>
             </div>
         </li>
         <li class="dropdown">
-            <span class="dropbtn"><b>關於本站 ▾</b></span>
+            <span class="dropbtn"><b>關於 ▾</b></span>
             <div class="dropdown-content">
                 <a href="https://github.com/LAN-Stu26/apps" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Github</b></a>
-                <a href="/update.news.html"><b>更新日誌</b></a>
-
-                <div class="nested-dropdown">
-                    <a href="#" class="nested-toggle"><b>服務 ▾</b></a>
-                    <div class="nested-content">
-                        <a href="https://lan.x10.network" target="_blank"><b style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> LAN Network</b></a>
-                        <a href="/cooperate.html"><b>合作商家</b></a>
-                        <a href="/site/Privacy_Policy.html"><b>隱私權政策</b></a>
-                    </div>
-                </div>
-
-                <div class="nested-dropdown">
-                    <a href="#" class="nested-toggle"><b>所有表單 ▾</b></a>
-                    <div class="nested-content">
-                        <a href="/form/help_us.html"><b>幫助我們</b></a>
-                        <a href="/form/improve-website.html"><b>改善表單</b></a>
-                        <a href="/form/partner-with-us.html"><b>合作表單</b></a>
-                    </div>
-                </div>
-
+                <a href="/update.news"><b>更新紀錄</b></a>
+                <a href="/form/help_us"><b>協助我們</b></a>
+                <a href="/form/improve-website"><b>網站回饋</b></a>
             </div>
         </li>
         <li id="auth-area" class="dropdown">
-            <a id="login-btn">載入中...</a>
+            <a id="login-btn">載入中…</a>
         </li>
         <li>
             <button class="fav-nav-btn" id="fav-btn" title="收藏此頁">❤</button>
         </li>
         <li>
             <button class="search-nav-btn" id="search-nav-btn" title="搜尋網站"></button>
-        </li>
-        <li class="dropdown">
-            <span class="dropbtn" style="padding: 10px;">
-                <div class="lang-sphere"></div>
-            </span>
-            <div class="dropdown-content">
-                <a href="/home.html"><b>繁體中文</b></a>
-                <a href="/en/home.html"><b>English</b></a>
-                <a href="/index.html#rechoose"><b>清除語言設定</b></a>
-            </div>
         </li>
     </ul>
     <div class="menu-toggle" id="mobile-menu-btn">
@@ -286,78 +229,39 @@ const navbarHTML = `
 </nav>
 
 <div id="announcement-bar">
-    <div class="bar-content">📢 技術困難，請幫助我們!</div>
+    <div class="bar-content">📢 歡迎提供建議，協助 LAN Studio 持續改進。</div>
     <div class="bar-actions">
-        <a href="/news.html" class="btn-bar-go">NEWS</a>
+        <a href="/form/help_us" class="btn-bar-go">提供建議</a>
         <button class="btn-bar-close" id="close-bar">×</button>
     </div>
 </div>
 `;
 
 let pageTitle = document.title.split('-')[0].trim();
-const isHomePage = window.location.pathname.match(/\/($|home$|home\.html$)/) !== null;
-const breadcrumbContent = isHomePage ? `首頁` : `<a href="/home.html" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> > ${pageTitle}`;
+const isHomePage = window.location.pathname === '/';
+const breadcrumbContent = isHomePage ? `首頁` : `<a href="/" style="color:inherit; text-decoration:none; opacity:0.7;">首頁</a> › <a href="/apps" style="color:inherit; text-decoration:none; opacity:0.7;">所有工具</a> › ${pageTitle}`;
 
 const footerHTML = `
 <footer id="custom-footer">
     <div class="footer-top">
         <div class="breadcrumb-box">
-            <h4 style="margin:0; font-size:0.85rem; color: #aaa;">您現在位置...</h4>
+            <h4 style="margin:0; font-size:0.85rem; color: #aaa;">目前位置</h4>
             <p style="margin:5px 0 0 0; font-size:1.1rem; font-weight:bold;">${breadcrumbContent}</p>
         </div>
-        <div class="ai-notice">Studio JS v3.0 <br> 所有頁面皆由 AI 生成</div>
+        <div class="ai-notice">LAN Studio</div>
     </div>
-    <div style="text-align:center; color: #aaa; border-top:1px solid #222; padding-top:20px; margin-top:20px;"><b>
-        <a href="#" style="color: #aaa; text-decoration:none; margin: 0 10px;">回到頂端</a> |
-        <a href="https://lan.x10.network" target="_blank" style="color: #aaa; text-decoration:none; margin: 0 10px;"><style="display:flex; align-items:center; gap:6px;"><svg style="width:16px; height:16px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> LAN Network</a> |
-        <a href="/site/Privacy_Policy.html" style="color: #aaa; text-decoration:none; margin: 0 10px;">隱私權政策</a></b>
+    <div style="text-align:center; color: #aaa; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
+        <a href="#" style="color: #aaa; text-decoration:none; margin: 0 10px;"><b>回到頂端</b></a> |
+        <a href="/form/improve-website" style="color: #aaa; text-decoration:none; margin: 0 10px;">網站回饋</a> |
+        <a href="/update.news" style="color: #aaa; text-decoration:none; margin: 0 10px;">更新紀錄</a>
     </div>
-    <div style="text-align:center; font-size:0.85rem; color: #555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">
-        <div id="visitor-counter" style="color: #888; padding-bottom: 20px; font-size: 0.9rem;">瀏覽人數：載入中...</div>
-        ©2026 LAN Studio 版權所有
-    </div>
+    <div style="text-align:center; font-size:0.85rem; color: #555; border-top:1px solid #222; padding-top:20px; margin-top:20px;">©2026 LAN Studio all rights reserved</div>
 </footer>
 `;
 
 document.head.insertAdjacentHTML('beforeend', style);
 document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 document.body.insertAdjacentHTML('beforeend', footerHTML);
-
-// --- 瀏覽人數統計 ---
-async function recordAndDisplayVisitorCount() {
-    const counterElement = document.getElementById('visitor-counter');
-    if (!counterElement) return;
-
-    try {
-        // 透過 public API 獲取使用者 IP
-        const response = await fetch('https://api.ipify.org?format=json');
-        if (response.ok) {
-            const data = await response.json();
-            const userIp = data.ip;
-
-            // 以 IP 作為文檔 ID，確保訪客唯一性
-            if (userIp) {
-                const visitorRef = doc(db, "visitors", userIp);
-                // 使用 setDoc 和 merge 來新增紀錄或更新最後訪問時間
-                await setDoc(visitorRef, { lastVisit: new Date() }, { merge: true });
-            }
-        }
-    } catch (error) {
-        console.warn("無法記錄訪客IP:", error);
-    }
-    
-    // 總是嘗試獲取並顯示總數
-    try {
-        const visitorsCollection = collection(db, "visitors");
-        const snapshot = await getDocs(visitorsCollection);
-        counterElement.textContent = `瀏覽人數：${snapshot.size}`;
-    } catch (error) {
-        console.error("無法獲取瀏覽人數:", error);
-        counterElement.textContent = "瀏覽人數：無法取得";
-    }
-}
-
-recordAndDisplayVisitorCount();
 
 // 4. 互動邏輯
 const menuBtn = document.getElementById('mobile-menu-btn');
@@ -387,22 +291,6 @@ if (menuBtn) {
     });
 }
 
-// 處理巢狀選單收合
-document.querySelectorAll('.nested-toggle').forEach(toggle => {
-    toggle.addEventListener('click', (e) => {
-        e.preventDefault(); // 防止連結跳轉
-        e.stopPropagation(); // 防止觸發父層 dropdown 的關閉機制
-        
-        const parent = toggle.closest('.nested-dropdown');
-        parent.classList.toggle('active');
-        
-        // 如果你希望「一次只能打開一個子收合」，可以加入以下：
-        // document.querySelectorAll('.nested-dropdown').forEach(d => {
-        //    if(d !== parent) d.classList.remove('active');
-        // });
-    });
-});
-
 document.addEventListener('click', () => {
     if(navList.classList.contains('active')){
         navList.classList.remove('active');
@@ -422,7 +310,7 @@ document.querySelectorAll('.dropdown').forEach(dd => {
 const searchNavBtn = document.getElementById('search-nav-btn');
 if (searchNavBtn) {
     searchNavBtn.addEventListener('click', () => {
-        window.location.href = '/search.html';
+        window.location.href = '/search';
     });
 }
 
@@ -453,11 +341,11 @@ async function updateFavList(user) {
     });
 
     listContainer.innerHTML = favorites.length === 0
-        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none; text-align:center;">空空如也</a>'
+        ? '<a style="color:#666 !important; font-size:0.8rem !important; pointer-events:none; text-align:center;">Empty</a>'
         : favorites.map(fav => `
             <div class="fav-item" draggable="true" data-id="${fav.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:grab;">
                 <a href="${fav.path}" style="flex-grow:1; padding: 12px 0 12px 16px !important; border-bottom:none;"><b>⭐ ${fav.name}</b></a>
-                <span class="delete-fav" data-id="${fav.id}" title="移除收藏" style="cursor:pointer; padding: 12px 16px; font-size:1.2rem; color:#888;">×</span>
+                <span class="delete-fav" data-id="${fav.id}" title="Remove from favorites" style="cursor:pointer; padding: 12px 16px; font-size:1.2rem; color:#888;">×</span>
             </div>
         `).join('');
 
@@ -492,7 +380,7 @@ async function updateFavList(user) {
             e.stopPropagation();
             const favId = btn.getAttribute('data-id');
             const favName = btn.previousElementSibling.textContent.trim().substring(2);
-            if (confirm(`確定要從收藏中移除 "${favName}" 嗎？`)) {
+            if (confirm(`Are you sure you want to remove "${favName}" from favorites?`)) {
                 deleteFavorite(user, favId);
             }
         };
@@ -567,22 +455,21 @@ onAuthStateChanged(auth, (user) => {
                 <img src="${user.photoURL}" style="width:35px; height:35px; border-radius:50%; border:2px solid #ffd966;">
             </div>
             <div class="dropdown-content">
-                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || '會員'}</b></a>
+                <a style="color:#ffd966 !important; pointer-events:none; border-bottom:1px solid #333;"><b>Hi, ${user.displayName || 'Member'}</b></a>
                 <div style="background:#000; padding: 8px 15px; font-size:0.75rem; color:#888; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222;">
-                    我的收藏
-                    <span style="font-size:0.7rem; opacity:0.6;">可拖曳"X"以排序或刪除</span>
+                    My Favorites
+                    <span style="font-size:0.7rem; opacity:0.6;">Drag "X" to sort or delete</span>
                 </div>
                 <div id="fav-list-container">
-                    <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">讀取中...</a>
+                    <a style="color:#666 !important; font-size:0.8rem !important; text-align:center;">Loading...</a>
                 </div>
-                <a href="/site/account.html"><b>進階設定</b></a>
-                <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>登出</b></a>
+                <a id="logout-btn" style="cursor:pointer; border-top:1px solid #333;"><b>Logout</b></a>
             </div>
         `;
         
         updateFavList(user);
         favBtn.onclick = () => toggleFavorite(user);
-        document.getElementById('logout-btn').onclick = () => { if(confirm("確定要登出嗎？")) signOut(auth); };
+        document.getElementById('logout-btn').onclick = () => { if(confirm("Are you sure you want to logout?")) signOut(auth); };
 
         const favRef = doc(db, "users", user.uid, "favorites", safeId);
         getDoc(favRef).then(snap => {
@@ -597,7 +484,7 @@ onAuthStateChanged(auth, (user) => {
 
     } else {
         favBtn.style.display = 'none';
-        area.innerHTML = `<a id="login-btn"><b>Google 登入</b></a>`;
+        area.innerHTML = `<a id="login-btn"><b>Login</b></a>`;
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
     }
 });

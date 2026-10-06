@@ -66,19 +66,6 @@
             line-height: 1.6;
         }
 
-        .countdown-text {
-            font-size: 1.1rem;
-            color: #95a5a6;
-            margin-bottom: 30px;
-        }
-
-        #timer {
-            color: var(--accent-blue);
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin: 0 5px;
-        }
-
         .button-group {
             display: flex;
             gap: 15px;
@@ -123,6 +110,7 @@
             .back-home, .go-search { text-align: center; }
         }
     </style>
+<script src="/clean-urls.js" defer></script>
 </head>
 <body>
 
@@ -136,39 +124,43 @@
             由於此頁被診斷為 <strong>不必要網頁</strong>，因此刪除此頁面。
         </div>
 
-        <p class="countdown-text">
-            系統將在 <span id="timer">5</span> 秒後自動帶您返回首頁
-        </p>
-
         <div class="button-group">
-            <a href="/home.html" class="back-home">立即返回首頁</a>
-            <a href="/search.html" class="go-search">或搜尋網站</a>
+            <a href="/" class="back-home">立即返回首頁</a>
+            <a href="/search" class="go-search">或搜尋網站</a>
         </div>
     </div>
+
+    <script>
+        (async () => {
+            const path = window.location.pathname;
+            if (path === '/' || path.endsWith('.html')) return;
+
+            const filePath = path.endsWith('/') ? `${path}index.html` : `${path}.html`;
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) return;
+
+                const html = await response.text();
+                const basePath = path.endsWith('/') ? path : path.slice(0, path.lastIndexOf('/') + 1);
+                const page = html.replace(/<head([^>]*)>/i, `<head$1><base href="${basePath}">`);
+                document.open();
+                document.write(page);
+                document.close();
+            } catch (error) {
+                console.error('Could not load the requested page.', error);
+            }
+        })();
+    </script>
 
     <script type="module" src="/navbar.js"></script>
 
     <script>
-        // 判斷是否為 download.html 並顯示原因
+        // 判斷是否為下載頁面並顯示原因
         const currentPath = window.location.pathname;
-        if (currentPath.includes('download.html')) {
+        if (currentPath.includes('download')) {
             document.getElementById('download-reason').style.display = 'block';
         }
 
-        let seconds = 5;
-        const countdownElement = document.getElementById('timer');
-
-        const interval = setInterval(() => {
-            seconds--;
-            if (countdownElement) {
-                countdownElement.innerText = seconds;
-            }
-
-            if (seconds <= 0) {
-                clearInterval(interval);
-                window.location.href = '/home.html';
-            }
-        }, 1000);
     </script>
 </body>
 </html>

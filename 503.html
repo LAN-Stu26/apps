@@ -123,6 +123,7 @@
             .back-home, .go-search { text-align: center; }
         }
     </style>
+<script src="/clean-urls.js" defer></script>
 </head>
 <body>
 
@@ -137,8 +138,8 @@
         </p>
 
         <div class="button-group">
-            <a href="/home.html" class="back-home">立即返回首頁</a>
-            <a href="/search.html" class="go-search">或搜尋網站</a>
+            <a href="/" class="back-home">立即返回首頁</a>
+            <a href="/search" class="go-search">或搜尋網站</a>
         </div>
     </div>
 
@@ -157,7 +158,7 @@
 
             if (seconds <= 0) {
                 clearInterval(interval);
-                window.location.href = '/home.html';
+                window.location.href = '/';
             }
         }, 1000);
     </script>

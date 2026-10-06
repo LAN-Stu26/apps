@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="LAN Studio - Python App Store">
@@ -254,15 +254,16 @@
             font-weight: bold;
         }
     </style>
+<script src="/clean-urls.js" defer></script>
 </head>
 <body>
 
     <div id="navbar-container"></div>
 
     <header class="hero-header">
-        <img src="圖片/Rainy_day_bokeh_background.png" alt="Banner" class="hero-image">
+        <img src="/圖片/Rainy_day_bokeh_background.png" alt="Banner" class="hero-image">
         <div class="hero-title-box">
-            <h1 class="hero-title">Python 應用商店</h1>
+            <h1 class="hero-title">Python App Store</h1>
             <div class="hero-subtitle">LAN Studio App Store</div>
         </div>
     </header>
@@ -271,7 +272,7 @@
         
         <section class="download-group">
             <div class="requirement-notice">
-                <p class="requirement-text">⚠️ 提示：所有 Python 檔案皆需要 <b>Python 3.14.3</b> 環境執行。</p>
+                <p class="requirement-text">⚠️ Notice: All Python files require <b>Python 3.14.3</b> environment to run.</p>
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <a href="https://www.python.org/downloads/" target="_blank">
                         <b style="display:flex; align-items:center; gap:6px;">
@@ -280,7 +281,7 @@
                                 <polyline points="15 3 21 3 21 9"></polyline>
                                 <line x1="10" y1="14" x2="21" y2="3"></line>
                             </svg> 
-                            前往官方網站下載
+                            Go to the official website to download
                         </b>
                     </a>
                     <a href="https://play.google.com/store/apps/details?id=ru.iiec.pydroid3&pcampaignid=web_share" target="_blank">
@@ -290,49 +291,43 @@
                                 <polyline points="15 3 21 3 21 9"></polyline>
                                 <line x1="10" y1="14" x2="21" y2="3"></line>
                             </svg> 
-                            Google Play 推薦執行程式
+                            Google Play Recommended Execution App
                         </b>
                     </a>
                 </div>
             </div>
 
-            <h2 class="section-title">🐍 Python 工具與腳本</h2>
+            <h2 class="section-title">🐍 Python Tools & Scripts</h2>
             <div id="app-list" class="file-grid">
-                <div style="color: gray; padding: 20px;">載入中...</div>
+                <div style="color: gray; padding: 20px;">Loading...</div>
             </div>
         </section>
 
     </div>
 
-    <script type="module" src="navbar.js" defer></script>
+    <script type="module" src="/navbar.js" defer></script>
     
     <script>
         // 定義應用程式資料
         const appsData = {
-            "ip 查詢工具": {
-                "name": "IP 查詢工具",
-                "version": "3.0",
-                "filename": "ip 查詢工具.py",
-                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/ip 查詢工具.py",
+            "Website crawler tools": {
+                "name": "Website crawler tools",
+                "version": "1.0",
+                "filename": "Website crawler tools.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Website crawler tools.py",
                 "isNew": true
             },
-            "網站爬蟲工具": {
-                "name": "網站爬蟲工具",
+            "Guess the number": {
+                "name": "Guess the number",
                 "version": "1.0",
-                "filename": "網站爬蟲工具.py",
-                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/網站爬蟲工具.py",
+                "filename": "Guess the number.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Guess the number.py",
             },
-            "猜數字": {
-                "name": "猜數字",
+            "Semester grade calculation": {
+                "name": "Semester grade calculation",
                 "version": "1.0",
-                "filename": "猜數字.py",
-                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/猜數字.py",
-            },
-            "學期成績計算": {
-                "name": "學期成績計算",
-                "version": "1.0",
-                "filename": "學期成績計算.py",
-                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/學期成績計算.py"
+                "filename": "Semester grade calculation.py",
+                "url": "https://github.com/LAN-Stu26/apps/blob/main/python/Semester grade calculation.py"
             }
         };
 
@@ -367,22 +362,22 @@
                 const app = appsData[key];
                 const installedVersion = installedApps[app.name];
                 
-                let btnText = "下載";
+                let btnText = "download";
                 let btnClass = "btn-download";
-                let statusInfo = `最新版本: v${app.version}`;
+                let statusInfo = `latest version: v${app.version}`;
 
                 // 判斷狀態
                 if (installedVersion) {
                     if (installedVersion === app.version) {
                         // 已安裝且是最新版 註:幾何遊戲幫助改善
-                        btnText = "(曾經)安裝過";
+                        btnText = "(Previously) Installed";
                         btnClass = "btn-installed";
-                        statusInfo = `已安裝: v${installedVersion}`;
+                        statusInfo = `Installed: v${installedVersion}`;
                     } else if (compareVersions(app.version, installedVersion) > 0) {
                         // 伺服器版本較新
-                        btnText = "有新版本";
+                        btnText = "New version available";
                         btnClass = "btn-update";
-                        statusInfo = `目前: v${installedVersion} ➜ 新版: v${app.version}`;
+                        statusInfo = `at present: v${installedVersion} ➜ new version: v${app.version}`;
                     }
                 }
 
@@ -392,7 +387,7 @@
                 
                 let latestBadge = '';
                 if (app.isNew) {
-                    latestBadge = `<span class="badge-latest">最新</span>`;
+                    latestBadge = `<span class="badge-latest">Latest</span>`;
                 }
 
                 item.innerHTML = `
@@ -420,8 +415,8 @@
         // 處理下載邏輯
         async function handleDownload(app, currentStatus) {
             // 如果(曾經)安裝過，詢問是否重新下載 (避免誤觸)
-            if (currentStatus === "(曾經)安裝過") {
-                if(!confirm(`您已擁有最新版本的 ${app.name}，確定要重新下載嗎？`)) return;
+            if (currentStatus === "(Previously) Installed") {
+                if(!confirm(`You already have the latest version of ${app.name}, are you sure you want to re-download it?`)) return;
             }
 
             try {
@@ -458,7 +453,7 @@
 
             } catch (error) {
                 console.error('Download failed:', error);
-                alert("下載失敗，請檢查網路連線或稍後再試。");
+                alert("Download failed, please check your network connection or try again later.");
             }
         }
     </script>

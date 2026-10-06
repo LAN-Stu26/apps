@@ -2,10 +2,10 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="LAN Studio - 所有工具">
+    <meta name="description" content="快速搜尋並開啟 LAN Studio 的線上工具。">
     <meta property="og:title" content="LAN Studio | 所有工具">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>所有工具 - LAN Studio</title>
+    <title>LAN Studio｜快速開啟工具</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,16 +34,23 @@
 
         .container {
             max-width: 1200px;
-            margin: 50px auto;
-            padding: 0 30px;
+            margin: 36px auto;
+            padding: 0 24px;
         }
 
         .section-title {
             text-align: center; 
-            font-size: 2.5rem;
-            margin-bottom: 40px; 
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            margin: 0 0 12px;
             color: var(--primary-dark);
-            letter-spacing: 3px;
+            letter-spacing: 1px;
+        }
+
+        .section-intro {
+            color: #aeb6bf;
+            text-align: center;
+            margin: 0 0 28px;
+            line-height: 1.6;
         }
 
         /* --- 分類篩選器樣式 --- */
@@ -52,7 +59,7 @@
             justify-content: center;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 40px;
+            margin-bottom: 28px;
             align-items: center;
         }
 
@@ -184,10 +191,12 @@
             .app-tag { font-size: 0.65rem; padding: 3px 10px; }
         }
     </style>
+<script src="/clean-urls.js" defer></script>
 </head>
 <body>
     <div class="container">
-        <h1 class="section-title">所有工具</h1>
+        <h1 class="section-title">找到工具，立即開始</h1>
+        <p class="section-intro">搜尋名稱或選擇分類，快速開啟你需要的工具。</p>
         
         <div class="filter-container">
             <button class="filter-btn active" data-filter="all">全部</button>
@@ -198,12 +207,12 @@
             <button class="filter-btn" data-filter="member">會員專屬/升級程式</button>
             
             <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="搜尋工具名稱...">
+                <input type="search" class="search-input" id="searchInput" placeholder="搜尋工具名稱…" aria-label="搜尋工具名稱">
             </div>
         </div>
 
         <div class="app-grid">
-            <a href="/app/markdown.html" class="app-card" data-category="productivity creative">
+            <a href="/app/markdown" class="app-card" data-category="productivity creative">
                 <div class="app-icon">💻</div>
                 <h3>Markdown 編輯器</h3>
                 <div class="app-tags">
@@ -211,7 +220,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/app/ip.html" class="app-card" data-category="productivity creative">
+            <a href="/app/ip" class="app-card" data-category="productivity creative">
                 <div class="app-icon">📡</div>
                 <h3>IP 位置查詢</h3>
                 <div class="app-tags">
@@ -219,7 +228,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/app/sboard.html" class="app-card" data-category="color creative">
+            <a href="/app/sboard" class="app-card" data-category="color creative">
                 <div class="app-icon">🔢</div>
                 <h3>計分板</h3>
                 <div class="app-tags">
@@ -227,7 +236,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/app/qreditor.html" class="app-card" data-category="productivity creative">
+            <a href="/app/qreditor" class="app-card" data-category="productivity creative">
                 <div class="app-icon">🔳</div>
                 <h3>QRCode & 條碼製作工具</h3>
                 <div class="app-tags">
@@ -235,7 +244,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/tool/time.ing.html" class="app-card" data-category="time productivity">
+            <a href="/tool/time.ing" class="app-card" data-category="time productivity">
                 <div class="app-icon">🕒</div>
                 <h3>計時器</h3>
                 <div class="app-tags">
@@ -243,7 +252,7 @@
                     <span class="app-tag tag-productivity">生產力</span>
                 </div>
             </a>
-            <a href="/app/grade_calculator.html" class="app-card" data-category="productivity creative">
+            <a href="/app/grade_calculator" class="app-card" data-category="productivity creative">
                 <div class="app-icon">🧮</div>
                 <h3>學期成績計算</h3>
                 <div class="app-tags">
@@ -251,7 +260,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/tool/pomodoro.html" class="app-card" data-category="productivity time">
+            <a href="/tool/pomodoro" class="app-card" data-category="productivity time">
                 <div class="app-icon">⏱️</div>
                 <h3>新版番茄鐘</h3>
                 <div class="app-tags">
@@ -259,7 +268,7 @@
                     <span class="app-tag tag-time">時間工具</span>
                 </div>
             </a>
-            <a href="/tool/time.html" class="app-card" data-category="time color">
+            <a href="/tool/time" class="app-card" data-category="time color">
                 <div class="app-icon">🕒</div>
                 <h3>現在時間</h3>
                 <div class="app-tags">
@@ -267,21 +276,21 @@
                     <span class="app-tag tag-color">螢幕工具</span>
                 </div>
             </a>
-            <a href="/tool/fullscreen.html" class="app-card" data-category="color">
+            <a href="/tool/fullscreen" class="app-card" data-category="color">
                 <div class="app-icon">🎨</div>
                 <h3>全螢幕顏色</h3>
                 <div class="app-tags">
                     <span class="app-tag tag-color">螢幕工具</span>
                 </div>
             </a>
-            <a href="/tool/classroom.html" class="app-card" data-category="productivity">
+            <a href="/tool/classroom" class="app-card" data-category="productivity">
                 <div class="app-icon">🧑‍🏫</div>
                 <h3>抽號器</h3>
                 <div class="app-tags">
                     <span class="app-tag tag-productivity">生產力</span>
                 </div>
             </a>
-            <a href="/app/note.html" class="app-card" data-category="member productivity">
+            <a href="/app/note" class="app-card" data-category="member productivity">
                 <div class="app-icon">📓</div>
                 <h3>加密雲端筆記</h3>
                 <p><span style="color:#ff4d4d;">會員限定</span></p>
@@ -290,7 +299,7 @@
                     <span class="app-tag tag-productivity">生產力</span>
                 </div>
             </a>
-            <a href="/app/editor.html" class="app-card" data-category="member productivity">
+            <a href="/app/editor" class="app-card" data-category="member productivity">
                 <div class="app-icon">💻</div>
                 <h3>HTML Editor</h3>
                 <div class="app-tags">
@@ -298,7 +307,7 @@
                     <span class="app-tag tag-productivity">生產力</span>
                 </div>
             </a>
-            <a href="/app/marquee.html" class="app-card" data-category="color creative">
+            <a href="/app/marquee" class="app-card" data-category="color creative">
                 <div class="app-icon">📢</div>
                 <h3>跑馬燈</h3>
                 <div class="app-tags">
@@ -306,7 +315,7 @@
                     <span class="app-tag tag-creative">創意工具</span>
                 </div>
             </a>
-            <a href="/tool/pomodoro_technique.html" class="app-card" data-category="productivity time">
+            <a href="/tool/pomodoro_technique" class="app-card" data-category="productivity time">
                 <div class="app-icon">⏱️</div>
                 <h3>番茄鐘</h3>
                 <div class="app-tags">
@@ -314,14 +323,14 @@
                     <span class="app-tag tag-time">時間工具</span>
                 </div>
             </a>
-            <a href="/app/r_c-timer.html" class="app-card" data-category="time">
+            <a href="/app/r_c-timer" class="app-card" data-category="time">
                 <div class="app-icon">🧩</div>
                 <h3>魔方計時器</h3>
                 <div class="app-tags">
                     <span class="app-tag tag-time">時間工具</span>
                 </div>
             </a>
-            <a href="/tool/word_counter.html" class="app-card" data-category="productivity">
+            <a href="/tool/word_counter" class="app-card" data-category="productivity">
                 <div class="app-icon">✍️</div>
                 <h3>字數計算器</h3>
                 <div class="app-tags">
